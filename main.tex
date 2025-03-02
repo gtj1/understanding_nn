@@ -9,6 +9,8 @@
 \usepackage{tikz}
 \usepackage{pgfplots}
 \usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
 
 \usepackage{tcolorbox} % box制作基本宏包
 \usepackage{varwidth} % box宽度设置需要
@@ -40,8 +42,8 @@
     }
 }
 \newcommand{\emptyline}{\vspace{\baselineskip}}
-\newcommand{\uhref}[2]{\href{#1}{\underline{#2}}}
-\newcommand{\uurl}[1]{\href{#1}{\underline{#1}}}
+\newcommand{\uhref}[2]{\href{#1}{\,\underline{#2}}\,}
+\newcommand{\uurl}[1]{\href{#1}{\,\underline{#1}}\,}
 
 \newcommand{\textoverset}[2]{$\overset{\text{#1}}{\text{#2}}$}
 
@@ -86,6 +88,7 @@
 \[
     [r_1, r_2, \ldots, r_n] = [y_1 - \hat y_1, y_2 - \hat y_2, \ldots, y_n - \hat y_n]
 \]
+
 度量数据点与直线间偏差这一问题就转为了度量残差与 0 的偏差。还记得勾股定理吗？直角坐标系内一点到 0 的距离是坐标平方和的平方根，只不过这里残差列表是个 $n$ 维的向量，度量它偏离原点的程度就是向量的\textoverset{Norm}{模}。这个模越小，说明拟合的效果越好。这样我们就自然地引入了度量拟合效果的量化标准，不过实际应用中出于方便（特别是计算上的方便），通常省去开根号的一步，直接采用残差的平方和，此外还会除以样本点数得到“平均”的残差平方。习惯上称之为\textoverset{Mean Squared Error}{\textbf{均方误差}}(MSE)：
 \[
     \text{MSE} = \frac1n |r|^2 = \frac1n \sum_{i=1}^n r_i^2
@@ -111,18 +114,22 @@
           \[
               r = [r_1, r_1, r_1, r_2, r_3, \ldots, r_n]
           \]
+
           这时再计算均方误差呢，变成了 $n+2$ 个点，一种我们设想的“\textoverset{Refined}{改善的}”均方误差公式就变成了这样：
           \[
               \text{Refined MSE} = \frac1{n+2} \left(2r_1^2 + \sum_{i=1}^{n+2} r_i^2\right)
           \]
+
           只不过这样的方式无疑有点“笨重”，再仔细想想呢？如果把 $1/(n+2)$ 乘到每一项上，就像这样：
           \[
               \text{Refined MSE} = \frac3{n+2} r_1^2 + \frac1{n+2} r_2^2 + \cdots + \frac1{n+2} r_{n+2}^2
           \]
+
           再对照着上面的列表看一看，$3/(n+2)$ 不正好表明在大小为 $n+2$ 的列表中 $r_1$ 出现了 3 此吗？频次就这样和\textoverset{Weight}{权重}(系数)联系起来了。我们也没必要守着重复 3 次或者 5 次这种固定的规则——至少自然可没有限制重要性之间的比例刚好是整数。这样一来只需要一个权重列表就可以了，权重乘在残差平方前，这就引出了\textoverset{Weighted Error}{\textbf{加权误差}}，大权重表示更重要，略微改写一下公式得到：
           \[
               \text{Weighted MSE} = \sum_{i=1}^n w_i r_i^2
           \]
+
           这里为了方便起见，假设了权重的和为 1，即 $\sum_{i=1}^n w_i = 1$，如果不为 1，可以先计算误差再除以权重的和。由此可以根据实际情况调整不同点的重要性，也可以看出，之前的均方误差不过是因为在 $n$ 个数中每个残差变量都出现了 1 次，所以权重都设为了 $1/n$。在重要性可变时，加权均方误差无疑提供了一种更加“通用”的\textoverset{Measurement Metrics}{度量方式}。
 \end{itemize}
 
@@ -130,6 +137,7 @@
 \[
     \hat k, \hat b = \argmin_{k, b} \text{MSE} = \argmin_{k, b} \frac1n \sum_{i=1}^n (y_i - kx_i - b)^2
 \]
+
 但是它并没有那么神秘：$\arg$ 是 argument 的缩写\footnote{Argument: 自变量，数学优化中函数的输入变量。然而 $\argmin$ 中的 $\arg$ 仅仅表明在优化算法看来 $k, b$ 是可变的、待优化的自变量。但是从拟合模型外看过去，它们是固定的参变量，通常意义上仍称作 Parameter。这里 Argument 与 Parameter 的区别一定程度上体现了视角的转换。}，$\min$ 则是 minimize 的缩写。上面的式子完全可以读作“\textoverset{Find the parameter values $k, b$ that minimize the MSE}{找到参数值 $\hat k, \hat b$ 使得均方误差最小}”。虽然项很多，但这本是上只是一个二次函数，所以无论是配方法、对 $k, b$ 分别求导还是使用矩阵方法，都可以很容易地求解。不过我很喜欢另一个较少被人提及的视角——从线性代数和几何的角度来看待这个问题。我们回头看看残差的表达式：
 \[
     \begin{aligned}
@@ -138,7 +146,8 @@
           & = [y_1, y_2, \ldots, y_n] - (k [x_1, x_2, \ldots, x_n] + b [1, 1, \ldots, 1]) \\
     \end{aligned}
 \]
-我们暂时用一个这样的记号，记 $X^0 = [1, 1, \ldots, 1]$，$X^1 = [x_1, x_2, \ldots, x_n]$，$Y = [y_1, y_2, \ldots, y_n]$，那么残差就可以写成 $r = Y - (kX^1 + bX^0)$。这样一来，我们的目标是找到 $k, b$ 使得 $r$ 的模最小。写到这里，从代数上看可能依然不够直观，让我们换个角度看看。
+
+我们暂时用一个这样的记号，记拟合函数 $X^0 = [1, 1, \ldots, 1]$，$X^1 = [x_1, x_2, \ldots, x_n]$，并记输出 $Y = [y_1, y_2, \ldots, y_n]$，那么残差就可以写成 $r = Y - (kX^1 + bX^0)$。这样一来，我们的目标是找到 $k, b$ 使得 $r$ 的模最小。写到这里，从代数上看可能依然不够直观，让我们换个角度看看。
 
 \begin{figure}[H]
     \centering
@@ -189,23 +198,25 @@
 \[
     \bar x = \frac1n \sum_{i=1}^n x_i, \bar y = \frac1n \sum_{i=1}^n y_i
 \]
+
 即\textoverset{Mean}{均值}。
 
 看斜率之前先看看\textoverset{Variance}{方差}和\textoverset{Covariance}{协方差}，方差\footnote{此注释写给学过数理统计的读者：此处并非\textoverset{Sample Variance}{样本方差}，样本方差除以的是 $n-1$}的表达式是
 \[
-    \text{Var}(x) = \frac1n \sum_{i=1}^n (x_i - \bar x)^2
+    \text{Var}(X) = \frac1n \sum_{i=1}^n (x_i - \bar x)^2
 \]
+
 是不是感觉很熟悉？这不就是自变量相对均值的 MSE 吗？而协方差的表达式是
 \[
-    \text{Cov}(x, y) = \frac1n \sum_{i=1}^n (x_i - \bar x)(y_i - \bar y)
+    \text{Cov}(X, Y) = \frac1n \sum_{i=1}^n (x_i - \bar x)(y_i - \bar y)
 \]
-它把方差中的平方项换成了 $x$ 和 $y$ 的\textoverset{Cross Term}{交叉项}，并由此体现出了\textoverset{Correlation}{相关关系}。
 
-接下来计算的是斜率 $k$，它的表达式是
+它把方差中的平方项换成了 $x$ 和 $x$ 的\textoverset{Cross Term}{交叉项}，并由此体现出了\textoverset{Correlation}{相关关系}。接下来计算的是斜率 $k$，它的表达式是
 \[
     \hat k = \frac{\sum_{i=1}^n (x_i - \bar x)(y_i - \bar y)}{\sum_{i=1}^n (x_i - \bar x)^2}
 \]
-看起来有些复杂，但是总结起来其实就是协方差除以自变量的方差，即 $k = \text{Cov}(x, y) / \text{Var}(x)$，如果把协方差看作一种乘法\footnote{此注释写给熟悉线性代数的同学：在\uhref{https://en.wikipedia.org/wiki/Inner_product_space\#Random_variables}{向量空间内积}的意义上这几乎正确}，那么 $k = (x\cdot y) / (x\cdot x)$ 看起来确实挺像那么回事的。
+
+虽然分子分母都是求和式，看起来有些复杂，但是总结起来其实就是协方差除以自变量的方差，即 $k = \text{Cov}(X, Y) / \text{Var}(X)$，如果把协方差看作一种乘法\footnote{此注释写给熟悉线性代数的同学：在\uhref{https://en.wikipedia.org/wiki/Inner_product_space\#Random_variables}{向量空间内积}的意义上这几乎正确}，那么 $k = (X\cdot Y) / (X\cdot X)$ 看起来确实挺像那么回事的。
 
 这样一来，通过点-斜率式方程就可以得到最优的直线，那么直线拟合就告一段落了。
 
@@ -213,13 +224,13 @@
     \begin{itemize}
         \item 如果你想了解“回归”与“\textoverset{Least Squares}{最小二乘}”的含义：\\
               \textit{用人话讲明白线性回归Linear Regression - 化简可得的文章 - 知乎}\\
-                  \url{https://zhuanlan.zhihu.com/p/72513104}
+              \url{https://zhuanlan.zhihu.com/p/72513104}
         \item 如果你想阅读从求导法到线性代数方法的详尽公式推理：\\
               \textit{非常详细的线性回归原理讲解 - 小白Horace的文章 - 知乎}\\
-                  \url{https://zhuanlan.zhihu.com/p/488128941}
+              \url{https://zhuanlan.zhihu.com/p/488128941}
         \item 如果你想详细了解了线性回归中的术语、求解过程与几何诠释：\\
               \textit{机器学习| 算法笔记-线性回归（Linear Regression） - iamwhatiwant的文章 - 知乎}\\
-                  \url{https://zhuanlan.zhihu.com/p/139445419}
+              \url{https://zhuanlan.zhihu.com/p/139445419}
     \end{itemize}
 \end{tcolorbox}
 
@@ -239,12 +250,14 @@
 \[
     \text{MSE} = \frac1n \sum_{i=1}^n (y_i - \hat y)^2
 \]
+
 只不过展开后是一系列的多项式项，待拟合的参数从两个变成了 $m+1$ 个。但是如果观察一下，这个式子仍然是一个（多变量的）二次函数，所以最小化的方法也是一样的。多项式自有多项式的好，能加的项多了，拟合的灵活性也就大了，误差显然会更小。然而与线性拟合相比，它虽然有\textoverset{Analytical Solution}{解析解}，但不再像线性拟合一样可以逐项明确说出意义，而是只剩下一堆矩阵运算把这些参数算出来。因此相比于记下公式，形成一个整体上的印象显得尤为重要。
 
 上一小节中，我们从图像看到了这种拟合的几何解释，而多项式拟合也是相似的，还是从 $r$ 的表达式入手
 \[
     r = Y - (a_0 X^0 + a_1 X^1 + \cdots + a_m X^m)
 \]
+
 对比之前的表达式，当 $a_0, a_1, \ldots, a_m$ 变化时，预测值 $\hat Y = a_0 X^0 + a_1 X^1 + \cdots + a_m X^m$ 也会在一个 $m + 1$ 维的空间中变化，正如之前的平面，这个空间也是一个 $m + 1$ 维的子空间。求最小模的 $r$ 又回到了从点到子空间的垂线问题。虽然不得不承认：想象从一个高维的 $n$ 维空间中向 $m+1$ 维的子空间做垂线确实有些困难，但是这多少离我们的几何直觉更近了一些。
 
 系数的意义不那么明确了，但是误差下来了，这是好事吗？也不一定，灵活性的另一面是潜在的\textoverset{Overfitting}{\textbf{过拟合}}。前文中做线性拟合的时候有一个重要的假设是测量得到数据带有一定的误差。拟合的直线滤去了大部分的误差，留下了重要的趋势。但是如果灵活性太高，拟合的多项式会过于贴合数据，甚至把误差也拟合进去了。即使在给定的数据上做到了很小的误差，预测新数据的能力却可能会大打折扣。
@@ -404,12 +417,13 @@
     \end{aligned}
 \]
 
-简单估算一下就会发现，例如 3, 4 次项的系数都在个位数级别，再乘以 $x$ 的 3 次方、4 次方数值就会变得很大。10 次方项的系数看起来只有 $4.1\times 10^{-6}$，但是乘上 $x$ 最大值的 10 次方，也就是 $10^{10}$ 后，这个数值同样会飙升到上万的级别。一堆上万级别的数加在一起，倒不如说顶着舍入误差\footnote{舍入误差：就像手动计算时保留几位小数一样，计算机计算的并不是“实数”，而是具有一定精度的浮点数，同样也有误差。例如对于 32-bit 的浮点数，只能精确到 7 个十进制位，这意味着从万位向后数到第 7 位，从百分位就可能已经不准确，在此之后的数位就不太可靠了。}还能够回归到原来的数据集上已经是奇迹了。也就只有 MSE 可以限制一下它在数据集内的行为，出了预定义的范围，这个高次函数大概就放飞自我了。
+简单估算一下就会发现，例如 3, 4 次项的系数都在个位数级别，再乘以 $x$ 的 3 次方、4 次方数值就会变得很大。10 次方项的系数看起来只有 $4.1\times 10^{-6}$，但是乘上 $X$ 中最大值的 10 次方，也就是 $10^{10}$ 后，这个数值同样会飙升到上万的级别。一堆上万级别的数加在一起，倒不如说顶着舍入误差\footnote{舍入误差：就像手动计算时保留几位小数一样，计算机计算的并不是“实数”，而是具有一定精度的浮点数，同样也有误差。例如对于 32-bit 的浮点数，只能精确到 7 个十进制位，这意味着从万位向后数到第 7 位，从百分位就可能已经不准确，在此之后的数位就不太可靠了。}还能够回归到原来的数据集上已经是奇迹了。也就只有 MSE 可以限制一下它在数据集内的行为，出了预定义的范围，这个高次函数大概就放飞自我了。
 
 不过如果一定要用高次函数，补救的办法也不是没有。既然这些系数导致了很大的数值，那限制一下这些数值就好了，这就是\textoverset{Regularization}{\textbf{正则化}}的思路。我们在待优化的函数上加上一个\textoverset{Penalty Term}{惩罚项}，同样地使用平方求和的形式，只不过这次是对系数进行惩罚，为了让系数尽量小，即尽量贴近于 $0$，自然想到把它们的平方也加起来（再乘以一个权重），优化的目标\footnote{Loss：损失，与前文单纯使用 MSE 时相同，我们希望让它尽可能小，它的每一项包含了我们对拟合结果的一个美好“祝愿”，MSE 项希望它误差减小，正则化项希望它系数正常。}变成了
 \[
     \text{Loss} = \text{MSE} + \underset{\text{正则化项}}{\underbrace{\lambda \sum_{i=1}^{10} a_i^2}}
 \]
+
 可调参数 $\lambda$ 表明我们希望在多大程度上抑制系数。然而仍然有一个致命的问题：不同系数对最终结果的影响不同》例如在 $x=10$ 这一点上，$x^{10}$ 项的系数对结果的影响远远大于 $x$ 项的系数，即使是 $4.1\times 10^{-6}$ 这样微小的 $10$ 次项系数也会导致非常大的数值。平方后这一系数变得十分微小，原本用于约束系数大小的正则化项对它的影响更是微乎其微。那么怎么办呢？
 
 再仔细想想问题在哪里，我们发现一路下来导致问题的根源都是 $x$ 的高次项即使在系数很小时也会导致数值爆炸。但是如果把 $x$ 放到 $[-1, 1]$ 的闭区间内呢？这样即使是 $x^{10}$ 项，$x$ 的 10 次方也不会超过 $1$，系数再怎么大，至少在小范围内也不会导致数值爆炸，这样一来正则化项才能发挥其约束作用。
@@ -420,6 +434,7 @@
 \[
     \text{Loss} = \text{MSE} + 0.01 \sum_{i=1}^{10} a_i^2
 \]
+
 这时拟合出来的图像是这样的：
 
 \begin{figure}[H]
@@ -480,13 +495,13 @@
 \begin{tcolorbox}[myrecommendbox, title=推荐阅读, breakable=false]
     \begin{itemize}
         \item 如果你想看更多关于多项式拟合的实战，可以阅读：\\
-        \textit{多项式拟合的介绍与例子 - 姓甚名谁的文章 - 知乎}\\
+              \textit{多项式拟合的介绍与例子 - 姓甚名谁的文章 - 知乎}\\
               \url{https://zhuanlan.zhihu.com/p/366870301}
         \item 如果你曾经想过拿问卷调查来做拟合，可以看看：\\
-        \textit{理科生觉得哪些知识不知道是文科生的遗憾？ - 一只小猫咪的回答 - 知乎}\\
+              \textit{理科生觉得哪些知识不知道是文科生的遗憾？ - 一只小猫咪的回答 - 知乎}\\
               \url{https://www.zhihu.com/question/270455074/answer/2374983755}
         \item 这个比喻很好，同一问题下的其它回答也很有趣：\\
-        \textit{人的大脑会不会出现“过拟合”病? - 莲梅莉usamimeri的回答 - 知乎}\\
+              \textit{人的大脑会不会出现“过拟合”病? - 莲梅莉usamimeri的回答 - 知乎}\\
               \url{https://www.zhihu.com/question/625846838/answer/3250463511}
     \end{itemize}
 \end{tcolorbox}
@@ -575,17 +590,19 @@
 
 第一节我们介绍了“简单线性回归”，即只有一个自变量的线性回归。但是在实际问题中，自变量往往不止一个，这时一元的线性回归就需要改成\textoverset{Multiple Linear Regression}{多元线性回归}。不过按照我的习惯，文中仍然称为“拟合”。
 
-现实世界中的数据往往是多维的，就以估计体重为例，不难发现年龄和身高就是两个可能相关的变量。如果我们想用一个模型来描述这种相关性的话，最简单的就是线性模型了，与之前的 $\hat y=k x+b$ 类似，自然想到用这样的函数\footnote{记号说明：这里使用字母 $w$ 表示\textoverset{weight}{权重}，$b$ 表示\textoverset{bias}{偏置}，即常数项，$d$ 表示的是空间的\textoverset{dimension}{维度}}去拟合数据：
+现实世界中的数据往往是多维的，就以估计体重为例，不难发现年龄和身高就是两个可能相关的变量。如果我们想用一个模型来描述这种相关性的话，最简单的就是线性模型了，与之前的 $\hat y=k x+b$ 类似，自然想到用这样的函数\footnote{记号说明：这里使用字母 $w$ 表示\textoverset{weight}{权重}，$b$ 表示\textoverset{bias}{偏置}，即常数项，$d$ 表示的是空间的\textoverset{dimension}{维度}。}去拟合数据：
 \[
     \hat y = w_1 x_1 + w_2 x_2 + \cdots + w_d x_d + b
 \]
+
 同样地，优化的目标仍然是最小化均方误差，即对 $n$ 个数据点令
 \[
     \text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat y_i)^2
 \]
+
 通过最小化误差得到 $w = [w_1, w_2, \cdots, w_d]$ 和 $b$ 的值。这个过程与一元线性回归的过程是类似的，只不过自变量是一维时，可以在平面上直接画出拟合的直线，二维时可以在空间中画出平面，但是当维数增加到三维及以上时，拟合所用的线性函数就变为\textoverset{Hyperplane}{超平面}了，我们无法直观地看到这个超平面，但是可以猜测，它的原理差不多。
 
-这里以美国人类学家Richard McElreath搜集到的一个\uhref{https://github.com/rmcelreath/rethinking/blob/master/data/Howell1.csv}{数据集}为例，它的分布是这样的
+话不多说，先看看效果。这里以美国人类学家 Richard McElreath 搜集到的一个年龄、身高与体重\uhref{https://github.com/rmcelreath/rethinking/blob/master/data/Howell1.csv}{数据集}为例，它的分布与拟合出来的平面是这样的：
 \input{howell1.tex}
 \begin{figure}[H]
     \centering
@@ -624,6 +641,374 @@
 
 通过拟合，我们可以得到一个超平面，它大致描述了数据的分布。这个超平面的方程是 $0.04676645038926784 \cdot \text{age} + 0.47766688346191755 \cdot \text{height} - 31.805656676953056 = \hat{\text{weight}}$，它比单纯使用身高或者年龄的拟合效果都要好一些。由此还可以量化地看到，年龄与身高都会影响体重，但是年龄是弱相关，而身高是强相关，这也符合我们的日常经验。
 
+不过正如我们之前一直在做的一样，让我们看看更为直观的几何视角。仍然用 $X^0$ 表示全 $1$ 的向量，使用 $X_{:1}$ 表示所有样本的第一个\textoverset{Feature}{特征}(分量)，$X_{:2}$ 表示所有样本的第二个特征，以此类推\footnote{记号说明：冒号表示取所有行，这是为了与 Python 中 Numpy, Torch 等库的列切片语法 $a[:, j]$ 对齐。}。那么多元线性拟合时的残差向量变为了\footnote{记号说明：在公式中我特意将常数项放到了最前面，这是为了让它和多项式拟合的形式保持一致。}
+\[
+    \begin{aligned}
+        r = Y - \hat Y = Y - (b X^0 + w_1 X_{:1} + w_2 X_{:2} + \cdots + w_d X_{:d})
+    \end{aligned}
+\]
+
+如果回顾一下我们在多项式拟合一节的内容，就会发现这和多项式时的残差向量
+\[
+    r = y - (a_0 X^0 + a_1 X^1 + a_2 X^2 + \cdots + a_{m} X^{m})
+\]
+
+有着惊人的相似之处。细心的读者可能已经发现，如果令这些分量 $X_{:1}, X_{:2}, \ldots, X_{:n}$ 分别为 $X$ 的幂次组成的向量 $X^1, X^2, \ldots, X^d$，那么我们得到的完完全全就是多项式拟合。这也就意味着，多项式拟合实际上可以视为多元线性拟合的一种特殊情况。
+
+事已至此，我们似乎已经许多次遇到了这样一种情况：从一面看过去，是代数上，一组样本点上的线性拟合。但是从另一面看过去，确是在几何上找到高维空间的超平面中最接近给定点的向量。这里其实有不少精妙的数学原理\footnote{写给数学基础好的读者：这本质上体现了代数与几何的\textoverset{Duality}{对偶性}。}，但是考虑到这里的主题是机器学习，我将只带读者简要地复习(或者学习)一下线性代数，更为系统性地从几种略有差距的视角\footnote{
+    几种视角：
+    \textoverset{Overall}{整体}解读、
+    \textoverset{Row-wise}{按行}解读、
+    \textoverset{Row-wise}{按列}解读、
+    \textoverset{Element-wise}{按元素}解读。
+}体会矩阵的本质。
+
+这里首先要感谢\uhref{https://github.com/kenjihiranabe/The-Art-of-Linear-Algebra}{The Art of Linear Algebra}这篇笔记，我初见就感到文中的插图化非常精妙。它的思路是顺着 Gilbert Strang 教授书籍\uhref{https://math.mit.edu/~gs/everyone/}{Linear Algebra for Everyone}来的，我认为可以看成是一本矩阵图鉴，对理解矩阵运算有着极大的帮助。
+
+\uhref{https://www.bilibili.com/video/BV1ys411472E}{3Blue1Brown 的线性代数系列}也是优质线性代数学习资源。这个制作精良的合集仅用不到两个小时的视频就清晰地从几何的角度讲明白了线性代数的基础知识，也是我入门线性代数的第一课。
+
+矩阵有很多种\textoverset{Interpretation}{解读}，不过我觉得大致可以按照是否把行看作一个整体以及是否把列看作一个整体来分为四类。
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \pgfmathsetmacro{\elementsize}{0.7}
+        \draw[<->] (-5, 0) node[above] {纵向切开}
+        -- (5, 0) node[above] {把行视作整体};
+        \draw[<->] (0, -5) node[below] {横向切开}
+        -- (0, 5) node[above] {把列视作整体};
+        \foreach \x in {-4, -3, -2, -1}{
+                \foreach \y in {-4, -3, -2, -1}{
+                        \fill [yellow] ({\x-\elementsize/2}, {\y-\elementsize/2}) rectangle ({\x+\elementsize/2}, {\y+\elementsize/2});
+                    }
+            }
+        \foreach \x in {-4, -3, -2, -1}{
+                \fill [green, opacity=0.5] ({\x-\elementsize/2}, {1-\elementsize/2}) rectangle ({\x+\elementsize/2}, {4+\elementsize/2});
+            }
+        \foreach \y in {-4, -3, -2, -1}{
+                \fill [red, opacity=0.4] ({1-\elementsize/2}, {\y-\elementsize/2}) rectangle ({4+\elementsize/2}, {\y+\elementsize/2});
+            }
+        \fill [gray, opacity=0.5] ({1-\elementsize/2}, {1-\elementsize/2}) rectangle ({4+\elementsize/2}, {4+\elementsize/2});
+        \node at (2.5, 2.5) {$f: \mathbb{R}^n \to \mathbb{R}^m$};
+        \node at (2.5, -2.5) {$\begin{array}{c}\text{用点积探测}\\\text{输入的特征}\end{array}$};
+        \node at (-2.5, 2.5) {$\begin{array}{c}\text{线性组合}\\\text{得到输出}\end{array}$};
+        \node at (-2.5, -2.5) {$\begin{array}{c}\text{输入每一项对}\\\text{输出每一项的权重}\end{array}$};
+    \end{tikzpicture}
+\end{figure}
+
+矩阵究竟是什么，我们的大学教了很多年，也没有完全搞清楚。从数学的角度看，可能\uhref{https://linear.axler.net/LADR4e.pdf}{Linear Algebra Done Right}的思路比较好，搞了个向量空间起手，全程以\textoverset{Map}{映射}的逻辑贯穿。但是在国内，大部分教材一上来前两章就是讲行列式的计算，教学内容逐渐搞僵化了。
+
+既然是服务于机器学习，许多内容\footnote{许多内容：线性方程组的求解、行列式、\textoverset{Change of Basis}{基变换}、\textoverset{Eigen Decomposition}{特征分解}、\textoverset{Quadratic Form}{二次型}。}我们一概砍掉，只留下最为基础的内容。第一种视角就是作为 $\mathbb{R}^n \to \mathbb{R}^m$ 的线性映射。使用矩阵的第一个重要目的就是把一个线性映射“打包”成一个符号，毕竟只有这样才能方便地书写、推导和计算。从工科的视角看来，一个“向量”无非是一个数组，而一个“线性映射”实际上就是吃进去一个数组，吐出来另一个数组的机器\footnote{此注释写给编程基础较好的同学：这里的机器指的就是编程中的\textoverset{Function}{函数}。}。矩阵作为一个二维数组，忠实地记录了这个机器的所有参数。它的运算规则是这样的：
+\[
+    \begin{bmatrix}
+        a_{11} & a_{12} & \cdots & a_{1n} \\
+        a_{21} & a_{22} & \cdots & a_{2n} \\
+        \vdots & \vdots & \ddots & \vdots \\
+        a_{m1} & a_{m2} & \cdots & a_{mn}
+    \end{bmatrix}
+    \begin{bmatrix}
+        x_1    \\
+        x_2    \\
+        \vdots \\
+        x_n
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n \\
+        a_{21}x_1 + a_{22}x_2 + \cdots + a_{2n}x_n \\
+        \vdots                                     \\
+        a_{m1}x_1 + a_{m2}x_2 + \cdots + a_{mn}x_n
+    \end{bmatrix}
+\]
+
+从输出的表达式中，我们自然引出了行的视角。如果把矩阵看作若干行：
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \pgfmathsetmacro{\elementsize}{0.7}
+        \foreach \y in {0, 1, 2, 3}{
+                \fill [red, opacity=0.4] ({-1.5-\elementsize/2}, {\y-\elementsize/2}) rectangle ({1.5+\elementsize/2}, {\y+\elementsize/2});
+            }
+            \node at (0, 3) {$a_1$};
+            \node at (0, 2) {$a_2$};
+            \node at (0, 1) {$\vdots$};
+            \node at (0, 0) {$a_m$};
+    \end{tikzpicture}
+\end{figure}
+
+我们会发现输出 $y$ 的每一个分量 $y_i$ 都是输入 $x$ 与行 $a_i$ 的点积\footnote{严格地说 $a$ 是行向量，$x$ 是列向量，这中间在数学上有一些差别，是矩阵乘法而不是点积。但是在计算机存储中，因为都是一维数组，从实用的角度并不需要纠结于此，这种\textoverset{Abuse of Notation}{记号混用}就见怪不怪了。}。例如
+\[
+    y_1 = a_1 \cdot x = a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n
+\]
+
+诚然，每一行都是一个\textoverset{Homogeneous}{齐次的}\footnote{齐次：指不带偏置(常数)项。}线性函数，它的形式也只能是这种输入的\textoverset{Weighted Sum}{加权和}，但是相信一定会有读者好奇：点积衡量了两个向量的相似程度，那么这里做点积的几何意义是什么呢？答曰：探测输入的特征。
+
+我们可以把矩阵的每一行看作一个\textoverset{Feature Detector}{特征检测器}，它的方向表明了待检测的特征方向，与 $x$ 的点积则说明了这个输入在这个特征上的响应强度(通常称为\textoverset{Feature Response}{特征响应})。当 $x$ 与特征的方向相近时响应的值为正，而当 $x$ 与特征的方向相反时响应的值会为负，当 $x$ 与特征几乎无关时响应的值会接近于零。这是点积的几何特性，至少从理论上为特征提取画出了一条路径。
+
+这时如果考虑怎么样的输入可以接近预期的输出呢？根据几何解释，其实就是试图找到一个输入向量，让它尽可能通过这些特征检测器，使得每一个特征检测器的响应值与预期的响应(输出的对应分量)尽可能接近，并考虑使用均方误差来“惩罚”不接近的程度，我们一开始的代数解释便是如此。
+
+但是如果改改输出的写法，把矩阵切成若干列，我们又有了一个不同的视角，不过这里我们用 $a_{:j}$ 表示它的列：
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \pgfmathsetmacro{\elementsize}{0.7}
+        \foreach \x in {0, 1, 2, 3}{
+                \fill [green, opacity=0.5] ({\x-\elementsize/2}, {-1.5-\elementsize/2}) rectangle ({\x+\elementsize/2}, {1.5+\elementsize/2});
+            }
+            \node at (0, 0) {$a_{:1}$};
+            \node at (1, 0) {$a_{:2}$};
+            \node at (2, 0) {$\cdots$};
+            \node at (3, 0) {$a_{:n}$};
+    \end{tikzpicture}
+\end{figure}
+
+这样看来，矩阵的乘法也可以写成
+\[
+\begin{aligned}
+    Ax & = \begin{bmatrix}
+        a_{:1} & a_{:2} & \cdots & a_{:n}
+    \end{bmatrix}
+    \begin{bmatrix}
+        x_1 \\ x_2 \\ \vdots \\ x_n
+    \end{bmatrix}
+    \\
+    &= x_1 a_{:1} + x_2 a_{:2} + \cdots + x_n a_{:n}
+\end{aligned}
+\]
+
+也就是说，输出写成了输入的线性组合。这时我们在输出的空间 $\mathbb{R}^m$ 操作，而输入的空间 $\mathbb{R}^n$ 仅仅是作为权重的载体，给出了这些列向量应该以怎么样的比例组合。
+
+这时我们要怎么考虑用输出反推合适的输入这个问题呢？随着输入的变化，输出会变为列向量的不同组合方式，正如之前所说的，我们需要在这些列向量线性组合形成的超平面上找点，让它和预期的输出尽可能接近，这就是我们在前文提到的最小二乘的几何视角。
+
+最后一种角度则带有更为浓重的\textoverset{Distruction}{解构}\footnote{解构：哲学术语，通常指的是对一个结构或概念进行拆解、分析。}色彩，如果把矩阵看成一个数表，作为一个填了数字的 $m\times n$ 矩形：
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \pgfmathsetmacro{\elementsize}{0.7}
+        \foreach \x in {0, 1, 2, 3}{
+                \foreach \y in {0, 1, 2, 3}{
+                        \fill [yellow] ({\x-\elementsize/2}, {\y-\elementsize/2}) rectangle ({\x+\elementsize/2}, {\y+\elementsize/2});
+                    }
+            }
+        \node at (0, 3) {$a_{11}$};
+        \node at (1, 3) {$a_{12}$};
+        \node at (2, 3) {$\cdots$};
+        \node at (3, 3) {$a_{1n}$};
+        \node at (0, 2) {$a_{21}$};
+        \node at (1, 2) {$a_{22}$};
+        \node at (2, 2) {$\cdots$};
+        \node at (3, 2) {$a_{2n}$};
+        \node at (0, 1) {$\vdots$};
+        \node at (1, 1) {$\vdots$};
+        \node at (2, 1) {$\ddots$};
+        \node at (3, 1) {$\vdots$};
+        \node at (0, 0) {$a_{m1}$};
+        \node at (1, 0) {$a_{m2}$};
+        \node at (2, 0) {$\cdots$};
+        \node at (3, 0) {$a_{mn}$};
+    \end{tikzpicture}
+\end{figure}
+
+一般来说，我们的教材都是这么引入的，但是就像我刚才提到的一样，这种理解有着一股解构的色彩。如果没有解构后重新的\textoverset{Construction}{建构}\footnote{建构：哲学术语，通常指的是对一个结构或概念进行重建、整合。}，这种理解很容易让人迷失在行列式、特征值、特征向量等等复杂计算的汪洋大海中，从而忘记了矩阵的本质。那么这种解释有什么意义呢？我认为它的作用就在于 $a_{ij}$ 体现了第 $j$ 个输入对第 $i$ 个输出的权重。
+
+让我们看看下面这个示意图：
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=Stealth, scale=1.5]
+        \pgfmathsetmacro{\elementsize}{0.6}
+        \foreach \x in {0, 1, 2, 3}{
+                \foreach \y in {0, 1, 2, 3}{
+                        \fill [yellow] ({\x-\elementsize/2}, {\y-\elementsize/2}) rectangle ({\x+\elementsize/2}, {\y+\elementsize/2});
+                    }
+            }
+        \foreach \x in {0, 1, 2, 3}{
+            \draw [green!80!black, thick] ({\x - 0.2}, 4) -- ({\x - 0.5}, 4) -- ({\x - 0.5}, 0);
+            \foreach \y in {0, 1, 2, 3}{
+                \draw [->, green!80!black] ({\x - 0.5}, \y) -- ({\x - \elementsize/2}, \y);
+            }
+        }
+        \foreach \y in {0, 1, 2, 3}{
+            \draw [red!80!black, thick, ->] (0, {\y + 0.5}) -- (4, {\y + 0.5}) -- (4, {\y + 0.2});
+            \foreach \x in {0, 1, 2, 3}{
+                \draw [->, red!80!black] (\x, {\y + \elementsize/2}) -- (\x, {\y + 0.5});
+            }
+        }
+        \node at (0, 3) {$a_{11}$};
+        \node at (1, 3) {$a_{12}$};
+        \node at (2, 3) {$\cdots$};
+        \node at (3, 3) {$a_{1n}$};
+        \node at (0, 2) {$a_{21}$};
+        \node at (1, 2) {$a_{22}$};
+        \node at (2, 2) {$\cdots$};
+        \node at (3, 2) {$a_{2n}$};
+        \node at (0, 1) {$\vdots$};
+        \node at (1, 1) {$\vdots$};
+        \node at (2, 1) {$\ddots$};
+        \node at (3, 1) {$\vdots$};
+        \node at (0, 0) {$a_{m1}$};
+        \node at (1, 0) {$a_{m2}$};
+        \node at (2, 0) {$\cdots$};
+        \node at (3, 0) {$a_{mn}$};
+
+        \node at (0, 4) {$x_1$};
+        \node at (1, 4) {$x_2$};
+        \node at (2, 4) {$\cdots$};
+        \node at (3, 4) {$x_n$};
+
+        \node at (4, 3) {$y_1$};
+        \node at (4, 2) {$y_2$};
+        \node at (4, 1) {$\vdots$};
+        \node at (4, 0) {$y_m$};
+    \end{tikzpicture}
+\end{figure}
+
+矩阵乘法可以看成这样，输入的每个分量沿着列地址线\footnote{计算机内存中的概念，虽然逻辑上内存是连续的，但是实际上内存寻址时有很多层，最底层时通过行和列寻址的，物理上由两条地址线输入选址信号。}输入到每一列的所有块，由每个元素乘上对应的权重后，将结果“上传”到对应的行地址线上，最后在行地址线上的所有块累积起来得到输出的每个分量。
+
+这个图还有另外一个很常见的呈现形式，把它看成一个无偏置的\textoverset{Linear Layer}{线性层}\footnote{线性层：在后面章节的机器学习中会成为一个基本模块，本质上就是从输入 $x$ 得到输出 $y=Ax + b$ 的过程，这里的无偏置即 $b=0$。}，我们通常是这样绘制的:
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=Stealth, scale=1.5]
+        \pgfmathsetmacro{\elementradius}{0.3}
+        \foreach \x in {0, 1, 2, 3} {
+            \foreach \y in {0, 1, 2, 3} {
+                \draw [yellow] (0, \x) -- (5, \y);
+            }
+        }
+        \foreach \x in {0, 1, 2, 3}{
+            \fill [green!50!white] (0, \x) circle (\elementradius);
+        }
+        \foreach \y in {0, 1, 2, 3}{
+            \fill [red!50!white] (5, \y) circle (\elementradius);
+        }
+        \node at (0, 3) {$x_1$};
+        \node at (0, 2) {$x_2$};
+        \node at (0, 1) {$\vdots$};
+        \node at (0, 0) {$x_n$};
+
+        \node at (5, 3) {$y_1$};
+        \node at (5, 2) {$y_2$};
+        \node at (5, 1) {$\vdots$};
+        \node at (5, 0) {$y_m$};
+
+        \node[above] at (2.5, 3) {$a_{11}$};
+        \foreach \y in {0.5, 1.0, ..., 2.5}{
+        \node at (2.5, \y) {$\vdots$};}
+        \node[below] at (2.5, 0) {$a_{mn}$};
+    \end{tikzpicture}
+\end{figure}
+
+每条从 $x$ 到 $y$ 的连线都代表有一个从 $x$ 到 $y$ 的权重，我们给 $x_j$ 到 $y_i$ 的连线赋予权重 $a_{ij}$，它就表明了输入 $x_j$ 是如何影响输出 $y_i$ 的。
+
+至此我们已经从四个有差别但是又有联系的视角理解了矩阵的行为，不过我觉得我对于不同的解释还有一点观察。当降维时，特征提取(行的视角)体现的更明显，而当升维时，特征组合(列的视角)更为重要。降维伴随着对信息的压缩和精简，通过去掉不重要的部分，更接近事物的本质。升维不仅仅是增加维度，更是通过新的空间来赋予数据提供更多的可变性。在这个过程中，每一列代表了一个基向量，整个矩阵的列向量按比例组合出高维的结果。
+
+花了一些篇幅来复习线性代数，是时候回到多元线性拟合的问题上了。不过这次可以使用矩阵的语言来描述这个问题了。假设我们有 $n$ 组 $d$ 维的 $x$ 的取值，它们组成了一个 $n\times d$ 的矩阵 $X$，我们的目标是找到一个 $d$ 维的 $w$，使得 $Xw$ 尽可能接近 $Y$，也就是说$\hat Y$ 表达式为
+\[
+    \hat Y = Xw + bX^0
+\]
+
+但是通过一点点技巧可以让问题更简洁，在拟合函数中，我们可以把 $b$ 合并到 $w$ 中，也就是
+\[
+\begin{aligned}
+    \hat y &= x \cdot w + b \\
+    &= x_1 w_1 + x_2 w_2 + \cdots + x_d w_d + b\\
+    &= \begin{bmatrix}
+        x_{1} & x_{2} & \cdots & x_{d} & 1
+    \end{bmatrix}
+    \begin{bmatrix}
+        w_1 \\ w_2 \\ \vdots \\ w_d \\ b
+    \end{bmatrix}
+\end{aligned}
+\]
+
+对于样本点，把逐行并起来就变成了没有偏置的 $\hat Y = \tilde X \tilde w$。如果要说这个 $\tilde X$ 是什么，它就是把 $X$ 的每一行拼上一个 $1$：
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \pgfmathsetmacro{\elementsize}{0.7}
+        \fill [gray, opacity=0.5] ({-2-\elementsize/2}, {-\elementsize/2}) rectangle ({-2+\elementsize/2}, {3+\elementsize/2});
+        \node at (-2, 1.5) {$\hat Y$};
+        \draw ({-2-\elementsize/2}, -0.5) -- (-2.5, -0.5) -- (-2.5, 3.5) -- ({-2-\elementsize/2}, 3.5);
+        \draw ({-2+\elementsize/2}, -0.5) -- (-1.5, -0.5) -- (-1.5, 3.5) -- ({-2+\elementsize/2}, 3.5);
+        \node at (-1, 1.5) {$=$};
+        \foreach \y in {0, 1, 2, 3}{
+                \fill [red, opacity=0.4] ({0-\elementsize/2}, {\y-\elementsize/2}) rectangle ({2+\elementsize/2}, {\y+\elementsize/2});
+            }
+            \node at (1, 3) {$X_1$};
+            \node at (1, 2) {$X_2$};
+            \node at (1, 1) {$\vdots$};
+            \node at (1, 0) {$X_n$};
+        \fill [green, opacity=0.5] ({3-\elementsize/2}, {-\elementsize/2}) rectangle ({3+\elementsize/2}, {3+\elementsize/2});
+        \node at (3, 1.5) {$1$};
+        \draw ({-\elementsize/2}, -0.5) -- (-0.5, -0.5) -- (-0.5, 3.5) -- ({-\elementsize/2}, 3.5);
+        \draw ({3+\elementsize/2}, -0.5) -- (3.5, -0.5) -- (3.5, 3.5) -- ({3+\elementsize/2}, 3.5);
+        \fill [red, opacity=0.4] ({5-\elementsize/2}, {1-\elementsize/2}) rectangle ({5+\elementsize/2}, {3+\elementsize/2});
+        \fill (4, 1.5) circle (0.05);
+        \node at (5, 2) {$w$};
+        \fill [green, opacity=0.5] ({5-\elementsize/2}, {-\elementsize/2}) rectangle ({5+\elementsize/2}, {0+\elementsize/2});
+        \node at (5, 0) {$b$};
+        \draw ({5-\elementsize/2}, -0.5) -- (4.5, -0.5) -- (4.5, 3.5) -- ({5-\elementsize/2}, 3.5);
+        \draw ({5+\elementsize/2}, -0.5) -- (5.5, -0.5) -- (5.5, 3.5) -- ({5+\elementsize/2}, 3.5);
+    \end{tikzpicture}
+\end{figure}
+
+但是如果改成用列的视角来看待矩阵 $\tilde X$，我们会发现问题变成了用 $X_{:1}, X_{:2}, \cdots, X_{:d}$ 与 $X^0$ 的线性组合来拟合 $Y$。
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \pgfmathsetmacro{\elementsize}{0.7}
+        \fill [gray, opacity=0.5] ({-2-\elementsize/2}, {-\elementsize/2}) rectangle ({-2+\elementsize/2}, {3+\elementsize/2});
+        \node at (-2, 1.5) {$\hat Y$};
+        \draw ({-2-\elementsize/2}, -0.5) -- (-2.5, -0.5) -- (-2.5, 3.5) -- ({-2-\elementsize/2}, 3.5);
+        \draw ({-2+\elementsize/2}, -0.5) -- (-1.5, -0.5) -- (-1.5, 3.5) -- ({-2+\elementsize/2}, 3.5);
+        \node at (-1, 1.5) {$=$};
+        \foreach \x in {0, 1, 2}{
+                \fill [green, opacity=0.5] ({\x-\elementsize/2}, {0-\elementsize/2}) rectangle ({\x+\elementsize/2}, {3+\elementsize/2});
+            }
+            \node at (0, 1.5) {$X_{:1}$};
+            \node at (1, 1.5) {$\cdots$};
+            \node at (2, 1.5) {$X_{:d}$};
+        \fill [green, opacity=0.5] ({3-\elementsize/2}, {-\elementsize/2}) rectangle ({3+\elementsize/2}, {3+\elementsize/2});
+        \node at (3, 1.5) {$1$};
+        \draw ({-\elementsize/2}, -0.5) -- (-0.5, -0.5) -- (-0.5, 3.5) -- ({-\elementsize/2}, 3.5);
+        \draw ({3+\elementsize/2}, -0.5) -- (3.5, -0.5) -- (3.5, 3.5) -- ({3+\elementsize/2}, 3.5);
+        \foreach \y in {0, 1, 2, 3}{
+                \fill [yellow] ({5-\elementsize/2}, {\y-\elementsize/2}) rectangle ({5+\elementsize/2}, {\y+\elementsize/2});
+            }
+            \node at (5, 3) {$w_1$};
+            \node at (5, 2) {$\vdots$};
+            \node at (5, 1) {$w_d$};
+            \node at (5, 0) {$b$};
+        \fill (4, 1.5) circle (0.05);
+        \node at (5, 0) {$b$};
+        \draw ({5-\elementsize/2}, -0.5) -- (4.5, -0.5) -- (4.5, 3.5) -- ({5-\elementsize/2}, 3.5);
+        \draw ({5+\elementsize/2}, -0.5) -- (5.5, -0.5) -- (5.5, 3.5) -- ({5+\elementsize/2}, 3.5);
+    \end{tikzpicture}
+\end{figure}
+
+诶？这不是函数拟合问题吗？如果把 $Y_i$ 看作是关于 $i$ 的函数，那么我们的问题就是用 $d$ 个函数与一个常值函数来拟合一个给定的函数。或者如果不使用常数项，这与一般的使用给定函数的线性组合拟合没有任何差别。由此可见，用给定的函数集来拟合一个函数本质上与多元线性拟合有着完全相同的数学结构。
+
+至此，我们至少已经初步理解了线性拟合。在这一章的最后，让我们做个总结。
+
+\begin{itemize}
+    \item 最开始我们引入了一元的线性拟合，学会了最小二乘法与最小化损失以优化参数的基本思想，也学会了如何给数据加权。
+    \item 接下来来到了多项式拟合，虽然是曲线，但是如果把 $x$ 的方幂看作线性独立的分量，这仍然可以看作是一种线性拟合，在这里我们领略到了过拟合的危害，也理解了为什么要使用正则化与归一化方法。
+    \item 在过拟合中，我们得到的更重要的启示是要意识到高次并不意味着万能，合适的才是最好。如果参数足以存下所有的数据，那么大概率就会过拟合。
+    \item 最后我们引入了多元线性拟合，通过矩阵的不同解读，我们理解了特征提取与特征重组的逻辑。
+    \item 从矩阵的行、列解读中，我们意识到多元线性拟合与函数的线性拟合本质上是一样的，这里有一种精妙的对应关系。
+\end{itemize}
+
+\begin{tcolorbox}[myrecommendbox, title=推荐阅读, breakable=false]
+    \begin{itemize}
+        \item The Art of Linear Algebra 这篇文章非常好，但是如果你上不去 GitHub，进这个知乎回答看也行：\\
+              \textit{如何快速理解线性代数？ - 丿小奇迹丨的回答 - 知乎}\\
+              \url{https://www.zhihu.com/question/30726396/answer/3124578647}
+            \item 这篇文章推荐给数理统计与线性代数都学的较好的读者：\\
+                  \textit{回归分析|笔记整理（6）——多元线性回归（上） - 学弱猹的文章 - 知乎}\\
+                  \url{https://zhuanlan.zhihu.com/p/48541799}
+    \end{itemize}
+\end{tcolorbox}
+
+\newpage
+
 \section{逻辑亦数据}
 % 从程序执行的视角开始，引入数据是如何编码逻辑的
 \subsection{逻辑门}
@@ -649,6 +1034,8 @@
 \subsection{jpeg虽然有损，但为什么说是极其成功的？}
 \subsection{熵与压缩}
 \subsection{马尔可夫链}
+
+\newpage
 
 \section{压缩即智能}
 % 从压缩的角度引入智能
@@ -677,6 +1064,8 @@
 \subsection{transformer}
 \subsection{自编码器与扩散模型}
 \subsection{仿人的架构——专家模型}
+
+\newpage
 
 \section{杂谈}
 % 一些更有哲学或社会学色彩的问题
