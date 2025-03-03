@@ -1,73 +1,10 @@
-\documentclass[UTF8, 12pt]{article}
-\usepackage{ctex}
-\usepackage[utf8]{inputenc}
-\usepackage{amsmath}
-\usepackage[margin=1in]{geometry}
-\usepackage{graphicx}
-\usepackage[colorlinks=true, linkcolor=red, urlcolor=blue]{hyperref}
-\usepackage{xcolor}
-\usepackage{tikz}
-\usepackage{pgfplots}
-\usepackage{float}
-\usepackage{amsmath}
-\usepackage{amssymb}
-
-\usepackage{tcolorbox} % box制作基本宏包
-\usepackage{varwidth} % box宽度设置需要
-\usepackage{ruby} % 标注
-
-\tcbuselibrary{breakable} %box内自动折行
-\tcbuselibrary{skins} % 填充等
-
-\usetikzlibrary{arrows.meta}
-\pgfplotsset{compat=1.18}
-
-\tcbset{
-    myrecommendbox/.style={
-        colback=yellow!10!white,
-        colframe=yellow!50!black,
-        fonttitle=\bfseries,
-        coltitle=black,
-        colbacktitle=yellow!50!white,
-        boxrule=0.5mm,
-        arc=4mm,
-        outer arc=4mm,
-        boxsep=5pt,
-        left=5pt,
-        right=5pt,
-        top=5pt,
-        bottom=5pt,
-        breakable,
-        enhanced,
-    }
-}
-\newcommand{\emptyline}{\vspace{\baselineskip}}
-\newcommand{\uhref}[2]{\href{#1}{\,\underline{#2}}\,}
-\newcommand{\uurl}[1]{\href{#1}{\,\underline{#1}}\,}
-
-\newcommand{\textoverset}[2]{$\overset{\text{#1}}{\text{#2}}$}
-
-\DeclareMathOperator*{\argmin}{arg\,min}
-
-\title{如何理解神经网络——信息量、压缩与智能}
-\author{gtj}
-\date{\today}
-
-\begin{document}
-
-\maketitle
-
-\tableofcontents
-
-\newpage
-
 \section{从函数拟合开始}
 % 引入拟合的基本思想
 \subsection{最简单的规律——简单线性回归}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{png/linear_regression.png}
+    \includegraphics[width=0.6\textwidth]{img/linear_regression.png}
     \caption{线性回归示意图}
     {图源: \uhref{https://en.wikipedia.org/wiki/Linear_regression}{Wikipedia}}
     \label{fig:linear_regression}
@@ -84,14 +21,14 @@
 
 至于其意义：一是找到数据的规律，二是做出预测。拟合的系数可以用于测算数据之间的关系，斜率 $k$ 表明输出对输入的敏感程度。一个经典例子是广告投放的\textoverset{Marginal Benefit}{边际效益}\footnote{边际效益：经济学概念，每增加单位投入，产出会增加多少单位}，在一定范围内拟合收益与投入的关系，可以估算当前的边际效益，从而决定是否继续投放。而物理上，比值定义法定义的各种物理量，如电阻、电容等，最常用的测算方式都是线性拟合。例如测量电源输出的若干组电压和电流数据，并拟合出直线，斜率的绝对值是电源的内阻，同时截距顺带给出了电源的电动势，这样测得的数据就可以用于预测电源的输出情况。对我们所处的世界有定量的认识是科学的基础。可测量的数据和数学模型来描述、解释和预测自然现象是科学的基本方法，也是拟合的根本目的。
 
-既然有了基本思路，那么如何选择“贴近”的标准呢？直接去度量一堆散点和直线的接近程度多少有点霰弹枪\footnote{霰弹枪：一种枪，射出的子弹像雨点一样散开}打移动靶的感觉，但是我们总是可以计算子弹打到了几环。换言之，两个相差的部分才是关键的，\textoverset{Residual}{\textbf{残差}}的概念由此产生。取出每个点实际值和拟合值的差，就得到了这样一个列表（其中预测值 $\hat y_i = kx_i + b$）：
+既然有了基本思路，那么如何选择“贴近”的标准呢？直接去度量一堆散点和直线的接近程度多少有点霰弹枪\footnote{霰弹枪：一种枪，射出的子弹像雨点一样散开}打移动靶的感觉，但是我们总是可以计算子弹打到了几环。换言之，两个相差的部分才是关键的，\textoverset{Residual}{\textbf{残差}}的概念由此产生。取出每个点实际值和拟合值的差，就得到了这样一个列表\footnote{记号说明：对于变量，无论是一维变量还是多维变量，一律采用斜体。对于具体的数据点，视是否为向量决定使用黑体还是斜体。例如 $r = y - \hat y$ 表示的是方程，所以全部采用斜体。但是具体数据的残差计算，例如 $\bfr = \bfy - \hat \bfy$，是对数据点的向量运算，所以采用正体。}（其中根据拟合函数 $\hat y_i = kx_i + b$ 计算出预测值）：
 \[
-    [r_1, r_2, \ldots, r_n] = [y_1 - \hat y_1, y_2 - \hat y_2, \ldots, y_n - \hat y_n]
+    \bfr = [r_1, r_2, \ldots, r_n] = [y_1 - \hat y_1, y_2 - \hat y_2, \ldots, y_n - \hat y_n]
 \]
 
 度量数据点与直线间偏差这一问题就转为了度量残差与 0 的偏差。还记得勾股定理吗？直角坐标系内一点到 0 的距离是坐标平方和的平方根，只不过这里残差列表是个 $n$ 维的向量，度量它偏离原点的程度就是向量的\textoverset{Norm}{模}。这个模越小，说明拟合的效果越好。这样我们就自然地引入了度量拟合效果的量化标准，不过实际应用中出于方便（特别是计算上的方便），通常省去开根号的一步，直接采用残差的平方和，此外还会除以样本点数得到“平均”的残差平方。习惯上称之为\textoverset{Mean Squared Error}{\textbf{均方误差}}(MSE)：
 \[
-    \text{MSE} = \frac1n |r|^2 = \frac1n \sum_{i=1}^n r_i^2
+    \text{MSE} = \frac1n |\bfr|^2 = \frac1n \sum_{i=1}^n r_i^2
 \]
 
 在踏出下一步之前，我想这里有一点点思考的空间。例如：
@@ -112,7 +49,7 @@
 
           先说明一下这样的需求并非空想，有时测量条件决定了不同点的可靠性并不相同。以一个精度 1\% 的表为例，测量得到 1.00, 2.00, 3.00 时它们本身允许的误差分别是 0.01, 0.02, 0.03，而非相同。也就是说我们会觉得 1.00 的测量值从残差的大小上\footnote{残差的大小：严谨的说称作\textoverset{Absolute Error}{绝对误差}}更为可靠，这时似乎应该衡量一下点的“重要性”。如果你想说一个点很重要怎么办？直观上来讲你可能会想把它重复几遍，例如如果你很关心 $r_1$，你可能会想，这还不简单吗？在误差列表中把 $r_1$ 重复 3 遍就好，就像这样：
           \[
-              r = [r_1, r_1, r_1, r_2, r_3, \ldots, r_n]
+              \text{Refined }\bfr = [r_1, r_1, r_1, r_2, r_3, \ldots, r_n]
           \]
 
           这时再计算均方误差呢，变成了 $n+2$ 个点，一种我们设想的“\textoverset{Refined}{改善的}”均方误差公式就变成了这样：
@@ -141,13 +78,20 @@
 但是它并没有那么神秘：$\arg$ 是 argument 的缩写\footnote{Argument: 自变量，数学优化中函数的输入变量。然而 $\argmin$ 中的 $\arg$ 仅仅表明在优化算法看来 $k, b$ 是可变的、待优化的自变量。但是从拟合模型外看过去，它们是固定的参变量，通常意义上仍称作 Parameter。这里 Argument 与 Parameter 的区别一定程度上体现了视角的转换。}，$\min$ 则是 minimize 的缩写。上面的式子完全可以读作“\textoverset{Find the parameter values $k, b$ that minimize the MSE}{找到参数值 $\hat k, \hat b$ 使得均方误差最小}”。虽然项很多，但这本是上只是一个二次函数，所以无论是配方法、对 $k, b$ 分别求导还是使用矩阵方法，都可以很容易地求解。不过我很喜欢另一个较少被人提及的视角——从线性代数和几何的角度来看待这个问题。我们回头看看残差的表达式：
 \[
     \begin{aligned}
-        r & = [r_1, r_2, \ldots, r_n]                                                     \\
+        \bfr & = [r_1, r_2, \ldots, r_n]                                                     \\
           & = [y_1 - (kx_1 + b), y_2 - (kx_2 + b), \ldots, y_n - (kx_n + b)]              \\
           & = [y_1, y_2, \ldots, y_n] - (k [x_1, x_2, \ldots, x_n] + b [1, 1, \ldots, 1]) \\
     \end{aligned}
 \]
 
-我们暂时用一个这样的记号，记拟合函数 $X^0 = [1, 1, \ldots, 1]$，$X^1 = [x_1, x_2, \ldots, x_n]$，并记输出 $Y = [y_1, y_2, \ldots, y_n]$，那么残差就可以写成 $r = Y - (kX^1 + bX^0)$。这样一来，我们的目标是找到 $k, b$ 使得 $r$ 的模最小。写到这里，从代数上看可能依然不够直观，让我们换个角度看看。
+我们暂时用一个这样的记号，记拟合所用的函数在这些数据点上的取值
+\[
+\begin{aligned}
+    \bfx^0 &= [1, 1, \ldots, 1]\\
+    \bfx^1 &= [x_1, x_2, \ldots, x_n]\\
+\end{aligned}
+\]
+并记输出 $\bfy = [y_1, y_2, \ldots, y_n]$，那么残差就可以写成 $\bfr = \bfy - (k\bfx^1 + b\bfx^0)$。这样一来，我们的目标是找到 $k, b$ 使得 $\bfr$ 的模最小。写到这里，从代数上看可能依然不够直观，让我们换个角度看看。
 
 \begin{figure}[H]
     \centering
@@ -169,19 +113,19 @@
             \coordinate (A) at (axis cs:-0.15, 0.4, 0.95);
 
             \addplot3[thick, ->] coordinates {(0,0,0) (1,1,1)} ;
-            \node[above, scale=0.7] at (axis cs:1,1,1) {$X^0$};
+            \node[above, scale=0.7] at (axis cs:1,1,1) {$\bfx^0$};
 
             \addplot3[thick, ->] coordinates {(0,0,0) (-1,0,1)};
-            \node[left, scale=0.7] at (axis cs:-1,0,1) {$X^1$};
+            \node[left, scale=0.7] at (axis cs:-1,0,1) {$\bfx^1$};
 
             \addplot3[thin, purple!50, ->] coordinates {(0,0,0) (-0.25, 0.6, 0.85)};
-            \node[left, purple!50, scale=0.7] at (Y) {$Y$};
+            \node[left, purple!50, scale=0.7] at (Y) {$\bfy$};
 
             \addplot3[thin, blue!50, ->] coordinates {(0,0,0) (-0.15, 0.4, 0.95)};
-            \node[right, blue!50, scale=0.7] at (A) {$kX^1 + bX^0$};
+            \node[right, blue!50, scale=0.7] at (A) {$k\bfx^1 + b\bfx^0$};
 
             \addplot3[red, dash pattern=on 0.5pt off 0.5pt, ->] coordinates {(-0.15,0.4,0.95) (-0.25, 0.6, 0.85)};
-            \node[red, above, scale=0.7] at (axis cs:-0.2, 0.5, 0.9) {$r$};
+            \node[red, above, scale=0.7] at (axis cs:-0.2, 0.5, 0.9) {$\bfr$};
 
             \addplot3[thin, dash pattern=on 0.5pt off 0.5pt] coordinates {(0.4, 0.4, 0.4) (-0.15, 0.4, 0.95) (-0.55, 0, 0.55)};
 
@@ -192,7 +136,7 @@
     \caption{从几何的角度看残差}
 \end{figure}
 
-从几何上，$kX^1 + bX^0$ 落在 $X^0$ 与 $X^1$ 确定的平面上，求 $r = Y - (kX^1 + bX^0)$ 的最小值实际上就是从点向平面做垂线并求垂线长。平面上的点恰好表示了那些可以精准拟合的数据，而偏离平面的部分则暗示了无论怎么用直线拟合都会有误差。不得不说从几何上看确实清晰很多，事实上也有人从几何角度给出了\uhref{https://www.bilibili.com/video/BV15zPBevERL}{推导}，不过掠过这些细节，仅保留一个直观的印象也无大碍。本节的几篇推荐阅读中都用不同的方法解答了如何最小化误差，有详细的推导，因此这里不再赘述。但是我认为如果读者有一些基础的统计知识而且想记住线性回归推导出的结果，那么结论值得一提，不过跳过也无妨。计算出来的结论是这样的：
+从几何上，$k\bfx^1 + b\bfx^0$ 落在 $\bfx^0$ 与 $\bfx^1$ 确定的平面上，求 $\bfr = \bfy - (k\bfx^1 + b\bfx^0)$ 的最小值实际上就是从点向平面做垂线并求垂线长。平面上的点恰好表示了那些可以精准拟合的数据，而偏离平面的部分则暗示了无论怎么用直线拟合都会有误差。不得不说从几何上看确实清晰很多，事实上也有人从几何角度给出了\uhref{https://www.bilibili.com/video/BV15zPBevERL}{推导}，不过掠过这些细节，仅保留一个直观的印象也无大碍。本节的几篇推荐阅读中都用不同的方法解答了如何最小化误差，有详细的推导，因此这里不再赘述。但是我认为如果读者有一些基础的统计知识而且想记住线性回归推导出的结果，那么结论值得一提，不过跳过也无妨。计算出来的结论是这样的：
 
 首先要计算的是样本中心点，对 $b$ 的导数项为 0 推出最优的直线必然经过样本中心点 $(\bar x, \bar y)$，其中
 \[
@@ -203,12 +147,12 @@
 
 看斜率之前先看看\textoverset{Variance}{方差}和\textoverset{Covariance}{协方差}，方差\footnote{此注释写给学过数理统计的读者：此处并非\textoverset{Sample Variance}{样本方差}，样本方差除以的是 $n-1$}的表达式是
 \[
-    \text{Var}(X) = \frac1n \sum_{i=1}^n (x_i - \bar x)^2
+    \text{Var}(\bfx) = \frac1n \sum_{i=1}^n (x_i - \bar x)^2
 \]
 
 是不是感觉很熟悉？这不就是自变量相对均值的 MSE 吗？而协方差的表达式是
 \[
-    \text{Cov}(X, Y) = \frac1n \sum_{i=1}^n (x_i - \bar x)(y_i - \bar y)
+    \text{Cov}(\bfx, \bfy) = \frac1n \sum_{i=1}^n (x_i - \bar x)(y_i - \bar y)
 \]
 
 它把方差中的平方项换成了 $x$ 和 $x$ 的\textoverset{Cross Term}{交叉项}，并由此体现出了\textoverset{Correlation}{相关关系}。接下来计算的是斜率 $k$，它的表达式是
@@ -216,7 +160,7 @@
     \hat k = \frac{\sum_{i=1}^n (x_i - \bar x)(y_i - \bar y)}{\sum_{i=1}^n (x_i - \bar x)^2}
 \]
 
-虽然分子分母都是求和式，看起来有些复杂，但是总结起来其实就是协方差除以自变量的方差，即 $k = \text{Cov}(X, Y) / \text{Var}(X)$，如果把协方差看作一种乘法\footnote{此注释写给熟悉线性代数的同学：在\uhref{https://en.wikipedia.org/wiki/Inner_product_space\#Random_variables}{向量空间内积}的意义上这几乎正确}，那么 $k = (X\cdot Y) / (X\cdot X)$ 看起来确实挺像那么回事的。
+虽然分子分母都是求和式，看起来有些复杂，但是总结起来其实就是协方差除以自变量的方差，即 $k = \text{Cov}(\bfx, \bfy) / \text{Var}(\bfx)$，如果把协方差看作一种乘法\footnote{此注释写给熟悉线性代数的同学：在\uhref{https://en.wikipedia.org/wiki/Inner_product_space\#Random_variables}{向量空间内积}的意义上这几乎正确}，那么 $k = (\bfx\cdot \bfy) / (\bfx\cdot \bfx)$ 看起来确实挺像那么回事的。
 
 这样一来，通过点-斜率式方程就可以得到最优的直线，那么直线拟合就告一段落了。
 
@@ -240,7 +184,7 @@
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{png/polynomial_fitting.png}
+    \includegraphics[width=0.6\textwidth]{img/polynomial_fitting.png}
     \caption{多项式拟合示意图（图为 3 次拟合）}
     {图源: \uhref{https://www.geeksforgeeks.org/numpys-polyfit-function-a-comprehensive-guide/}{GeeksforGeeks}}
     \label{fig:polynomial_fitting}
@@ -253,12 +197,12 @@
 
 只不过展开后是一系列的多项式项，待拟合的参数从两个变成了 $m+1$ 个。但是如果观察一下，这个式子仍然是一个（多变量的）二次函数，所以最小化的方法也是一样的。多项式自有多项式的好，能加的项多了，拟合的灵活性也就大了，误差显然会更小。然而与线性拟合相比，它虽然有\textoverset{Analytical Solution}{解析解}，但不再像线性拟合一样可以逐项明确说出意义，而是只剩下一堆矩阵运算把这些参数算出来。因此相比于记下公式，形成一个整体上的印象显得尤为重要。
 
-上一小节中，我们从图像看到了这种拟合的几何解释，而多项式拟合也是相似的，还是从 $r$ 的表达式入手
+上一小节中，我们从图像看到了这种拟合的几何解释，而多项式拟合也是相似的，还是从 $\bfr$ 的表达式入手
 \[
-    r = Y - (a_0 X^0 + a_1 X^1 + \cdots + a_m X^m)
+    \bfr = \bfy - (a_0 \bfx^0 + a_1 \bfx^1 + \cdots + a_m \bfx^m)
 \]
 
-对比之前的表达式，当 $a_0, a_1, \ldots, a_m$ 变化时，预测值 $\hat Y = a_0 X^0 + a_1 X^1 + \cdots + a_m X^m$ 也会在一个 $m + 1$ 维的空间中变化，正如之前的平面，这个空间也是一个 $m + 1$ 维的子空间。求最小模的 $r$ 又回到了从点到子空间的垂线问题。虽然不得不承认：想象从一个高维的 $n$ 维空间中向 $m+1$ 维的子空间做垂线确实有些困难，但是这多少离我们的几何直觉更近了一些。
+对比之前的表达式，当 $a_0, a_1, \ldots, a_m$ 变化时，预测得到的结果 $\hat \bfy = a_0 \bfx^0 + a_1 \bfx^1 + \cdots + a_m \bfx^m$ 也会在一个 $m + 1$ 维的空间中变化，正如之前的平面，这个空间也是一个 $m + 1$ 维的子空间。求最小模的 $\bfr$ 又回到了从点到子空间的垂线问题。虽然不得不承认：想象从一个高维的 $n$ 维空间中向 $m+1$ 维的子空间做垂线确实有些困难，但是这多少离我们的几何直觉更近了一些。
 
 系数的意义不那么明确了，但是误差下来了，这是好事吗？也不一定，灵活性的另一面是潜在的\textoverset{Overfitting}{\textbf{过拟合}}。前文中做线性拟合的时候有一个重要的假设是测量得到数据带有一定的误差。拟合的直线滤去了大部分的误差，留下了重要的趋势。但是如果灵活性太高，拟合的多项式会过于贴合数据，甚至把误差也拟合进去了。即使在给定的数据上做到了很小的误差，预测新数据的能力却可能会大打折扣。
 
@@ -417,14 +361,14 @@
     \end{aligned}
 \]
 
-简单估算一下就会发现，例如 3, 4 次项的系数都在个位数级别，再乘以 $x$ 的 3 次方、4 次方数值就会变得很大。10 次方项的系数看起来只有 $4.1\times 10^{-6}$，但是乘上 $X$ 中最大值的 10 次方，也就是 $10^{10}$ 后，这个数值同样会飙升到上万的级别。一堆上万级别的数加在一起，倒不如说顶着舍入误差\footnote{舍入误差：就像手动计算时保留几位小数一样，计算机计算的并不是“实数”，而是具有一定精度的浮点数，同样也有误差。例如对于 32-bit 的浮点数，只能精确到 7 个十进制位，这意味着从万位向后数到第 7 位，从百分位就可能已经不准确，在此之后的数位就不太可靠了。}还能够回归到原来的数据集上已经是奇迹了。也就只有 MSE 可以限制一下它在数据集内的行为，出了预定义的范围，这个高次函数大概就放飞自我了。
+简单估算一下就会发现，例如 3, 4 次项的系数都在个位数级别，再乘以 $x$ 的 3 次方、4 次方数值就会变得很大。10 次方项的系数看起来只有 $4.1\times 10^{-6}$，但是乘上 $\bfx$ 中最大值的 10 次方，也就是 $10^{10}$ 后，这个数值同样会飙升到上万的级别。一堆上万级别的数加在一起，倒不如说顶着舍入误差\footnote{舍入误差：就像手动计算时保留几位小数一样，计算机计算的并不是“实数”，而是具有一定精度的浮点数，同样也有误差。例如对于 32-bit 的浮点数，只能精确到 7 个十进制位，这意味着从万位向后数到第 7 位，从百分位就可能已经不准确，在此之后的数位就不太可靠了。}还能够回归到原来的数据集上已经是奇迹了。也就只有 MSE 可以限制一下它在数据集内的行为，出了预定义的范围，这个高次函数大概就放飞自我了。
 
 不过如果一定要用高次函数，补救的办法也不是没有。既然这些系数导致了很大的数值，那限制一下这些数值就好了，这就是\textoverset{Regularization}{\textbf{正则化}}的思路。我们在待优化的函数上加上一个\textoverset{Penalty Term}{惩罚项}，同样地使用平方求和的形式，只不过这次是对系数进行惩罚，为了让系数尽量小，即尽量贴近于 $0$，自然想到把它们的平方也加起来（再乘以一个权重），优化的目标\footnote{Loss：损失，与前文单纯使用 MSE 时相同，我们希望让它尽可能小，它的每一项包含了我们对拟合结果的一个美好“祝愿”，MSE 项希望它误差减小，正则化项希望它系数正常。}变成了
 \[
     \text{Loss} = \text{MSE} + \underset{\text{正则化项}}{\underbrace{\lambda \sum_{i=1}^{10} a_i^2}}
 \]
 
-可调参数 $\lambda$ 表明我们希望在多大程度上抑制系数。然而仍然有一个致命的问题：不同系数对最终结果的影响不同》例如在 $x=10$ 这一点上，$x^{10}$ 项的系数对结果的影响远远大于 $x$ 项的系数，即使是 $4.1\times 10^{-6}$ 这样微小的 $10$ 次项系数也会导致非常大的数值。平方后这一系数变得十分微小，原本用于约束系数大小的正则化项对它的影响更是微乎其微。那么怎么办呢？
+可调参数 $\lambda$ 表明我们希望在多大程度上抑制系数。然而仍然有一个致命的问题：不同系数对最终结果的影响不同。例如在 $x=10$ 这一点上，$x^{10}$ 项的系数对结果的影响远远大于 $x$ 项的系数，即使是 $4.1\times 10^{-6}$ 这样微小的 $10$ 次项系数也会导致非常大的数值。平方后这一系数变得十分微小，原本用于约束系数大小的正则化项对它的影响更是微乎其微。那么怎么办呢？
 
 再仔细想想问题在哪里，我们发现一路下来导致问题的根源都是 $x$ 的高次项即使在系数很小时也会导致数值爆炸。但是如果把 $x$ 放到 $[-1, 1]$ 的闭区间内呢？这样即使是 $x^{10}$ 项，$x$ 的 10 次方也不会超过 $1$，系数再怎么大，至少在小范围内也不会导致数值爆炸，这样一来正则化项才能发挥其约束作用。
 
@@ -641,29 +585,29 @@
 
 通过拟合，我们可以得到一个超平面，它大致描述了数据的分布。这个超平面的方程是 $0.04676645038926784 \cdot \text{age} + 0.47766688346191755 \cdot \text{height} - 31.805656676953056 = \hat{\text{weight}}$，它比单纯使用身高或者年龄的拟合效果都要好一些。由此还可以量化地看到，年龄与身高都会影响体重，但是年龄是弱相关，而身高是强相关，这也符合我们的日常经验。
 
-不过正如我们之前一直在做的一样，让我们看看更为直观的几何视角。仍然用 $X^0$ 表示全 $1$ 的向量，使用 $X_{:1}$ 表示所有样本的第一个\textoverset{Feature}{特征}(分量)，$X_{:2}$ 表示所有样本的第二个特征，以此类推\footnote{记号说明：冒号表示取所有行，这是为了与 Python 中 Numpy, Torch 等库的列切片语法 $a[:, j]$ 对齐。}。那么多元线性拟合时的残差向量变为了\footnote{记号说明：在公式中我特意将常数项放到了最前面，这是为了让它和多项式拟合的形式保持一致。}
+不过正如我们之前一直在做的一样，让我们看看更为直观的几何视角。仍然用 $\bfx^0$ 表示全 $1$ 的向量，使用 $\bfx_{:1}$ 表示所有样本的第一个\textoverset{Feature}{特征}(分量)，$\bfx_{:2}$ 表示所有样本的第二个特征，以此类推\footnote{记号说明：冒号表示取所有行，这是为了与 Python 中 Numpy, Torch 等库的列切片语法 $a[:, j]$ 对齐。}。那么多元线性拟合时的残差向量变为了\footnote{记号说明：在公式中我特意将常数项放到了最前面，这是为了让它和多项式拟合的形式保持一致。}
 \[
     \begin{aligned}
-        r = Y - \hat Y = Y - (b X^0 + w_1 X_{:1} + w_2 X_{:2} + \cdots + w_d X_{:d})
+        \bfr = \bfy - \hat \bfy = \bfy - (b \bfx^0 + w_1 \bfx_{:1} + w_2 \bfx_{:2} + \cdots + w_d \bfx_{:d})
     \end{aligned}
 \]
 
 如果回顾一下我们在多项式拟合一节的内容，就会发现这和多项式时的残差向量
 \[
-    r = y - (a_0 X^0 + a_1 X^1 + a_2 X^2 + \cdots + a_{m} X^{m})
+    \bfr = \bfy - (a_0 \bfx^0 + a_1 \bfx^1 + a_2 \bfx^2 + \cdots + a_{m} \bfx^{m})
 \]
 
-有着惊人的相似之处。细心的读者可能已经发现，如果令这些分量 $X_{:1}, X_{:2}, \ldots, X_{:n}$ 分别为 $X$ 的幂次组成的向量 $X^1, X^2, \ldots, X^d$，那么我们得到的完完全全就是多项式拟合。这也就意味着，多项式拟合实际上可以视为多元线性拟合的一种特殊情况。
+有着惊人的相似之处。细心的读者可能已经发现，如果令这些分量 $\bfx_{:1}, \bfx_{:2}, \ldots, \bfx_{:n}$ 分别为 $\bfx$ 的幂次组成的向量 $\bfx^1, \bfx^2, \ldots, \bfx^d$，那么我们得到的完完全全就是多项式拟合。这也就意味着，多项式拟合实际上可以视为多元线性拟合的一种特殊情况。
 
 事已至此，我们似乎已经许多次遇到了这样一种情况：从一面看过去，是代数上，一组样本点上的线性拟合。但是从另一面看过去，确是在几何上找到高维空间的超平面中最接近给定点的向量。这里其实有不少精妙的数学原理\footnote{写给数学基础好的读者：这本质上体现了代数与几何的\textoverset{Duality}{对偶性}。}，但是考虑到这里的主题是机器学习，我将只带读者简要地复习(或者学习)一下线性代数，更为系统性地从几种略有差距的视角\footnote{
     几种视角：
     \textoverset{Overall}{整体}解读、
     \textoverset{Row-wise}{按行}解读、
-    \textoverset{Row-wise}{按列}解读、
+    \textoverset{Column-wise}{按列}解读、
     \textoverset{Element-wise}{按元素}解读。
 }体会矩阵的本质。
 
-这里首先要感谢\uhref{https://github.com/kenjihiranabe/The-Art-of-Linear-Algebra}{The Art of Linear Algebra}这篇笔记，我初见就感到文中的插图化非常精妙。它的思路是顺着 Gilbert Strang 教授书籍\uhref{https://math.mit.edu/~gs/everyone/}{Linear Algebra for Everyone}来的，我认为可以看成是一本矩阵图鉴，对理解矩阵运算有着极大的帮助。
+这里首先要感谢\uhref{https://github.com/kenjihiranabe/The-Art-of-Linear-Algebra}{The Art of Linear Algebra}这篇笔记，我初见就感到文中的插图画的非常精妙。它的思路是顺着 Gilbert Strang 教授书籍\uhref{https://math.mit.edu/~gs/everyone/}{Linear Algebra for Everyone}来的，我认为可以看成是一本矩阵图鉴，对理解矩阵运算有着极大的帮助。
 
 \uhref{https://www.bilibili.com/video/BV1ys411472E}{3Blue1Brown 的线性代数系列}也是优质线性代数学习资源。这个制作精良的合集仅用不到两个小时的视频就清晰地从几何的角度讲明白了线性代数的基础知识，也是我入门线性代数的第一课。
 
@@ -740,7 +684,7 @@
     y_1 = a_1 \cdot x = a_{11}x_1 + a_{12}x_2 + \cdots + a_{1n}x_n
 \]
 
-诚然，每一行都是一个\textoverset{Homogeneous}{齐次的}\footnote{齐次：指不带偏置(常数)项。}线性函数，它的形式也只能是这种输入的\textoverset{Weighted Sum}{加权和}，但是相信一定会有读者好奇：点积衡量了两个向量的相似程度，那么这里做点积的几何意义是什么呢？答曰：探测输入的特征。
+诚然，每一行都是一个\textoverset{Homogeneous}{齐次的}\footnote{齐次：指不带偏置(常数)项。}线性函数，它的形式也只能是这种 $x$ 的\textoverset{Weighted Sum}{加权和}，但是相信一定会有读者好奇：点积衡量了两个向量的相似程度，那么这里做点积的几何意义是什么呢？答曰：探测输入的特征。
 
 我们可以把矩阵的每一行看作一个\textoverset{Feature Detector}{特征检测器}，它的方向表明了待检测的特征方向，与 $x$ 的点积则说明了这个输入在这个特征上的响应强度(通常称为\textoverset{Feature Response}{特征响应})。当 $x$ 与特征的方向相近时响应的值为正，而当 $x$ 与特征的方向相反时响应的值会为负，当 $x$ 与特征几乎无关时响应的值会接近于零。这是点积的几何特性，至少从理论上为特征提取画出了一条路径。
 
@@ -861,7 +805,7 @@
     \end{tikzpicture}
 \end{figure}
 
-矩阵乘法可以看成这样，输入的每个分量沿着列地址线\footnote{计算机内存中的概念，虽然逻辑上内存是连续的，但是实际上内存寻址时有很多层，最底层时通过行和列寻址的，物理上由两条地址线输入选址信号。}输入到每一列的所有块，由每个元素乘上对应的权重后，将结果“上传”到对应的行地址线上，最后在行地址线上的所有块累积起来得到输出的每个分量。
+矩阵乘法可以看成这样，输入的每个分量沿着列地址线\footnote{地址线：计算机内存中的概念，虽然逻辑上内存是连续的，但是实际上内存寻址时有很多层，最底层时被选择的内存芯片是通过行和列寻址的，物理上由两条地址线输入\textoverset{Row/Column Address Strobe}{行/列地址选通信号。}}输入到每一列的所有块，由每个元素乘上对应的权重后，将结果“上传”到对应的行地址线上，最后在行地址线上的所有块累积起来得到输出的每个分量。
 
 这个图还有另外一个很常见的呈现形式，把它看成一个无偏置的\textoverset{Linear Layer}{线性层}\footnote{线性层：在后面章节的机器学习中会成为一个基本模块，本质上就是从输入 $x$ 得到输出 $y=Ax + b$ 的过程，这里的无偏置即 $b=0$。}，我们通常是这样绘制的:
 \begin{figure}[H]
@@ -900,10 +844,7 @@
 
 至此我们已经从四个有差别但是又有联系的视角理解了矩阵的行为，不过我觉得我对于不同的解释还有一点观察。当降维时，特征提取(行的视角)体现的更明显，而当升维时，特征组合(列的视角)更为重要。降维伴随着对信息的压缩和精简，通过去掉不重要的部分，更接近事物的本质。升维不仅仅是增加维度，更是通过新的空间来赋予数据提供更多的可变性。在这个过程中，每一列代表了一个基向量，整个矩阵的列向量按比例组合出高维的结果。
 
-花了一些篇幅来复习线性代数，是时候回到多元线性拟合的问题上了。不过这次可以使用矩阵的语言来描述这个问题了。假设我们有 $n$ 组 $d$ 维的 $x$ 的取值，它们组成了一个 $n\times d$ 的矩阵 $X$，我们的目标是找到一个 $d$ 维的 $w$，使得 $Xw$ 尽可能接近 $Y$，也就是说$\hat Y$ 表达式为
-\[
-    \hat Y = Xw + bX^0
-\]
+花了一些篇幅来复习线性代数，是时候回到多元线性拟合的问题上了。不过这次可以使用矩阵的语言来描述这个问题了。假设我们有 $n$ 组 $d$ 维的 $x$ 的取值，它们组成了一个 $n\times d$ 的矩阵 $\bfx$\,\footnote{记号说明：使用大写字母表示矩阵的比较多，但是这里为了美观和符号的一致性，我们仍然采用黑体小写字母表示所有数据点的集合。$\bfx_i$ 表示第 $i$ 个数据点，$\bfx_{:j}$ 表示所有数据点的第 $j$ 个分量，$x_{ij}$ 表示第 $i$ 个数据点的第 $j$ 个分量，因为是标量，所以采取小写。而在方程 $x\cdot w$ 中，$x,w$ 并非数据点的集合，而是变量，故虽然为向量，但是采用斜体。}。我们的目标是找到一个 $d$ 维的 $w$，使得数据集上 $x\cdot w$ 尽可能接近 $y$，现在 $\hat y$ 的表达式用点积的语言可以简洁地写为 $\hat y = x\cdot w + b$ 这种形式。
 
 但是通过一点点技巧可以让问题更简洁，在拟合函数中，我们可以把 $b$ 合并到 $w$ 中，也就是
 \[
@@ -919,23 +860,23 @@
 \end{aligned}
 \]
 
-对于样本点，把逐行并起来就变成了没有偏置的 $\hat Y = \tilde X \tilde w$。如果要说这个 $\tilde X$ 是什么，它就是把 $X$ 的每一行拼上一个 $1$：
+对于样本，把所有的行并起来就变成了不需要额外添加偏置的 $\hat \bfy = \tilde \bfx \tilde w$。如果要说这个 $\tilde \bfx$ 是什么，它就是把 $\bfx$ 的每一行拼上一个 $1$：
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}
         \pgfmathsetmacro{\elementsize}{0.7}
         \fill [gray, opacity=0.5] ({-2-\elementsize/2}, {-\elementsize/2}) rectangle ({-2+\elementsize/2}, {3+\elementsize/2});
-        \node at (-2, 1.5) {$\hat Y$};
+        \node at (-2, 1.5) {$\hat \bfy$};
         \draw ({-2-\elementsize/2}, -0.5) -- (-2.5, -0.5) -- (-2.5, 3.5) -- ({-2-\elementsize/2}, 3.5);
         \draw ({-2+\elementsize/2}, -0.5) -- (-1.5, -0.5) -- (-1.5, 3.5) -- ({-2+\elementsize/2}, 3.5);
         \node at (-1, 1.5) {$=$};
         \foreach \y in {0, 1, 2, 3}{
                 \fill [red, opacity=0.4] ({0-\elementsize/2}, {\y-\elementsize/2}) rectangle ({2+\elementsize/2}, {\y+\elementsize/2});
             }
-            \node at (1, 3) {$X_1$};
-            \node at (1, 2) {$X_2$};
+            \node at (1, 3) {$\bfx_1$};
+            \node at (1, 2) {$\bfx_2$};
             \node at (1, 1) {$\vdots$};
-            \node at (1, 0) {$X_n$};
+            \node at (1, 0) {$\bfx_n$};
         \fill [green, opacity=0.5] ({3-\elementsize/2}, {-\elementsize/2}) rectangle ({3+\elementsize/2}, {3+\elementsize/2});
         \node at (3, 1.5) {$1$};
         \draw ({-\elementsize/2}, -0.5) -- (-0.5, -0.5) -- (-0.5, 3.5) -- ({-\elementsize/2}, 3.5);
@@ -950,22 +891,22 @@
     \end{tikzpicture}
 \end{figure}
 
-但是如果改成用列的视角来看待矩阵 $\tilde X$，我们会发现问题变成了用 $X_{:1}, X_{:2}, \cdots, X_{:d}$ 与 $X^0$ 的线性组合来拟合 $Y$。
+但是如果改成用列的视角来看待矩阵 $\tilde \bfx$，我们会发现问题变成了用 $\bfx_{:1}, \bfx_{:2}, \cdots, \bfx_{:d}$ 与 $\bfx^0$ 的线性组合来贴近 $\bfy$。
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}
         \pgfmathsetmacro{\elementsize}{0.7}
         \fill [gray, opacity=0.5] ({-2-\elementsize/2}, {-\elementsize/2}) rectangle ({-2+\elementsize/2}, {3+\elementsize/2});
-        \node at (-2, 1.5) {$\hat Y$};
+        \node at (-2, 1.5) {$\hat \bfy$};
         \draw ({-2-\elementsize/2}, -0.5) -- (-2.5, -0.5) -- (-2.5, 3.5) -- ({-2-\elementsize/2}, 3.5);
         \draw ({-2+\elementsize/2}, -0.5) -- (-1.5, -0.5) -- (-1.5, 3.5) -- ({-2+\elementsize/2}, 3.5);
         \node at (-1, 1.5) {$=$};
         \foreach \x in {0, 1, 2}{
                 \fill [green, opacity=0.5] ({\x-\elementsize/2}, {0-\elementsize/2}) rectangle ({\x+\elementsize/2}, {3+\elementsize/2});
             }
-            \node at (0, 1.5) {$X_{:1}$};
+            \node at (0, 1.5) {$\bfx_{:1}$};
             \node at (1, 1.5) {$\cdots$};
-            \node at (2, 1.5) {$X_{:d}$};
+            \node at (2, 1.5) {$\bfx_{:d}$};
         \fill [green, opacity=0.5] ({3-\elementsize/2}, {-\elementsize/2}) rectangle ({3+\elementsize/2}, {3+\elementsize/2});
         \node at (3, 1.5) {$1$};
         \draw ({-\elementsize/2}, -0.5) -- (-0.5, -0.5) -- (-0.5, 3.5) -- ({-\elementsize/2}, 3.5);
@@ -984,7 +925,9 @@
     \end{tikzpicture}
 \end{figure}
 
-诶？这不是函数拟合问题吗？如果把 $Y_i$ 看作是关于 $i$ 的函数，那么我们的问题就是用 $d$ 个函数与一个常值函数来拟合一个给定的函数。或者如果不使用常数项，这与一般的使用给定函数的线性组合拟合没有任何差别。由此可见，用给定的函数集来拟合一个函数本质上与多元线性拟合有着完全相同的数学结构。
+诶？这不是函数拟合问题吗？如果把 $\bfy$ 和 $\bfx_{:j}$ 看作是关于 $i$ 的函数（这里函数定义在 $\{1, 2, \cdots, n\}$ 上，换言之，记 $\bfy(1) = y_1, \bfy(2) = y_2, \cdots, \bfy(n) = y_n$，同理，设 $\bfx_{:j}(i) = x_{ij}$。那么我们的问题就是用 $d$ 个函数 $\bfx_{:1}(i) \sim \bfx_{:d}(i)$ 与一个常值函数 $\bfx^{0}(i) \equiv 1$ 来拟合一个给定的函数 $\bfy(i)$。
+
+去掉常数项（或者把常数项也当成一个 $\bfx_{:d+1}$ ）并把自变量 $i$ 当成一元函数拟合问题中的 $x$ 就可以发现：这与使用给定函数 $f_1(x)\sim f_d(x)$ 的线性组合，在若干数据点上拟合给定函数 $f(x)$ 这一问题没有任何差别。由此可见，用给定的函数集来拟合一个函数本质上与多元线性拟合有着完全相同的数学结构。
 
 至此，我们至少已经初步理解了线性拟合。在这一章的最后，让我们做个总结。
 
@@ -1006,72 +949,3 @@
                   \url{https://zhuanlan.zhihu.com/p/48541799}
     \end{itemize}
 \end{tcolorbox}
-
-\newpage
-
-\section{逻辑亦数据}
-% 从程序执行的视角开始，引入数据是如何编码逻辑的
-\subsection{逻辑门}
-\subsection{程序是怎么执行起来的}
-\subsection{位运算与bit-flag}
-
-\section{神经网络：一个大的函数}
-% 从函数拟合的角度引入神经网络
-\subsection{知道目标就可以拟合了？}
-\subsection{激活函数与非线性}
-\subsection{神经网络的训练}
-\subsection{如果不知道目标，只知道回报呢？}
-
-\section{泛化性：一个矛盾}
-% 从训练集到测试集的泛化性
-\subsection{过拟合与欠拟合}
-\subsection{网络的大小好像小于训练数据？哪来的泛化性}
-\subsection{训练好像被卡住了——香农极限}
-
-\section{你能猜到一句话接下来要说什么？}
-% 从信息论的角度引入预测
-\subsection{什么是“废话”？}
-\subsection{jpeg虽然有损，但为什么说是极其成功的？}
-\subsection{熵与压缩}
-\subsection{马尔可夫链}
-
-\newpage
-
-\section{压缩即智能}
-% 从压缩的角度引入智能
-\subsection{你是如何看出对面的人心情怎么样的？}
-\subsection{压缩的极限——区分能力的边界}
-\subsection{从母语词汇看对事物的认识}
-\subsection{压缩的本质}
-
-\section{潜空间：更适合机器人的编码方式}
-% 从压缩的角度引入潜空间
-\subsection{潜空间是什么？}
-\subsection{高维空间的维数灾难}
-\subsection{“空空”的空间的另一面——维数远不是储存能力的极限}
-
-\section{但是，代价是什么：可解释性的地狱}
-% 从压缩的角度引入可解释性
-\subsection{想想什么是“解释”？}
-\subsection{神经网络不能很好地被解释}
-
-\section{再论网络结构} %：全连接、循环神经网络、卷积神经网络、残差链接与transformer}
-% 介绍常见的网络结构
-\subsection{全连接网络}
-\subsection{循环神经网络}
-\subsection{卷积神经网络}
-\subsection{深度学习与残差链接}
-\subsection{transformer}
-\subsection{自编码器与扩散模型}
-\subsection{仿人的架构——专家模型}
-
-\newpage
-
-\section{杂谈}
-% 一些更有哲学或社会学色彩的问题
-\subsection{矩阵式研究——场景与模型的排列组合}
-\subsection{AI圈的常见行话}
-\subsection{AI——生产力还是毁灭？}
-\subsection{新人类与自由意志？}
-
-\end{document}

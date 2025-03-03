@@ -1,0 +1,87 @@
+\documentclass[UTF8, 12pt]{article}
+
+\usepackage{ctex}
+\usepackage{inputenc}
+\usepackage{amsmath}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, linkcolor=red, urlcolor=blue]{hyperref}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\usepackage{tcolorbox} % box制作基本宏包
+\usepackage{varwidth} % box宽度设置需要
+\usepackage{ruby} % 标注
+
+\tcbuselibrary{breakable} %box内自动折行
+\tcbuselibrary{skins} % 填充等
+
+\usetikzlibrary{arrows.meta}
+\pgfplotsset{compat=1.18}
+
+\tcbset{
+    myrecommendbox/.style={
+        colback=yellow!10!white,
+        colframe=yellow!50!black,
+        fonttitle=\bfseries,
+        coltitle=black,
+        colbacktitle=yellow!50!white,
+        boxrule=0.5mm,
+        arc=4mm,
+        outer arc=4mm,
+        boxsep=5pt,
+        left=5pt,
+        right=5pt,
+        top=5pt,
+        bottom=5pt,
+        breakable,
+        enhanced,
+    }
+}
+\newcommand{\emptyline}{\vspace{\baselineskip}}
+\newcommand{\uhref}[2]{\href{#1}{\,\underline{#2}}\,}
+\newcommand{\uurl}[1]{\href{#1}{\,\underline{#1}}\,}
+
+\newcommand{\textoverset}[2]{$\overset{\text{#1}}{\text{#2}}$}
+
+\newcommand{\bfx}{{\mathbf{x}}}
+\newcommand{\bfy}{{\mathbf{y}}}
+\newcommand{\bfr}{{\mathbf{r}}}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\title{如何理解神经网络——信息量、压缩与智能}
+\author{gtj}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\input{sections/section1.tex}
+\newpage
+
+\input{sections/section2.tex}
+\input{sections/section3.tex}
+\input{sections/section4.tex}
+\input{sections/section5.tex}
+
+\newpage
+
+\input{sections/section6.tex}
+\input{sections/section7.tex}
+\input{sections/section8.tex}
+\input{sections/section9.tex}
+
+\newpage
+
+\input{sections/section10.tex}
+
+\end{document}
