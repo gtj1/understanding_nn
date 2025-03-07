@@ -17,6 +17,10 @@
 \usepackage{varwidth} % box宽度设置需要
 \usepackage{ruby} % 标注
 
+\usepackage{enumitem} % 列表宏包
+\usepackage{listings} % 代码宏包
+\usepackage{minted}
+
 \tcbuselibrary{breakable} %box内自动折行
 \tcbuselibrary{skins} % 填充等
 
@@ -43,8 +47,8 @@
     }
 }
 \newcommand{\emptyline}{\vspace{\baselineskip}}
-\newcommand{\uhref}[2]{\href{#1}{\,\underline{#2}}\,}
-\newcommand{\uurl}[1]{\href{#1}{\,\underline{#1}}\,}
+\newcommand{\uhref}[2]{\,\href{#1}{\,\underline{#2}}\,}
+\newcommand{\uurl}[1]{\,\href{#1}{\,\underline{#1}}\,}
 
 \newcommand{\textoverset}[2]{$\overset{\text{#1}}{\text{#2}}$}
 

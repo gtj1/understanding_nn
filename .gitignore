@@ -6,3 +6,5 @@
 *.synctex.gz
 *.toc
 *(busy)
+_minted-*
+.vscode

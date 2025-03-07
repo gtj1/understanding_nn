@@ -2,7 +2,7 @@
 % 从程序执行的视角开始，引入数据是如何编码逻辑的
 \subsection{逻辑门}
 
-我们不妨将视角从拟合上短暂地移开，我相信理解逻辑和数据的关系多少也会帮助我们理解神经网络。读者或许好奇过，计算是如何完成的呢？在讨论这个问题之前，先来做一个约定，我们将 0 视作\textoverset{False}{假}，1 视作\textoverset{True}{真}\footnote{逻辑0/1：在物理上，逻辑 0 由\textoverset{Low}{低电平}表示，逻辑 1 由\textoverset{High}{高电平}表示，TTL 和 CMOS 电路各有多种电压标准，感兴趣的读者可以自行学习电路的知识。}。先来看看几种最简单的逻辑运算。
+这一章将视角从拟合上短暂地移开，我相信理解逻辑和数据的关系多少也会帮助我们理解神经网络。读者或许好奇过，计算是如何完成的呢？在讨论这个问题之前，先来做一个约定，我们将 0 视作\textoverset{False}{假}，1 视作\textoverset{True}{真}\footnote{逻辑0/1：在物理上，逻辑 0 由\textoverset{Low}{低电平}表示，逻辑 1 由\textoverset{High}{高电平}表示，TTL 和 CMOS 电路各有多种电压标准，感兴趣的读者可以自行学习电路的知识。}。先来看看几种最简单的逻辑运算。
 
 \begin{enumerate}
     \item \textoverset{Not}{非}（数学写法：$\neg$，C 语言写法：\texttt{!}，Python 写法：\texttt{not}）
@@ -56,7 +56,7 @@
     \caption{逻辑门：从左到右分别为非门、与门、或门}
 \end{figure}
 
-看起来这只是一些非常简单的运算，但是基本上有这些就可以构建出所有的计算\footnote{所有的运算：这里指的是\textoverset{Turing Completeness}{图灵完备性}，如果你想深入了解，可以在 Steam 上购买一个叫做 \uhref{https://store.steampowered.com/app/1444480/Turing_Complete/}{Turing Complete} 的硬核游戏，推荐游玩。}。例如\textoverset{Exclusive Or}{异或}运算表示两个输入中有且仅有一个为真。最粗暴简单的方法是列出它为 1 的所有情况：$(x\land \neg y) \lor (\neg x \land y)$。这样我们就可以用非、与、或门来构建出一个异或门。
+看起来这只是一些非常简单的运算，但是基本上有这些就可以构建出所有的计算\footnote{所有的运算：这里指的是\textoverset{Turing Completeness}{图灵完备性}，如果你想深入了解，可以在 Steam 上购买一个叫做 \uhref{https://store.steampowered.com/app/1444480/Turing_Complete/}{Turing Complete} 的硬核游戏，推荐游玩。}。例如\textoverset{Exclusive Or}{异或}运算表示两个输入中有且仅有一个为真。最粗暴简单的方法是列出它为 1 的所有情况：$x \; \text{xor} \; y = (x\land \neg y) \lor (\neg x \land y)$。这样我们就可以用非、与、或门来构建出一个异或门。
 
 虽然它可以完成“所有的运算”，但是具体来说，比如有读者可能要问，如果我想计算加法，它应该怎么办呢？既然逻辑上只有两个值，那么自然地计算机就要使用二进制来表示数字了。二进制的加法非常简单，就以 $5+3$ 为例，我们可以这样计算：
 \[
@@ -68,26 +68,333 @@
     \end{array}
 \]
 
-逻辑门又是如何完成这一过程的呢？我们将它拆解成一个个小问题。当加到某一位时，我们需要考虑三个数：两个加数和进位。分成 $2^3 = 8$ 种情况
+逻辑门又是如何完成这一过程的呢？我们将它拆解成一个个小问题。当加到某一位时，我们需要考虑三个数：两个加数和来自后方的进位。例如下面这种情况
 \[
-    \begin{array}{cccccc|cccccc}
+    \begin{array}{rr}
+        &\ldots_{\phantom{0}} 1_{\phantom{0}} \color{lightgray}\ldots\\
+        + &\ldots_{\color{red}1} 0_{\color{blue}1} \color{lightgray}\ldots\\
         \hline
-        \overset{\text{加数1}}{x} & \overset{\text{加数2}}{y} & \overset{\text{后方进位}}{c} & \overset{\text{二进制位}}{s} & \overset{\text{向前进位}}{c'} & \text{out} &
-        \overset{\text{加数1}}{x} & \overset{\text{加数2}}{y} & \overset{\text{后方进位}}{c} & \overset{\text{二进制位}}{s} & \overset{\text{向前进位}}{c'} & \text{out}\\
+        & \cdots_{\phantom{0}} {\color{red}1}_{\phantom{0}} \color{lightgray}\ldots
+    \end{array}
+\]
+
+如果考虑这一位相加得到的结果，后面相加得到结果的情况我们已经不关心了（因此标为浅灰色），在这里我们只关心从后方是否有进位（按照列竖式加法习惯，图中蓝色标注的下标 1）。再考虑两个加数的这一位分别为 1 和 0，所以 $1+0+1=2$，在结果栏写下一个 0（横线下方红色的 0），向前进位 1（写在前面一位下标的红色的 1），然后以同样的流程处理前一位。
+
+记两个加数的这一位分别为 $x, y$，后方进位为 $c$，那么这一位的加和 $s$ 和向前进位 $c'$ 可以表示为
+\[
+    \begin{aligned}
+        s &= (x \; \text{xor} \; y) \; \text{xor} \; c \\
+        c' &= (x \land y) \lor (c \land (x \; \text{xor} \; y))
+    \end{aligned}
+\]
+
+当然这并不是唯一正确的写法，实际上有很多正确的写法，证明就免了，如果读者有兴趣可以自行尝试，或许也可以找到另外的表达式。最简单粗暴的方法就是把两个加数的情况和是否带进位的情况全部列出来，分成 $2^3 = 8$ 种情况，就得到了如下的表，并逐一验证：
+\[
+    \begin{array}{cccccc}
         \hline
-        0 & 0 & 0 & 0 & 0 & 0&
+        \overset{\text{加数1}}{x} & \overset{\text{加数2}}{y} & \overset{\text{后方进位}}{c} & \overset{\text{加和}}{\text{sum}} & \overset{\text{向前进位}}{c'} & \overset{\text{结果位}}{s} \\
+        \hline
+        0 & 0 & 0 & 0 & 0 & 0\\
         0 & 0 & 1 & 1 & 0 & 1\\
-        0 & 1 & 0 & 1 & 0 & 1&
-        0 & 1 & 1 & 0 & 1 & 2\\
-        1 & 0 & 0 & 1 & 0 & 1&
-        1 & 0 & 1 & 0 & 1 & 2\\
-        1 & 1 & 0 & 0 & 1 & 2&
-        1 & 1 & 1 & 1 & 1 & 3\\
+        0 & 1 & 0 & 1 & 0 & 1\\
+        0 & 1 & 1 & 2 & 1 & 0\\
+        1 & 0 & 0 & 1 & 0 & 1\\
+        1 & 0 & 1 & 2 & 1 & 0\\
+        1 & 1 & 0 & 2 & 1 & 0\\
+        1 & 1 & 1 & 3 & 1 & 1\\
         \hline
     \end{array}
 \]
 
-每一个输出的位都可以通过输入的逻辑运算，用一定的电路连接表示，把多个电路串起来\footnote{串起来：对于加法这个例子，在网上\uhref{https://www.bing.com/search?q=\%E5\%85\%A8\%E5\%8A\%A0\%E5\%99\%A8}{搜索全加器}就可以很容易地搜到。}，就可以完成加法了。本质上我们的计算机 CPU 就是由这样的门电路与接线组成的\footnote{说明：实际上制造中，与非门、或非门使用更多，因为它们有更方便制造、体积较小、功耗低等优势。}。一个 CPU 需要大量门电路组合形成，现代的 CPU 包含数十亿个门电路，而一个门又由若干个微型的晶体管构成。为了让电路精确地实现我们预期的功能，需要精准地将电路雕刻在硅片上，这就是光刻技术如此重要的原因。但是山在那，总有人会去登的。\footnote{山在那，总有人会去登：语出刘慈欣的短篇小说\uhref{https://zhiqiang.org/resource/liucixin-mountain.html}{山}，写到大量的微晶体管以精妙地排布构成电路让我想起小说中的硅基生物，如果看到这里看累了不妨去看看小说放松一下吧。}
+就像等式描述的一样，每一个输出的位都可以通过输入的逻辑运算用一定的电路连接表示，把多个电路串起来\footnote{串起来：对于加法这个例子，在网上\uhref{https://www.bing.com/search?q=\%E5\%85\%A8\%E5\%8A\%A0\%E5\%99\%A8}{搜索全加器}就可以很容易地搜到。}，就可以完成加法了。本质上我们的计算机 CPU 就是由这样的门电路与接线组成的\footnote{说明：实际上制造中，与非门、或非门使用更多，因为它们有更方便制造、体积较小、功耗低等优势。}。一个 CPU 需要大量门电路组合形成，现代的 CPU 包含数十亿个门电路，而一个门又由若干个微型的晶体管构成。为了让电路精确地实现我们预期的功能，需要精准地将电路雕刻在硅片上，这就是光刻技术如此重要的原因。但是山在那，总有人会去登的\footnote{山在那，总有人会去登：语出源自英国登山家 George Mallory 当被问及为何要攀登珠穆朗玛峰时的回答“因为山在那里”。‌刘慈欣的短篇小说\uhref{https://zhiqiang.org/resource/liucixin-mountain.html}{《山》}引用了这句话。写到大量的微晶体管以精妙地排布构成电路让我想起小说中从基本电路开始进化的的硅基生物，如果你看到这里看累了，去看看小说放松一下吧。}，两个多世纪的技术积累才造就了现代计算机的诞生，从逻辑门到通用计算机每一步的发展都凝聚着人类技术与智慧的结晶。
+
+\newpage
 
 \subsection{程序是怎么执行起来的}
+
+擅长编程的读者或许对编程-编译-执行的路径再熟悉不过了，可少有人思考其中细节。理解程序是如何运行起来的其实是一个基础性的问题，但如果深究下去，这里的水很深：仅是从代码编写到程序运行的过程这一个问题，就足以写好几本书\footnote{好几本书：比如几本经典教材
+    \begin{itemize}
+        \item 程序如何编译出来：\uhref{https://repository.unikom.ac.id/48769/1/Compilers\%20-\%20Principles,\%20Techniques,\%20and\%20Tools\%20(2006).pdf}{《编译原理》}{(\emph{Compilers: Principles, Techniques, and Tools})}
+        \item 计算机的结构：\uhref{https://www.cs.sfu.ca/~ashriram/Courses/CS295/assets/books/CSAPP_2016.pdf}{《深入理解计算机系统》}(\emph{Computer Systems: A Programmer's Perspective})
+        \item 程序的结构：\uhref{https://web.mit.edu/6.001/6.037/sicp.pdf}{《计算机程序的构造和解释》}{(\emph{Structure and Interpretation of Computer Programs})}
+    \end{itemize}
+}了。因此我仅仅会从一个极简的视角来介绍 CPU 运行程序的流程，顺带解释必要的概念。让计算机执行程序前，我们首先需要思考“我们想让计算机做什么”并能把它讲明白。开发的第一步永远是明确需求，而后才是写代码让计算机执行，这一点贯彻到后续的机器学习也是一样的。
+
+CPU 不是人类，它并不天然地理解我们的语言，不过或许并不应就这一点给我们带来的不便而感到沮丧：因为从人类手动完成一切计算到计算机的出现，电子器件的计算能力已经将人类从许多重复、繁琐的工作中解放出来。CPU 现在不能干的很多，但此刻更应该思考的是，它能干什么呢？这里我顺着\uhref{https://www.bilibili.com/video/BV1Lp4y167im}{这份CSAPP视频合集}的思路简单介绍一下。
+
+现代的 CPU 通常包含复杂的\textoverset{Architecture}{架构}与\textoverset{Instruction Set}{指令集}，但是为了便于理解，我们先只考虑一个极度简化的 CPU，它就像是在一张“草稿纸”\footnote{草稿纸：比喻计算机的\textoverset{RAM}{内存}，暂且把它理解为每格写了一个整数，实际计算机中是字节。}上遵照着一份“指南”\footnote{指南：比喻计算机的程序，是计算机要执行的\textoverset{Instruction}{指令}。}运算。能干的事情也就是下面这几个指令（这里与主要的几种汇编语法都略有区别）：
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{asm}
+mov a, b  ; 将 b 的值赋给 a
+add a, b  ; 将 a 和 b 相加，结果存入 a
+sub a, b  ; 将 a 减去 b，结果存入 a
+mul a, b  ; 将 a 乘以 b，结果存入 a
+div a, b  ; 将 a 除以 b，保留整数部分，结果存入 a
+jmp addr  ; 跳转到 addr 执行
+je addr   ; 如果上一次运算结果为 0，则跳转到 addr 执行
+jne addr  ; 如果上一次运算结果不为 0，则跳转到 addr 执行
+jl addr   ; 如果上一次运算结果小于 0，则跳转到 addr 执行
+cmp a, b  ; 比较 a 和 b 的值，设置标志位
+\end{minted}
+
+先解释一下这些指令名称的含义：
+\begin{itemize}
+    \item \texttt{mov}：\textbf{mov}e 的缩写，将一个数值从一个地方移动到另一个地方。
+    \item \texttt{add}, \texttt{sub}, \texttt{mul}, \texttt{div}：\textbf{add}, \textbf{sub}tract, \textbf{mul}tiply, \textbf{div}ide 的缩写，加减乘除。
+    \item \texttt{jmp}, \texttt{je}, \texttt{jne}, \texttt{jl}：\textbf{j}u\textbf{mp}, \textbf{j}ump if \textbf{e}qual, \textbf{j}ump if \textbf{n}ot \textbf{e}qual, \textbf{j}ump if \textbf{l}ess 的缩写，分别为跳转、当等于时跳转、当不等于时跳转、当小于时跳转。
+    \item \texttt{cmp}：\textbf{cmp}are 的缩写，比较。
+\end{itemize}
+
+这里写作 \texttt{a, b} 的其实都表示内存上的一个地址，类似于如果给行编号，那么 \texttt{a, b} 就是行号。再引入一个额外的符号，\texttt{[a]} 表示取地址 a 上的值，例如当内存单元 \texttt{42} 中存着值 \texttt{64} 时，\texttt{[42]} 就表示 \texttt{64}，例如 \texttt{mov 10, [42]} 表示的就是把 \texttt{64} 号内存的值赋给 \texttt{10} 号内存。\texttt{\#x} 表示\textoverset{Immediate Value}{立即数值} x，例如 \texttt{\#10} 表示数值 \texttt{10} 本身，而非内存位置 \texttt{10}。那么我们可以写出一个简单的程序，例如把内存 \texttt{0} 位置\footnote{内存 \texttt{0}：按照计算机中的习惯，计数从 0 开始。}的值与内存 \texttt{1} 位置的加和存入内存 \texttt{2}：
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{asm}
+mov 2, 0    ; 将 0 号内存的值赋给 2 号内存
+add 2, 1    ; 将 2 号内存和 1 号内存相加，结果存入 2 号内存
+\end{minted}
+
+又比如，如果我们想交换内存 \texttt{0} 和内存 \texttt{1} 位置的数值，可以这样写：
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{asm}
+mov 2, 0    ; 将 0 号内存的值赋给 2 号内存
+mov 0, 1    ; 将 1 号内存的值赋给 0 号内存
+mov 1, 2    ; 将 2 号内存的值赋给 1 号内存
+\end{minted}
+
+这个过程运行时\footnote{你先别管它怎么运行起来的。}看起来是这样的，右边的列表表示内存，每个元素是内存的一个单元，这里 $x_i$ 示意第 $i$ 个内存单元。$x,y$ 都是数，你可以把它带入 $1, 2$ 或者你想的任何数字，右侧的列表则表示对应的指令执行后的内存状态：
+\[
+    \begin{array}{l|l}
+        \text{指令} & [x_1, x_2, x_3, \cdots] \\
+        \hline
+        \phantom{\triangleright} \; (\text{initial}) & [{\color{red!50}x}, {\color{blue!50}y}, \_, \ldots] \\
+        \triangleright \; \text{mov 2, 0} & [{\color{red!50}x}, {\color{blue!50}y}, {\color{red!50}x}, \ldots] \\
+        \triangleright \; \text{mov 0, 1} & [{\color{blue!50}y}, {\color{blue!50}y}, {\color{red!50}x}, \ldots] \\
+        \triangleright \; \text{mov 1, 2} & [{\color{blue!50}y}, {\color{red!50}x}, {\color{red!50}x}, \ldots] \\
+    \end{array}
+\]
+
+不过看到这里，不知读者是否发现了一个问题：内存中的 \texttt{2} 号位置在交换 \texttt{0} 号和 \texttt{1} 号位置的数值时被覆盖了。这种情况一般称为\textoverset{Side Effect}{副作用}\footnote{副作用：指令运行的过程中对其他地方产生的影响。}，但似乎不太可能既不修改其它内存，又交换数值\footnote{不太可能：在本例中确实有\uhref{https://www.cnblogs.com/cpoint/p/3367376.html}{奇技淫巧}可以在不设中间变量的情况下交换变量，只是它使用到了一些代数性质，既不方便，可读性和可拓展性也差。}。万一内存 \texttt{2} 储存了重要的数据，丢失了是很大的问题。那么怎么办呢？干脆设定某块区域可以随意用作临时存储\footnote{临时储存：可以理解为一种草稿纸，内容可以随时丢弃}，我们就此“发明”了\textoverset{Register}{寄存器}\footnote{寄存器：实际的 CPU 中，寄存器是 CPU 内部的一块存储区域，与内存的处理、读写速度等都有显著的不同。但是出于易于理解起见，我们这里仍把它当作一个特殊的内存区域。}。就假设我们接下来约定了地址 \texttt{0-7} 是寄存器，可以存储临时的数据。为了方便阅读，接下来把它们标记为 \texttt{r0} 到 \texttt{r7}。既然这样，\texttt{0-7} 的位置就可以用作临时存储了，但是同时它们也不适合作为输入输出\footnote{不适合：这里指的是不方便我们的讨论，实际程序中是靠一定的约定依靠寄存器传递参数的，但是这些规则可能会为清晰的说明带来困扰，所以在这里寄存器还是用作纯粹的草稿。}。所以这次我们把任务改为交换内存 \texttt{8} 和内存 \texttt{9}：
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{asm}
+mov r0, 8   ; 将 8 号内存的值赋给 0 号寄存器
+mov 8, 9    ; 将 9 号内存的值赋给 8 号内存
+mov 9, r0   ; 将 0 号寄存器的值赋给 9 号内存
+\end{minted}
+
+这样程序运行的过程中改变的就仅仅是我们视作数据内容\textoverset{Volatile}{易失}的寄存器，而内存中的数据则保持不变。这样我们再来写一个简单的求和程序，在内存 \texttt{8} 中存储了求和的起点地址，内存 \texttt{9} 中存储了求和的终点地址，为了方便起见，我们使用左闭右开区间，即包含起点，但不包含终点（一会就会看到它带来的方便）。最后将求和结果存入内存 \texttt{10}：
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{asm}
+mov r0, #0  ; 将 0 写入 0 号寄存器
+mov r1, 8   ; 将 8 号内存的值赋给 1 号寄存器
+mov r2, 9   ; 将 9 号内存的值赋给 2 号寄存器
+loop:
+    add r0, [r1]    ; 将 1 号寄存器指向的内存的值加到 0 号寄存器
+    add r1, #1      ; 1 号储存器指向的内存地址加 1
+    cmp r1, r2      ; 比较 1 号寄存器和 2 号寄存器的值
+    jne loop        ; 如果不相等，跳转到 loop
+mov 10, r0  ; 将 0 号寄存器的值存入 10 号内存
+\end{minted}
+
+严格来讲上面这段代码包含了前文还没引入标签的概念，其中的 \texttt{loop:} 就是一个标签，它是一个位置的别名\footnote{别名：例如在本例中，它指代 \texttt{add r0, [r1]} 所在的行}，也是填写在 \texttt{jmp}, \texttt{je}, \texttt{jne} 指令后的地址。
+
+这个程序运行起来是怎么样的呢？假设我们在 \texttt{8} 号位置存储了起点地址 \texttt{15}，\texttt{9} 号位置存储了终点地址 \texttt{18}（它们虽然储存的是地址，从程序逻辑上指向的是内存块，但是本质上在 CPU 看来仍然是一种“整数”，只是这个整数记录了另一个整数的位置信息）。那么程序运行的过程大概是这样的（这里假设内存中 $x_{15}, x_{16}, x_{17}$ 分别存储了 \texttt{1, 2, 3}）：
+\[
+    \begin{array}{l|lll}
+        \text{指令} & [r_0, r_1, r_2, \cdots, & x_8, x_9, x_{10}, \cdots, & x_{15}, x_{16}, x_{17}, \cdots]\\
+        \hline
+        \phantom{\triangleright} \; (\text{initial}) & [\_, \_, \_, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \\
+        \triangleright \; \text{mov r0, \#0} & [0, \_, \_, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{向 $r_0$ 写入 0}\\
+        \triangleright \; \text{mov r1, 8} & [0, 15, \_, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{将 $x_8$ 的 15 赋给 $r_1$}\\
+        \triangleright \; \text{mov r2, 9} & [0, 15, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{将 $x_9$ 的 18 赋给 $r_2$}\\
+        \triangleright \; \text{add r0, [r1]} & [1, 15, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{$r_1 = 15,$ 取 $x_{15}=1$ 加到 $r_0$}\\
+        \triangleright \; \text{add r1, \#1} & [1, 16, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{$r_1$ 加 1 (指向 $x_{16}$)}\\
+        \triangleright \; \text{cmp r1, r2} & [1, 16, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \to (16 \neq 18, \text{跳回 loop}) \\
+        \triangleright \; \text{add r0, [r1]} & [3, 16, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{$r_1 = 16,$ 取 $x_{16}=2$ 加到 $r_0$}\\
+        \triangleright \; \text{add r1, \#1} & [3, 17, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{$r_1$ 加 1 (指向 $x_{17}$)}\\
+        \triangleright \; \text{cmp r1, r2} & [3, 17, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \to (17 \neq 18, \text{跳回 loop}) \\
+        \triangleright \; \text{add r0, [r1]} & [6, 17, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{$r_1 = 17,$ 取 $x_{17}=3$ 加到 $r_0$}\\
+        \triangleright \; \text{add r1, \#1} & [6, 18, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{$r_1$ 加 1 (指向 $x_{18}$)}\\
+        \triangleright \; \text{cmp r1, r2} & [6, 18, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \to (18 = 18, \text{顺序执行}) \\
+        \triangleright \; \text{mov 10, r0} & [6, 18, 18, \cdots, & 15, 18, 6, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{将 $r_0$ 的 6 存入 $x_{10}$}
+    \end{array}
+\]
+
+这个求和固然写的很好，但是我们又有一个问题，比方说下一次我们想写代码来求一块连续内存的均值，那么我们就需要再写一遍类似的代码，只是在最后加一个除法指令。这显然非常不经济实惠，因此需要把这个求和的过程给抽象出来，这就是\textoverset{Function}{函数}的概念。函数就是一段可以重复使用的代码块，它可以接受输入，产生输出。想的很好，但是我们要怎么实现呢？
+
+我们先从日常生活经验来理解这么一件事情：你在做作业，突然感觉饿了，于是你拿起手机，打开了某外卖软件，点了一份外卖。这个过程中，你并不需要知道外卖是怎么做的，而在点完外卖后，你放下手机，继续做作业。我们从这个例子中可以得到什么启发呢？首先，原本的语境是做作业，点完外卖后应该要切换回做作业的场景，而不是紧接着打开某视频或者小说软件，这说明你需要记住你原本的工作做到哪里了。其次，你的行为是逐层嵌套的，要先拿起手机才能点外卖，但是点完之后要先退出外卖软件，然后才是放下手机。就像这样两个闭合的括号 $(())$，你需要先进入外层才能进入内层，反过来要先退出内层才能退出外层。我想这已经足以说明函数应当如何设计了：总的来说要有一个入口和一个出口，而且函数内部的操作应该是封闭的，用完要能够切换回原来的场景。
+
+跳进函数很容易，只需要 \texttt{jmp} 到函数的入口执行代码就可以了，但是仔细一想，我们的函数调用完之后要怎么知道该回到哪里呢？这里我就要提到一个之前没有明说的地方，实际上执行程序时我写在每一行的指令都是有编号的，这个编号就是\textoverset{Program Counter}{程序计数器}\footnote{程序计数器：在实际的 CPU 中，程序计数器是一个寄存器，用来存储待执行的指令地址。}。与其它的寄存器不同，这个寄存器是有专门用途的，所以称为\textoverset{Special-Purpose Register}{专用目的寄存器}，而其它可以随意用作存储的寄存器称为\textoverset{General-Purpose Register}{通用目的寄存器}。在前文中指令左侧画的小三角就是程序计数器的表示，所以“记住”运行到了哪里实际上只需要把程序计数器的值存起来，然后在函数结束后再把它取出来就可以了。
+
+最简单的想法是，再设置一个寄存器专门用来存储要返回的地址，不过这个想法存在一个问题：如果在函数里面再次想要调用其它函数，那么这个寄存器就会被覆盖，也就是说内层函数调用成功并返回了，外层函数却不知道该回到哪了。为此我们发现存储应该是分层的，每进入一个函数就应该有一个新的存储空间，当退出时再把这个存储空间销毁，而且进入和退出的顺序是相反的（这种顺序通常称为\textoverset{Last In First Out}{后进先出}），这就引出了\textoverset{Stack}{栈}。
+
+栈就像一摞盘子，每次放盘子都是放在最上面，取盘子也是从最上面取（我们不讨论一次拿走多个盘子的情况）。只需要知道如何往上放和如何取下来就可以操作了。不过盘子能叠的高度是有限的，正如内存是有限的，但是假使我们的程序没有太深层的函数调用，这里就假设是 80 层\footnote{80：这个数字有其历史原因，早期计算机终端通常只有 80 列，因此 80 个字符以内成为了 Linux 编码的规范，这个规范延续到了很多语言的编程风格建议之中，成为一种约定俗成。这里限制深度 80 意味着如果使用“标准”的列宽，一行能写下所有的左括号。}，那么我们只需要分配 80 个单位的连续内存空间。对于人类来讲，匹配十几层的括号已经不可思议，80 层更是相当深了\footnote{相当深：相对大部分应用程序确实是这样的，但是对于一些特殊的部分，例如搜索、嵌套\textoverset{Callback}{回调}、\textoverset{Ray Tracing}{光路追踪}等，完全可能达到成百上千层。}。除此之外我们需要一个寄存器来存储栈顶的位置，其称为\textoverset{Stack Pointer}{栈指针}。于是我们大手一挥，把 \texttt{8} 号位置作为\textoverset{Stack Pointer}{栈顶指针}，用一个别名 \texttt{sp} 代表它。又把 \texttt{20} 到 \texttt{99} 号内存分配给栈。如果暂且不考虑调用层数太深的问题。加下来函数调用要怎么样呢？
+
+首当其冲的是把当前的下一条指令地址\textoverset{Push}{压}到栈顶，接下来是把栈顶指针加 1，然后再 \texttt{jmp} 到函数的入口\footnote{\texttt{jmp}：本质上读者可能已经发现了，\texttt{jmp} 实际上就是把某个值写入程序寄存器，这样一来 CPU 就会跳转到这个地址执行了。}。在函数结束时，我们需要先恢复栈顶指针，再把栈顶我们事先存的下一条地址\textoverset{Pop}{弹}出来，最后再 \texttt{jmp} 到这个地址。
+
+另外，在前面的例子中，起始、终止地址、写入位置等参数是通过手动指定的 \texttt{8, 9, 10} 位置来传递的，但是我们显然不想为每一个函数都手动指定参数要放在哪里，这很麻烦，需要一个清晰、明确的规则来传递参数\footnote{规则：x86, x86-64 Linux, x86-64 Windows, ARM 各有各的传法。}。此处设定一个比较简单的规则：用 9 号位置专门储存函数得到的结果，起别名 \texttt{ans}。同时做这样一个限制：函数最多有 4 个参数\footnote{4 个参数：这个限制是为了简化问题，实际计算机参数传递中对于多出的部分会用到栈，但是这里不允许使用栈传递，4 这个数字是按照 x86-64 Windows 可用的寄存器参数传递来的。}，把 \texttt{10-13} 位置用作参数存储，给它们分别起名 \texttt{arg0} 到 \texttt{arg3}，这样我们就可以以“函数调用”的方式求 \texttt{101-103} 号位置均值并存储到 \texttt{100} 位置了，先是 \texttt{sum} 函数：
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{asm}
+sum:
+    mov r0, #0  ; 将 0 写入 0 号寄存器
+    mov r1, arg0    ; 将 arg0 的值赋给 1 号寄存器
+    mov r2, arg1    ; 将 arg1 的值赋给 2 号寄存器
+loop:
+    add r0, [r1]    ; 将 1 号寄存器指向的内存的值加到 0 号寄存器
+    add r1, #1      ; 1 号储存器指向的内存地址加 1
+    cmp r1, r2      ; 比较 1 号寄存器和 2 号寄存器的值
+    jne loop        ; 如果不相等，跳转到 loop
+    mov ans, r0     ; 将 0 号寄存器的值存入 ans
+    sub sp, #1      ; 栈顶指针减 1
+    jmp [sp]        ; 跳转到栈顶指向的指令地址
+\end{minted}
+
+再是 \texttt{mean} 函数：
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{asm}
+mean:
+    mov [sp], label1; 将 label1 的地址存入栈顶
+    add sp, #1      ; 栈顶指针加 1
+    jmp sum         ; 跳转到 sum 函数，无需改变参数
+label1:
+    sub arg2, arg1  ; 将 arg2 减去 arg1 得到求和的长度
+    div ans, arg2   ; 将 ans 除以 arg2 得到均值
+    sub sp, #1      ; 栈顶指针减 1
+    jmp [sp]        ; 跳转到栈顶指向的指令地址
+\end{minted}
+
+最后是主程序：
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{asm}
+main:
+    mov 101, #1     ; 将 1 存入 101 号内存
+    mov 102, #2     ; 将 2 存入 102 号内存
+    mov 103, #3     ; 将 3 存入 103 号内存
+    mov arg0, #101  ; 将起始地址 101 存入 arg0（含）
+    mov arg1, #104  ; 将终止地址 104 存入 arg1（不含）
+
+    mov [sp], label2; 将 label2 的地址存入栈顶
+    add sp, #1      ; 栈顶指针加 1
+    jmp mean        ; 跳转到 mean 函数
+label2:
+    mov 100, ans    ; 将 ans 的值存入 100 号内存
+\end{minted}
+
+最终我们总体的程序结构是这样的：
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{asm}
+jmp main
+sum:  ...
+mean: ...
+main: ...
+\end{minted}
+
+读者可以一步步地思考，假设 \texttt{sp} 最开始存储了空的栈顶 \texttt{20}，并体会它是如何通过精确的操作完成函数调用的。不过随之而来的我们发现每次调用函数前起手都要写这样一段
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{asm}
+    ...             ; 前面的代码
+    mov [sp], label1; 将 label1 的地址存入栈顶
+    add sp, #1      ; 栈顶指针加 1
+    jmp func        ; 跳转到 func 函数
+label:              ; 为了后续继续执行添加标签
+    ...             ; 原本的后续代码
+\end{minted}
+
+同样在函数结束时又要写一段
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{asm}
+    ...             ; 函数内部
+    sub sp, #1      ; 栈顶指针减 1
+    jmp [sp]        ; 跳转到栈顶指向的指令地址，函数结束
+\end{minted}
+
+实在是太麻烦了，显然属于重复性的劳动，于是我们从中提炼出\textoverset{Call}{调用}和\textoverset{Return}{返回}的指令。既然这样，就给了简化写法的空间：定义一个指令 \texttt{call func}，它自动完成函数开始时压栈、栈顶移动和跳转到函数的操作。再定义 \texttt{ret}，它自动完成栈顶回退、跳转到栈顶指向的地址的操作。把这个过程抽象出来之后，我们的程序就变成了这样：
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{asm}
+jmp main
+sum:
+    mov r0, #0  ; 将 0 写入 0 号寄存器
+    mov r1, arg0    ; 将 arg0 的值赋给 1 号寄存器
+    mov r2, arg1    ; 将 arg1 的值赋给 2 号寄存器
+loop:
+    add r0, [r1]    ; 将 1 号寄存器指向的内存的值加到 0 号寄存器
+    add r1, #1      ; 1 号储存器指向的内存地址加 1
+    cmp r1, r2      ; 比较 1 号寄存器和 2 号寄存器的值
+    jne loop        ; 如果不相等，跳转到 loop
+    mov ans, r0     ; 将 0 号寄存器的值存入 ans
+    ret
+mean:
+    call sum        ; 直接把 arg0 和 arg1 传给 sum
+    sub arg2, arg1  ; 将 arg2 减去 arg1 得到求和的长度
+    div ans, arg2   ; 将 sum 得到的 ans 除以 arg2 得到均值
+    ret
+main:
+    mov 101, #1     ; 将 1 存入 101 号内存
+    mov 102, #2     ; 将 2 存入 102 号内存
+    mov 103, #3     ; 将 3 存入 103 号内存
+    mov arg0, #101  ; 将起始地址 101 存入 arg0（含）
+    mov arg1, #104  ; 将终止地址 104 存入 arg1（不含）
+    call mean       ; 直接把 arg0, arg1, arg2 传给 mean
+    mov 100, ans    ; 将 mean 得到的 ans 存入 100 号内存
+\end{minted}
+
+但是其实抽象远没有结束，还可以进一步提炼出更精简的代码。我们感觉直接操作指令的方式过于野蛮了，但是我们可以写一个简单的文本替换程序来帮我们从较为简洁的代码生成这些指令。我们假设有这样一个程序，能完成如下的替换：
+
+\begin{center}
+\begin{tabular}{c|c|c}
+    \hline 
+    \textbf{原文本} & \textbf{替换后} & \textbf{说明} \\
+    \hline
+    ``...'' & ; ... & 注释 \\[5pt]
+    ; & (换行) & 换行 \\[5pt]
+    \texttt{123} & \texttt{\#123} & 立即数 \\[5pt]
+    \texttt{x123} & \texttt{123} & 内存地址 \\[5pt]
+    \texttt{a += b} & \texttt{add a, b} & 加法 \\[5pt]
+    \texttt{a -= b} & \texttt{sub a, b} & 减法 \\[5pt]
+    \texttt{a *= b} & \texttt{mul a, b} & 乘法 \\[5pt]
+    \texttt{a /= b} & \texttt{div a, b} & 除法 \\[5pt]
+    \texttt{a = b} & \texttt{mov a, b} & 赋值 \\[5pt]
+    \texttt{return a} & $\boxed{\begin{array}{l} \texttt{mov ans, a} \\ \texttt{ret} \end{array}}$ & 返回 \\[20pt] 
+    \texttt{if a != b jmp addr} & $\boxed{\begin{array}{l} \texttt{cmp a, b} \\ \texttt{jne addr} \end{array}}$ & 不等跳转 \\[20pt]
+    \texttt{if a == b jmp addr} & $\boxed{\begin{array}{l} \texttt{cmp a, b} \\ \texttt{je addr} \end{array}}$ & 等于跳转 \\[20pt]
+    \texttt{if a < b jmp addr} & $\boxed{\begin{array}{l} \texttt{cmp a, b} \\ \texttt{jl addr} \end{array}}$ & 小于跳转 \\[20pt]
+    \texttt{do} \{...\} \texttt{while (a != b)} & $\boxed{\begin{array}{l} \texttt{loop\_i:} \\ \quad\texttt{...} \\ \texttt{cmp a, b} \\ \texttt{jne loop\_i} \end{array}}$ & 循环，其中 i 为自动分配的编号 \\[40pt]
+    \hline
+\end{tabular}
+\end{center}
+
+% \begin{itemize}
+%     \item 把数字换为立即数，\texttt{123} $\to$ \texttt{\#123}
+%     \item 把 \texttt{x123} 换为内存地址，\texttt{x123} $\to$ \texttt{123}
+%     \item \texttt{a += b} $\to$ \texttt{add a, b}
+%     \item \texttt{a -= b} $\to$ \texttt{sub a, b}
+%     \item \texttt{a *= b} $\to$ \texttt{mul a, b}
+%     \item \texttt{a /= b} $\to$ \texttt{div a, b}
+%     \item \texttt{a = b} $\to$ \texttt{mov a, b}
+%     \item \texttt{if a != b jmp addr} $\to$ \texttt{cmp a, b} 和 \texttt{jne addr}
+%     \item \texttt{if a == b jmp addr} $\to$ \texttt{cmp a, b} 和 \texttt{je addr}
+%     \item \texttt{if a < b jmp addr} $\to$ \texttt{cmp a, b} 和 \texttt{jl addr}
+% \end{itemize}
+
+这样事情会变得简单很多，我们只需要写出一个更加易于理解的代码，再让这个文本替换工具把它翻译成可以被执行的指令就可以了。例如对于前面的例子，我们可以写出这样的代码（为了美观起见给每一行加上分号结尾）：
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{c}
+jmp main
+
+sum:
+    r0 = 0; r1 = arg0; r2 = arg1;
+    do {
+        r0 += [r1];
+        r1 += 1;
+    } 
+    while (r1 != r2);
+    return r0;
+
+mean:
+    call sum;
+    arg2 -= arg1;
+    ans /= arg2;
+    ret;
+
+main:
+    x101 = 1; x102 = 2; x103 = 3; arg0 = 101; arg1 = 104;
+    call mean;
+    x100 = ans;
+\end{minted}
+
+事实上这个“文本替换程序”就已经是\textoverset{Compiler}{编译器}的雏形了，而这里抽象出来的更适合人类阅读的代码再往下走进行逐层的抽象就会一步步地走向高级语言。熟悉 C 语言的读者应该已经发现此处我是参考了 C 语言的语法来设计的，实际上 C 语言的设计就是为了更好地表达汇编语言而诞生，最初始的 C 语言差不多每句代码都对应一句汇编，很多现代 C 语言的特性是后续才慢慢添加的。这里我们就不再深入这个话题了，感兴趣的读者可以自行了解编译器的工作原理。
+
+既然我们看完了极简的 CPU 模型，我想还是稍微提几句现代的 CPU 为好。往下（硬件）看，现代的 CPU 指令显然比这个模型丰富的多，而且通常是多核的，每个核都有自己的寄存器、程序计数器、栈指针等。寄存器也不只是看起来的几个，而是加了另一层的抽象，使用寄存器重命名技术将物理寄存器映射到逻辑寄存器。为了提升速度，在 CPU 和内存中间又插入了多级的\textoverset{Cache}{缓存}，这样 CPU 不用每次都去内存中读取数据，而是先读取缓存，如果缓存中没有再去内存中读取。在执行时，CPU 以其优化技术会对指令进行\textoverset{Out-of-Order Execution}{乱序执行}，而并不一定严格地按照代码的顺序。流水线执行、\textoverset{SIMD}{单指令多数据}、\textoverset{Branch Prediction}{分支预测}等技术也都是现代 CPU 的特色，它们将大大提升 CPU 的性能。
+
+往上（软件）看，从 C 语言或者其它基础语言为基石构建的高级语言拥有了越来越丰富的特色，基于它们开发的各种库与框架也让程序员写出更加可靠、高效而又可复用的代码，可以更加专注于业务逻辑的开发，这些环环相扣构成了一张严密的逻辑网络。不同的\textoverset{Programming Paradigm}{编程范式}、\textoverset{Design Pattern}{设计模式}、\textoverset{Software Architecture}{软件架构}等概念也让程序员们在开发时有了更多的选择，而这些都是在计算机科学的基础上发展起来的。
+
+但是接下来转头看向 GPU，我们将会看到一个全然不同的世界。
+
+\newpage
+
 \subsection{位运算与bit-flag}
