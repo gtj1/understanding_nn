@@ -221,16 +221,161 @@ mov 10, r0  ; 将 0 号寄存器的值存入 10 号内存
 
 最简单的想法是，再设置一个寄存器专门用来存储要返回的地址，不过这个想法存在一个问题：如果在函数里面再次想要调用其它函数，那么这个寄存器就会被覆盖，也就是说内层函数调用成功并返回了，外层函数却不知道该回到哪了。为此我们发现存储应该是分层的，每进入一个函数就应该有一个新的存储空间，当退出时再把这个存储空间销毁，而且进入和退出的顺序是相反的（这种顺序通常称为\textoverset{Last In First Out}{后进先出}），这就引出了\textoverset{Stack}{栈}。
 
+这里画一幅图来说明栈的概念：想象一张有很多个格子的纸条，我们有一支带橡皮的铅笔（下面画一个小的箭头表示这支“笔”），刚开始栈是空的，里面什么也没有存储。一条边界固定，称作栈底，另一条边界线会变化，称作栈顶，两线重合表明栈是空的。
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \fill [gray, opacity=0.15] (-1, 0) rectangle (10, 1);
+        \draw (-1, 0) -- (10, 0);
+        \draw (-1, 1) -- (10, 1);
+        \foreach \x in {0, 1, ..., 9} {
+            \draw (\x, 0) -- (\x, 1);
+        }
+        \draw [thick, red] (0, 0) node [below] {栈底(栈顶)} -- (0, 1);
+        \draw [->] (0.5, 1.75) node [above] {读写头} -- (0.5, 1.25);
+        \node at (4.5, -0.8) {空栈};
+    \end{tikzpicture}
+\end{figure}
+
+当我们向其中加入一个元素时，就把这个元素放在栈顶，同时读写头指向下一个位置。这个过程称为\textoverset{Push}{压栈}，例如上面的空栈加入一个元素后的状态是这样的：
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \fill [gray, opacity=0.15] (-1, 0) rectangle (10, 1);
+        \fill [green, opacity=0.5] (0, 0) rectangle (1, 1);
+        \draw (-1, 0) -- (10, 0);
+        \draw (-1, 1) -- (10, 1);
+        \foreach \x in {0, 1, ..., 9} {
+            \draw (\x, 0) -- (\x, 1);
+        }
+        \draw [thick, red] (0, 0) node [below] {栈底} -- (0, 1);
+        \draw [thick, red] (1, 0) node [below] {栈顶} -- (1, 1);
+        \draw [->] (1.5, 1.75) node [above] {读写头} -- (1.5, 1.25);
+        \node at (0.5, 0.5) {$1$};
+        \node at (4.5, -0.8) {栈 (大小为 1)};
+    \end{tikzpicture}
+\end{figure}
+
+再加入一个元素呢？这个元素又会被跟着放在栈顶，读写头的位置加 1, 即指向下一个位置，就像这样：
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \fill [gray, opacity=0.15] (-1, 0) rectangle (10, 1);
+        \fill [green, opacity=0.5] (0, 0) rectangle (2, 1);
+        \draw (-1, 0) -- (10, 0);
+        \draw (-1, 1) -- (10, 1);
+        \foreach \x in {0, 1, ..., 9} {
+            \draw (\x, 0) -- (\x, 1);
+        }
+        \draw [thick, red] (0, 0) node [below] {栈底} -- (0, 1);
+        \draw [thick, red] (2, 0) node [below] {栈顶} -- (2, 1);
+        \draw [->] (2.5, 1.75) node [above] {读写头} -- (2.5, 1.25);
+        \node at (0.5, 0.5) {$1$};
+        \node at (1.5, 0.5) {$2$};
+        \node at (4.5, -0.8) {栈 (大小为 2)};
+    \end{tikzpicture}
+\end{figure}
+
+当我们要取出一个元素时，就把栈顶的元素取出，同时读写头向前移动一个单元。这个过程称为\textoverset{Pop}{弹栈}，例如上面的栈弹出一个元素后的状态是这样的：
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \fill [gray, opacity=0.15] (-1, 0) rectangle (10, 1);
+        \fill [green, opacity=0.5] (0, 0) rectangle (1, 1);
+        \draw (-1, 0) -- (10, 0);
+        \draw (-1, 1) -- (10, 1);
+        \foreach \x in {0, 1, ..., 9} {
+            \draw (\x, 0) -- (\x, 1);
+        }
+        \draw [thick, red] (0, 0) node [below] {栈底} -- (0, 1);
+        \draw [thick, red] (1, 0) node [below] {栈顶} -- (1, 1);
+        \draw [->] (1.5, 1.75) node [above] {读写头} -- (1.5, 1.25);
+        \node at (0.5, 0.5) {$1$};
+        \draw [->] (1.5, -0.25) -- (1.5, -0.75) node [below] {弹出 $2$};
+        \node at (4.5, -0.8) {栈 (大小为 1)};
+    \end{tikzpicture}
+\end{figure}
+
 栈就像一摞盘子，每次放盘子都是放在最上面，取盘子也是从最上面取（我们不讨论一次拿走多个盘子的情况）。只需要知道如何往上放和如何取下来就可以操作了。不过盘子能叠的高度是有限的，正如内存是有限的，但是假使我们的程序没有太深层的函数调用，这里就假设是 80 层\footnote{80：这个数字有其历史原因，早期计算机终端通常只有 80 列，因此 80 个字符以内成为了 Linux 编码的规范，这个规范延续到了很多语言的编程风格建议之中，成为一种约定俗成。这里限制深度 80 意味着如果使用“标准”的列宽，一行能写下所有的左括号。}，那么我们只需要分配 80 个单位的连续内存空间。对于人类来讲，匹配十几层的括号已经不可思议，80 层更是相当深了\footnote{相当深：相对大部分应用程序确实是这样的，但是对于一些特殊的部分，例如搜索、嵌套\textoverset{Callback}{回调}、\textoverset{Ray Tracing}{光路追踪}等，完全可能达到成百上千层。}。除此之外我们需要一个寄存器来存储栈顶的位置，其称为\textoverset{Stack Pointer}{栈指针}。于是我们大手一挥，把 \texttt{8} 号位置作为\textoverset{Stack Pointer}{栈顶指针}，用一个别名 \texttt{sp} 代表它。又把 \texttt{20} 到 \texttt{99} 号内存分配给栈。如果暂且不考虑调用层数太深的问题。加下来函数调用要怎么样呢？
 
-首当其冲的是把当前的下一条指令地址\textoverset{Push}{压}到栈顶，接下来是把栈顶指针加 1，然后再 \texttt{jmp} 到函数的入口\footnote{\texttt{jmp}：本质上读者可能已经发现了，\texttt{jmp} 实际上就是把某个值写入程序寄存器，这样一来 CPU 就会跳转到这个地址执行了。}。在函数结束时，我们需要先恢复栈顶指针，再把栈顶我们事先存的下一条地址\textoverset{Pop}{弹}出来，最后再 \texttt{jmp} 到这个地址。
+首当其冲的是把当前的下一条指令地址压到栈顶，接下来是把栈顶指针加 1，然后再 \texttt{jmp} 到函数的入口\footnote{\texttt{jmp}：本质上读者可能已经发现了，\texttt{jmp} 实际上就是把某个值写入程序寄存器，这样一来 CPU 就会跳转到这个地址执行了。}。在函数结束时，我们需要先恢复栈顶指针，再把栈顶我们事先存的下一条地址弹出来，最后再 \texttt{jmp} 到这个地址。
 
-另外，在前面的例子中，起始、终止地址、写入位置等参数是通过手动指定的 \texttt{8, 9, 10} 位置来传递的，但是我们显然不想为每一个函数都手动指定参数要放在哪里，这很麻烦，需要一个清晰、明确的规则来传递参数\footnote{规则：x86, x86-64 Linux, x86-64 Windows, ARM 各有各的传法。}。此处设定一个比较简单的规则：用 9 号位置专门储存函数得到的结果，起别名 \texttt{ans}。同时做这样一个限制：函数最多有 4 个参数\footnote{4 个参数：这个限制是为了简化问题，实际计算机参数传递中对于多出的部分会用到栈，但是这里不允许使用栈传递，4 这个数字是按照 x86-64 Windows 可用的寄存器参数传递来的。}，把 \texttt{10-13} 位置用作参数存储，给它们分别起名 \texttt{arg0} 到 \texttt{arg3}，这样我们就可以以“函数调用”的方式求 \texttt{101-103} 号位置均值并存储到 \texttt{100} 位置了，先是 \texttt{sum} 函数：
+看起来大概像这样，初始时栈中可能已经有了一些内容，我们把下一条指令的地址写入栈，栈顶右移。
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \fill [gray, opacity=0.15] (-1, 0) rectangle (10, 1);
+        \fill [green, opacity=0.5] (0, 0) rectangle (3, 1);
+        \draw (-1, 0) -- (10, 0);
+        \draw (-1, 1) -- (10, 1);
+        \foreach \x in {0, 1, ..., 9} {
+            \draw (\x, 0) -- (\x, 1);
+        }
+        \draw [thick, red] (0, 0) node [below] {栈底} -- (0, 1);
+        \draw [thick, red] (3, 0) node [below] {栈顶} -- (3, 1);
+        \draw [->] (3.5, 1.75) node [above] {读写头} -- (3.5, 1.25);
+        \node at (0.5, 0.5) {...};
+        \node at (1.5, 0.5) {...};
+        \node at (2.5, 0.7) {next};
+        \node at (2.5, 0.3) {inst.};
+        \node at (4.5, -1) {栈 (大小为 3)};
+    \end{tikzpicture}
+\end{figure}
+
+等函数执行完要返回到原先的位置时，我们先把栈顶指针左移，再把栈顶的下一条指令地址取出来，最后 \texttt{jmp} 到这个地址。
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \fill [gray, opacity=0.15] (-1, 0) rectangle (10, 1);
+        \fill [green, opacity=0.5] (0, 0) rectangle (2, 1);
+        \draw (-1, 0) -- (10, 0);
+        \draw (-1, 1) -- (10, 1);
+        \foreach \x in {0, 1, ..., 9} {
+            \draw (\x, 0) -- (\x, 1);
+        }
+        \draw [thick, red] (0, 0) node [below] {栈底} -- (0, 1);
+        \draw [thick, red] (2, 0) node [below] {栈顶} -- (2, 1);
+        \draw [->] (2.5, 1.75) node [above] {读写头} -- (2.5, 1.25);
+        \node at (0.5, 0.5) {...};
+        \node at (1.5, 0.5) {...};
+        \draw [->] (2.5, -0.25) -- (2.5, -0.75) node [below] {弹出指令};
+        \node at (4.5, -0.6) {栈 (大小为 2)};
+    \end{tikzpicture}
+\end{figure}
+
+另外，在前面的例子中，起始、终止地址、写入位置等参数是通过手动指定的 \texttt{8, 9, 10} 位置来传递的，但是我们显然不想为每一个函数都手动指定参数要放在哪里，这很麻烦，需要一个清晰、明确的规则来传递参数\footnote{规则：x86, x86-64 Linux, x86-64 Windows, ARM 各有各的传法。}。此处设定一个比较简单的规则：用 9 号位置专门储存函数得到的结果，起别名 \texttt{ans}。同时做这样一个限制：函数最多有 4 个参数\footnote{4 个参数：这个限制是为了简化问题，实际计算机参数传递中对于多出的部分会用到栈，但是这里不允许使用栈传递，4 这个数字是按照 x86-64 Windows 可用的寄存器参数传递来的。}，把 \texttt{10-13} 位置用作参数存储，给它们分别起名 \texttt{arg0} 到 \texttt{arg3}。那么在我们做出了看起来还算满意的内存分配后，目前看来大概是这么分布的\footnote{说明：实际的计算机中栈通常是从后向前增长的，与此处不同，注意区分。}：
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \fill [gray, opacity=0.15] (0, 0) rectangle (13, 0.2);
+        \fill [red, opacity=0.5] (0, 0) rectangle (0.8, 0.2);
+        \node [below, red, opacity=0.5] at (0, 0) {\texttt{r0-r7}};
+        \fill [orange, opacity=0.7] (0.8, 0) rectangle (0.9, 0.2);
+        \node [above left, orange, opacity=0.7] at (1.0, 0.2) {\texttt{sp}};
+        \fill [yellow] (0.9, 0) rectangle (1.0, 0.2);
+        \node [below, yellow] at (1.0, 0) {$\phantom{0}$\texttt{ans}$\phantom{0}$};
+        \fill [green] (1.0, 0) rectangle (1.4, 0.2);
+        \node [above right, green] at (0.9, 0.2) {\texttt{arg0-arg3}};
+        \fill [cyan, opacity=0.8] (2, 0) rectangle (10, 0.2);
+        \node [below, cyan, opacity=0.8] at (6, 0) {栈};
+        \draw (0, 0) -- (13, 0);
+        \draw (0, 0) -- (0, 0.2);
+        \draw (0, 0.2) -- (13, 0.2);
+        \draw [cyan!80!black, ->] (2, -0.5) node [below] {栈底} -- (2, -0.1);
+        \node [below right, gray] at (10, 0) {可自由使用内存};
+    \end{tikzpicture}
+    \caption{设想中的一种内存分配方式}
+\end{figure}
+
+这样我们就可以以“函数调用”的方式求 \texttt{101-103} 号位置均值并存储到 \texttt{100} 位置了，不过我们需要在每次调用函数前后都要写一段代码来维护栈，如果我们手写一切代码来维护大概是这样的：
+
+先是 \texttt{sum} 函数：
 \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{asm}
 sum:
     mov r0, #0  ; 将 0 写入 0 号寄存器
     mov r1, arg0    ; 将 arg0 的值赋给 1 号寄存器
     mov r2, arg1    ; 将 arg1 的值赋给 2 号寄存器
+
 loop:
     add r0, [r1]    ; 将 1 号寄存器指向的内存的值加到 0 号寄存器
     add r1, #1      ; 1 号储存器指向的内存地址加 1
@@ -247,6 +392,7 @@ mean:
     mov [sp], label1; 将 label1 的地址存入栈顶
     add sp, #1      ; 栈顶指针加 1
     jmp sum         ; 跳转到 sum 函数，无需改变参数
+
 label1:
     sub arg2, arg1  ; 将 arg2 减去 arg1 得到求和的长度
     div ans, arg2   ; 将 ans 除以 arg2 得到均值
@@ -349,19 +495,6 @@ main:
 \end{tabular}
 \end{center}
 
-% \begin{itemize}
-%     \item 把数字换为立即数，\texttt{123} $\to$ \texttt{\#123}
-%     \item 把 \texttt{x123} 换为内存地址，\texttt{x123} $\to$ \texttt{123}
-%     \item \texttt{a += b} $\to$ \texttt{add a, b}
-%     \item \texttt{a -= b} $\to$ \texttt{sub a, b}
-%     \item \texttt{a *= b} $\to$ \texttt{mul a, b}
-%     \item \texttt{a /= b} $\to$ \texttt{div a, b}
-%     \item \texttt{a = b} $\to$ \texttt{mov a, b}
-%     \item \texttt{if a != b jmp addr} $\to$ \texttt{cmp a, b} 和 \texttt{jne addr}
-%     \item \texttt{if a == b jmp addr} $\to$ \texttt{cmp a, b} 和 \texttt{je addr}
-%     \item \texttt{if a < b jmp addr} $\to$ \texttt{cmp a, b} 和 \texttt{jl addr}
-% \end{itemize}
-
 这样事情会变得简单很多，我们只需要写出一个更加易于理解的代码，再让这个文本替换工具把它翻译成可以被执行的指令就可以了。例如对于前面的例子，我们可以写出这样的代码（为了美观起见给每一行加上分号结尾）：
 \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{c}
 jmp main
@@ -393,8 +526,34 @@ main:
 
 往上（软件）看，从 C 语言或者其它基础语言为基石构建的高级语言拥有了越来越丰富的特色，基于它们开发的各种库与框架也让程序员写出更加可靠、高效而又可复用的代码，可以更加专注于业务逻辑的开发，这些环环相扣构成了一张严密的逻辑网络。不同的\textoverset{Programming Paradigm}{编程范式}、\textoverset{Design Pattern}{设计模式}、\textoverset{Software Architecture}{软件架构}等概念也让程序员们在开发时有了更多的选择，而这些都是在计算机科学的基础上发展起来的。
 
+在这里我再稍微点一下这一章的题目。本章的题目毕竟是逻辑亦数据，但是这里逻辑和数据似乎是分离开的：代码是代码，数字是数字，它们的关系又体现在哪里呢？其实这里为了理解，呈现的已经是一个经过抽象的版本，在 CPU 看来，每一条指令其实也是若干个字节。在内存中，指令和数据是混杂在一起的，只不过 CPU 会根据指令的不同来对待它们。在更高层次上，数据也可以是代码，代码也可以是数据。
+
 但是接下来转头看向 GPU，我们将会看到一个全然不同的世界。
 
 \newpage
+
+\subsection{那么，GPU 呢？}
+
+GPU，全称\textoverset{Graphics Processing Unit}{图形处理器}，是一种专门用来处理图形计算的处理器。打游戏的同学或许知道，为了打开高画质高刷新的游戏，需要一块强大的显卡，显卡的核心就是 GPU。都是执行指令，CPU 和 GPU 有什么区别呢？
+
+在回答这个问题前我想有必要提出一个更为根本性的问题：渲染图形提出了怎样的特别的需求？让我们举一个最简单的例子：在平面上绘制一个圆。我们且不讨论怎么把圆加载到屏幕上，且就假设我们只需要把每个点都计算出来，或者更为具体地：在一个高 1080 宽 1920 的数组中计算出每个像素的颜色\footnote{方便起见，这里只考虑黑白颜色。}，按照惯例，黑色是 0，白色是 255。看起来很简单，我在这里用一份 C 语言代码来实现这个功能：
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{c}
+unsigned char img[1080][1920];
+
+void draw_circle(int x, int y, int r) {
+    for (int i = 0; i < 1080; i++) {
+        for (int j = 0; j < 1920; j++) {
+            if ((i - x) * (i - x) + (j - y) * (j - y) < r * r) {
+                img[i][j] = 255;
+            }
+        }
+    }
+}
+\end{minted}
+
+原理本身是十分简单的，但是这段代码读下去我们无不发现一件事情：两个循环的次数一乘，单单渲染一个圆就需要 $1080 \times 1920 = 2073600$ 次的计算，考虑到加法、乘法、写入、读取都要时间，这个数字是相当大的。如果要处理的几何体多了，那么一个程序不说跑上 120 FPS \footnote{FPS：\textoverset{Frame Per Second}{帧每秒}的缩写，也称作帧率，许多游戏都有帧率设置。}的高速刷新了，或许连 30 FPS 都难保证。但是计算的需求本身客观存在，我们无法改变这个事实，那么该怎么办呢？
+
+按照老规矩，我们应该先想想，对于人类来说，“想象一个圆”这个过程是如何发生的。我们显然不是在脑海中一个一个像素地去计算，而是直接画出一条边界，然后成片地填充。与逐像素刷新过去相比，这是“一瞬间”的事情，每个像素同时计算了出来。这就叫做\textoverset{Parallel Computing}{并行计算}，为了高效进行并行计算，GPU 诞生了。
+
 
 \subsection{位运算与bit-flag}
