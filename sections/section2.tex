@@ -553,7 +553,27 @@ void draw_circle(int x, int y, int r) {
 
 原理本身是十分简单的，但是这段代码读下去我们无不发现一件事情：两个循环的次数一乘，单单渲染一个圆就需要 $1080 \times 1920 = 2073600$ 次的计算，考虑到加法、乘法、写入、读取都要时间，这个数字是相当大的。如果要处理的几何体多了，那么一个程序不说跑上 120 FPS \footnote{FPS：\textoverset{Frame Per Second}{帧每秒}的缩写，也称作帧率，许多游戏都有帧率设置。}的高速刷新了，或许连 30 FPS 都难保证。但是计算的需求本身客观存在，我们无法改变这个事实，那么该怎么办呢？
 
-按照老规矩，我们应该先想想，对于人类来说，“想象一个圆”这个过程是如何发生的。我们显然不是在脑海中一个一个像素地去计算，而是直接画出一条边界，然后成片地填充。与逐像素刷新过去相比，这是“一瞬间”的事情，每个像素同时计算了出来。这就叫做\textoverset{Parallel Computing}{并行计算}，为了高效进行并行计算，GPU 诞生了。
+按照老规矩，我们应该先想想，对于人类来说，“想象一个圆”这个过程是如何发生的。我们显然不是在脑海中一个一个像素地去计算，而是直接画出一条边界，然后成片地填充。与逐像素刷新过去相比，这是“一瞬间”的事情，每个像素同时计算了出来。这就叫做\textoverset{Parallel Computing}{并行计算}，喷颜料总比一笔笔涂快，为了高效进行并行计算，GPU 诞生了。
 
+有一个虽然不太严谨但是很形象的\uhref{https://www.zhihu.com/question/22219245/answer/365354011}{比喻}：CPU 就像是大学生，有几个核就有几个大学生，他们都很聪明，但是只能做一件事情。GPU 如果有几千个核，就像是几千个小学生，虽然每个人都不太聪明，只能完成简单的任务，但是适合完成大规模的任务。这个比喻虽然不够准确，也有人对这样的比喻提出过\uhref{https://zhuanlan.zhihu.com/p/60627768}{质疑}，但是可以让我们对 CPU 和 GPU 有一个直观的认识。一个更为细致的\uhref{https://www.bilibili.com/video/BV1wbcdeWENh}{解释}是 CPU 可以完成细致的分支预测等工作，大大提高了处理了复杂逻辑的能力，然而 GPU 并不适合处理\textoverset{Branch Diverge}{分支分歧}，分支语句会让 GPU 的并行计算效率大大降低（见 Nvidia 的\uhref{https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/sourcelevel/divergentbranch.htm}{文档}）。
+
+总的来讲，CPU 有少量的寄存器和算数逻辑单元，适合处理复杂的逻辑运算。但是 GPU 有一个许多的线程，每个线程都有自己的多个寄存器。同时有多个运算单元\footnote{运算单元：在 Nvidia 的显卡中通常称为 CUDA (Compute Unified Device Architecture) 核心}来提供大规模的并行计算。这里不多介绍 GPU 的具体架构与底层组成，因为 GPU 的架构是多变的，不同的厂商、不同的型号都有不同的架构，而且 GPU 的架构也在不断地发展。
+
+GPU 上要运行的指令所属的指令集与 CPU 上并不相同，甚至不同型号的 GPU 也有不同的指令集，因此自然地，程序需要适配到自己的 GPU 上。经常玩游戏的同学可能会发现不少游戏在启动时会有一个正在编译\textoverset{Shader}{着色器}的过程，或许不少人也好奇过\uhref{https://www.bilibili.com/video/BV1zi421h7tJ}{为什么}。实际上这个过程就是把图形渲染的代码编译成 GPU 可以执行的指令，就像不同的语言需要用不同的编译器一样，GPU 驱动中通常会包含一个着色器编译器，用来把着色器翻译成适配具体 GPU，可以被顺利执行的指令。
+
+从实用的角度说，如果只是作为游戏玩家，我们只需要考虑什么显卡算力够用，花钱买卡就可以，但是游戏厂要考虑的就多了。游戏开发者为了渲染出更加逼真的画面需要了解 GPU 的\textoverset{Rendering Pipeline}{渲染流水线}，\uhref{https://www.bilibili.com/video/BV1MJ411u7Bc}{如何借助图形化库与 GPU 交互}，以及如何使用着色器来实现特效、如何计算光线追踪。
+
+但是话又说回来，这渲染图形、纹理填充和机器学习又有什么关系呢？本质上是因为机器学习需要大量的矩阵运算，需要大量加法、乘法操作，因此这种重复性的操作也可以交给 GPU 并行处理。随着人工智能的快速发展，GPU 开始加入了专门加速矩阵运算的单元。例如 Nvidia 在 2017 年就向其生产的 GPU 中加入了\textoverset{Tensor Core}{\uhref{https://www.nvidia.com/en-us/data-center/volta-gpu-architecture/}{张量运算核}}\footnote{张量：深度学习中指的是一个高维的数组。}。
+
+作为机器学习的使用者，我们显然也需要了解如何使用 GPU，不过更重要的是如何用好矩阵或张量运算的能力，所以侧重点有些不同。首先，无论出于什么用途，为了让主板识别到 GPU 与之正常交互需要安装 GPU 驱动。当购买预装了 Nvidia 显卡的电脑而言，一般厂家已经事先在 Windows 系统上安装了驱动，免去了手动安装的麻烦。然而当我们自己装机或者安装其它系统时，我们就不得不自己走这个流程。科研和工业环境中常常考虑到开源、高性能等优点常常选择 Ubuntu 系统，然而\uhref{https://linuxconfig.org/how-to-install-the-nvidia-drivers-on-ubuntu-22-04}{在 Ubuntu 上安装 Nvidia 驱动}的各种问题常常被人诟病，配环境本身就相当令人头疼（其实是因为 Linux 内核经常改动，而到现在仍然很难做内核态程序的兼容性适配）。说句题外话，许多库因为快速的更新迭代，库的依赖关系常常错综复杂，显卡驱动只是其中的一例。因此试图在自己的设备上复现论文中的科研成果时，我们常常感到配好环境几乎是成功的一半。这就是灵活性的另一面，与 Windows 上开箱即用的软件体验是全然不同的。
+
+再说说 Nvidia 显卡的 CUDA Toolkit，类似着色器编译器等内容虽然已经在驱动中了，但是它只是一些特殊的预定义的运算。如果要更精细地调控运算，并从源代码开始编译 CUDA 的程序，特别是用 C/C++ 开发，就需要下载 CUDA Toolkit，因此在配置需要 GPU 加速的项目中，读者常常会发现需要安装 CUDA Toolkit，其最重要的作用就是提供适用于 GPU 的编译器。适当了解\uhref{https://blog.csdn.net/qq_42406643/article/details/109545766}{几个工具之间的关系}对理解配置环境时干了什么是有益的。
+
+这时相信有人会问，平时运行程序时也不需要自己编译，那有没有这样一个程序或者工具可以让我们开箱即用地使用 GPU 完成矩阵运算呢？答案是，有的，Torch 和 TensorFlow 就包装掉了底层的细节，可以方便地完成这些运算，而在科研环境中，Torch 的 Python 接口 PyTorch 的使用尤其普遍。这时自然有一个问题：GPU 的版本不同，预编译的程序怎么适配不同GPU 版本呢？如果我们打开\uhref{https://pytorch.org/}{PyTorch 的官方网页}，便会发现，其中有一个选项是 Compute Platform。CUDA 是向后兼容的，也就是说新版本的硬件可以运行旧版本的代码，这意味着我们需要根据自己的硬件支持的 CUDA 版本做出\uhref{https://blog.csdn.net/binbinczsohu/article/details/143505636}{选择}。通常推荐选择 PyTorch 官网上提供的小于等于电脑 CUDA 版本的最新版本。例如，如果在命令行运行 \texttt{nvidia-smi} 得到的 CUDA 版本为 12.5，然而 PyTorch 官网页面提供 11.8, 12.4, 12.6 这三个版本，那么在两个满足条件的版本中选择一个更大的，12.4 版本就是推荐安装的版本，把下方的命令，例如：
+\begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{bash}
+pip3 install torch torchvision torchaudio --index-url \
+https://download.pytorch.org/whl/cu124
+\end{minted}
+复制到命令行运行即可成功安装。当然如果你的 CUDA 版本刚好在页面上就不需要思考，可以直接安装了。事实上当我们在运行 Torch 并将矩阵调度到 GPU 计算时，它帮我们完成了矩阵数据的传输、把运算任务划分为多个\textoverset{Thread Block}{线程块}再交给 GPU 的工作。在 GPU 中的\textoverset{Streaming Multiprocessor}{流式多处理器}将线程块以\textoverset{Warp}{线程束}为单位调度，交给若干个 CUDA 核心与张量运算核共同完成矩阵的计算，再将内容写回显存的工作。而这些都被抽象成了一条条的矩阵运算代码，隐去了底层实现的细节，把它们交给了库。这让我们可以从繁琐的逻辑抽离，可以专心于数据的运算。
 
 \subsection{位运算与bit-flag}
