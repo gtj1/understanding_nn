@@ -563,17 +563,93 @@ GPU 上要运行的指令所属的指令集与 CPU 上并不相同，甚至不�
 
 从实用的角度说，如果只是作为游戏玩家，我们只需要考虑什么显卡算力够用，花钱买卡就可以，但是游戏厂要考虑的就多了。游戏开发者为了渲染出更加逼真的画面需要了解 GPU 的\textoverset{Rendering Pipeline}{渲染流水线}，\uhref{https://www.bilibili.com/video/BV1MJ411u7Bc}{如何借助图形化库与 GPU 交互}，以及如何使用着色器来实现特效、如何计算光线追踪。
 
-但是话又说回来，这渲染图形、纹理填充和机器学习又有什么关系呢？本质上是因为机器学习需要大量的矩阵运算，需要大量加法、乘法操作，因此这种重复性的操作也可以交给 GPU 并行处理。随着人工智能的快速发展，GPU 开始加入了专门加速矩阵运算的单元。例如 Nvidia 在 2017 年就向其生产的 GPU 中加入了\textoverset{Tensor Core}{\uhref{https://www.nvidia.com/en-us/data-center/volta-gpu-architecture/}{张量运算核}}\footnote{张量：深度学习中指的是一个高维的数组。}。
+但是话又说回来，渲染图形、纹理填充这些内容和机器学习又有什么关系呢？本质上是因为机器学习需要大量的矩阵运算，需要大量加法、乘法操作，因此这种重复性的操作也可以交给 GPU 并行处理。随着人工智能的快速发展，GPU 开始加入了专门加速矩阵运算的单元。例如 Nvidia 在 2017 年就向其生产的 GPU 中加入了\textoverset{Tensor Core}{\uhref{https://www.nvidia.com/en-us/data-center/volta-gpu-architecture/}{张量运算核}}\footnote{张量：深度学习中指的是一个高维的数组。}。
 
 作为机器学习的使用者，我们显然也需要了解如何使用 GPU，不过更重要的是如何用好矩阵或张量运算的能力，所以侧重点有些不同。首先，无论出于什么用途，为了让主板识别到 GPU 与之正常交互需要安装 GPU 驱动。当购买预装了 Nvidia 显卡的电脑而言，一般厂家已经事先在 Windows 系统上安装了驱动，免去了手动安装的麻烦。然而当我们自己装机或者安装其它系统时，我们就不得不自己走这个流程。科研和工业环境中常常考虑到开源、高性能等优点常常选择 Ubuntu 系统，然而\uhref{https://linuxconfig.org/how-to-install-the-nvidia-drivers-on-ubuntu-22-04}{在 Ubuntu 上安装 Nvidia 驱动}的各种问题常常被人诟病，配环境本身就相当令人头疼（其实是因为 Linux 内核经常改动，而到现在仍然很难做内核态程序的兼容性适配）。说句题外话，许多库因为快速的更新迭代，库的依赖关系常常错综复杂，显卡驱动只是其中的一例。因此试图在自己的设备上复现论文中的科研成果时，我们常常感到配好环境几乎是成功的一半。这就是灵活性的另一面，与 Windows 上开箱即用的软件体验是全然不同的。
 
-再说说 Nvidia 显卡的 CUDA Toolkit，类似着色器编译器等内容虽然已经在驱动中了，但是它只是一些特殊的预定义的运算。如果要更精细地调控运算，并从源代码开始编译 CUDA 的程序，特别是用 C/C++ 开发，就需要下载 CUDA Toolkit，因此在配置需要 GPU 加速的项目中，读者常常会发现需要安装 CUDA Toolkit，其最重要的作用就是提供适用于 GPU 的编译器。适当了解\uhref{https://blog.csdn.net/qq_42406643/article/details/109545766}{几个工具之间的关系}对理解配置环境时干了什么是有益的。
+再说说 Nvidia 显卡的 CUDA Toolkit，类似着色器编译器等内容虽然已经在驱动中了，但是它只是一些特殊的预定义的运算。如果要更精细地调控运算，并从源代码开始编译 CUDA 的程序，特别是用 C/C++ 开发，就需要下载 CUDA Toolkit。因此在配置需要 GPU 加速的项目中，读者常常会发现需要安装 CUDA Toolkit（其版本小于等于驱动对应的 CUDA 版本），其最重要的作用就是提供适用于 GPU 的编译器。适当了解\uhref{https://blog.csdn.net/qq_42406643/article/details/109545766}{几个工具之间的关系}对理解配置环境时干了什么是有益的。
 
 这时相信有人会问，平时运行程序时也不需要自己编译，那有没有这样一个程序或者工具可以让我们开箱即用地使用 GPU 完成矩阵运算呢？答案是，有的，Torch 和 TensorFlow 就包装掉了底层的细节，可以方便地完成这些运算，而在科研环境中，Torch 的 Python 接口 PyTorch 的使用尤其普遍。这时自然有一个问题：GPU 的版本不同，预编译的程序怎么适配不同GPU 版本呢？如果我们打开\uhref{https://pytorch.org/}{PyTorch 的官方网页}，便会发现，其中有一个选项是 Compute Platform。CUDA 是向后兼容的，也就是说新版本的硬件可以运行旧版本的代码，这意味着我们需要根据自己的硬件支持的 CUDA 版本做出\uhref{https://blog.csdn.net/binbinczsohu/article/details/143505636}{选择}。通常推荐选择 PyTorch 官网上提供的小于等于电脑 CUDA 版本的最新版本。例如，如果在命令行运行 \texttt{nvidia-smi} 得到的 CUDA 版本为 12.5，然而 PyTorch 官网页面提供 11.8, 12.4, 12.6 这三个版本，那么在两个满足条件的版本中选择一个更大的，12.4 版本就是推荐安装的版本，把下方的命令，例如：
 \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{bash}
 pip3 install torch torchvision torchaudio --index-url \
 https://download.pytorch.org/whl/cu124
 \end{minted}
-复制到命令行运行即可成功安装。当然如果你的 CUDA 版本刚好在页面上就不需要思考，可以直接安装了。事实上当我们在运行 Torch 并将矩阵调度到 GPU 计算时，它帮我们完成了矩阵数据的传输、把运算任务划分为多个\textoverset{Thread Block}{线程块}再交给 GPU 的工作。在 GPU 中的\textoverset{Streaming Multiprocessor}{流式多处理器}将线程块以\textoverset{Warp}{线程束}为单位调度，交给若干个 CUDA 核心与张量运算核共同完成矩阵的计算，再将内容写回显存的工作。而这些都被抽象成了一条条的矩阵运算代码，隐去了底层实现的细节，把它们交给了库。这让我们可以从繁琐的逻辑抽离，可以专心于数据的运算。
+复制到命令行运行即可成功安装。当然如果你的 CUDA 版本刚好在页面上就不需要思考，可以直接安装了。事实上当我们在运行 Torch 并将矩阵调度到 GPU 计算时，它帮我们完成了矩阵数据的传输、把运算任务划分为多个\textoverset{Thread Block}{线程块}再交给 GPU 的工作。在 GPU 中的\textoverset{Streaming Multiprocessor}{流式多处理器}将线程块以\textoverset{Warp}{线程束}为单位调度，交给若干个 CUDA 核心与张量运算核共同完成矩阵的计算，再将内容写回显存。而这些都被抽象成了一条条的矩阵运算代码，隐去了底层实现的细节，把它们交给了库。这让我们可以从繁琐的逻辑抽离，可以专心于数据的运算。
 
-\subsection{位运算与bit-flag}
+\subsection{位运算与 Bit-flag}
+
+前面讲到逻辑实际上可以用 0 和 1 来表示，而在内存中，储存的基本单元是\textoverset{Byte}{字节}。一个字节有 8 位，每一位都可以表示 0 或 1，本质上它可以视作一个长度为 8 的 0-1 数组。而一个 32 位整数同样可以视作一个长度为 32 的 0-1 数组。你可能想问：把一个整数看成一堆的位，这不过是一些文字游戏，有什么用呢？
+
+这里就不得不提之前一直没有提到的一类基本运算：位运算。位运算是一种逐位的运算，它可以对整数的每一个二进制位进行操作，从而在某种程度上一次性地操作了一个整数的多个位。以 \texttt{int32} 为例，这就相当于我们一次性地操作了一个大小位 32 的数组。
+
+了解信息竞赛的同学或许知道，位运算催生了各种各样的优化技巧，位运算的各种巧妙操作也是大家津津乐道的话题。从\uhref{https://www.zhihu.com/question/38206659/answer/2533384048}{借助位运算实现俄罗斯方块}到\uhref{http://www.matrix67.com/blog/archives/266}{求解 n 皇后问题}，再到\uhref{https://www.zhihu.com/question/38206659/answer/736472332}{各种关于整数的问题}，位运算的应用无处不在。
+
+不过这里我们来看一个更为重要的概念：\textoverset{Bit-flag}{位标志}。位标志是一种用来表示状态的方法，它可以用一个整数的某一位来表示某种状态。例如，我们可以用一个 32 位整数的第 0 位来表示一个开关是否打开，第 1 位来表示一个设备是否连接，第 2 位来表示一个权限是否开启，等等。这样我们就可以用一个整数来表示多个状态，而且可以同时操作多个状态。位标志在许多系统的底层仍然随处可见。下面仅举出几例：
+
+\begin{itemize}
+    \item \textbf{文件权限}：在 Linux 系统中，文件的权限是用一个整数表示的，有 9 个有效的位，分别表示文件所有者的权限、文件所在组的权限、其他用户的权限。例如，如果你在根目录（即 \texttt{/} 目录）下运行 \texttt{ls -l} 命令\footnote{\texttt{ls -l}：其中 \text{ls} 命令用于\textoverset{List}{列出}文件夹中的文件和子文件夹，选项 \texttt{-l} 表明使用的是以\textoverset{Long Format}{长格式}输出文件信息}，你可以看到许多文件夹的详细信息，例如对 \texttt{home} 这个文件夹，信息可能类似这样：
+    \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{bash}
+drwxr-xr-x   3 root root    4096 Nov 13 18:02 home
+    \end{minted}
+
+    我们仅关注最前面的 \texttt{drwxr-xr-x}，这是文件的权限信息，其中第一个字符 \texttt{d} 表示这是一个文件夹。而后面就是我们说的 9 位的权限信息。\texttt{r}, \texttt{w}, \texttt{x} 分别表示 \textoverset{Read}{读}，\textoverset{Write}{写} 和 \textoverset{Execute}{执行} 的权限。虽然写作 \texttt{rwxr-xr-x}，但是实际上它是一个使用了 9 个有效位的二进制数，而并非储存了 9 个字符。就以前面提到的 \texttt{drwxr-xr-x} 为例，其作为一个 16 位整数的布局大约是这样的，所有用户可读可打开，但仅所有者可修改：
+    \[
+        \underset{\text{未使用}}{\underbrace{\color{lightgray}0000000}}
+        \underset{\text{U}}{\underbrace{\overset{\text{r}}{1}\overset{\text{w}}{1}\overset{\text{x}}{1}}}
+        \underset{\text{G}}{\underbrace{{\overset{\text{r}}{1}{\color{lightgray}\overset{\text{w}}{0}}\overset{\text{x}}{1}}}}
+        \underset{\text{O}}{\underbrace{{\overset{\text{r}}{1}{\color{lightgray}\overset{\text{w}}{0}}\overset{\text{x}}{1}}}}
+    \]
+
+    这里 U、G、O 分别表示文件所有者(User)、文件所在组(Group)、其他用户(Other)。同样的，设置权限时也是设置这些位。例如如果我们想给文件 \texttt{example} 所有者设置读写权限，同时对组和其他用户设置读权限，我们可以使用 \texttt{chmod} 命令：
+    \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{bash}
+chmod u=rw,g=r,o=r example
+    \end{minted}
+
+    可是这仍然有些麻烦，有没有更简洁紧凑的写法呢？答案是有的，我们可以使用八进制数来表示这些权限。我们把每 3 位看成一个八进制数，分别表示 User、Group、Other 的权限。例如 7 在 2 进制中是 111，表示所有权限都开启，而 5 是 101，表示读和执行权限开启。\texttt{rw} 的二进制表示就是 110，对应的八进制数就是 6。而 \texttt{r} 的二进制表示就是 100，对应的八进制数就是 4。因此上面的代码就可以简化为
+    \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{bash}
+chmod 644 example
+    \end{minted}
+
+    通过这个例子我们已经可以看到了位标志是如何简化操作的，不过让我们再继续看一些例子来更好地理解位标志的应用。
+
+    \item \textbf{嵌入式系统}：在嵌入式系统中，位标志的使用更是无处不在。就以 STM32 系列的芯片\footnote{STM32：\textoverset{STMicroelectronics}{意法半导体}公司推出的一系列基于ARM Cortex-M内核的\textoverset{Micro Controll Unit}{微控制器}}为例，它们的许多寄存器是每一位都有特殊含义的，特别是关于 GPIO\footnote{GPIO：即\textoverset{General-Purpose Input/Output}{通用型输入输出}，微控制器通过它与外设连接。}、\textoverset{Serial}{串口}、\textoverset{Timer}{定时器}、\textoverset{Interrupt}{中断}等模块。例如设置 GPIO 的输入输出状态时，我们可能会这样写来启用 A1 与 A2：
+    \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{c}
+#include "stm32f4xx.h"
+
+void GPIO_Init(void) {
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+
+    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+}
+    \end{minted}
+
+    这其中最关键的部分其实就在于 \texttt{GPIO\_Pin\_1 | GPIO\_Pin\_2}。对于不熟悉的人来讲，这看起来像是什么特殊设计出来用于这个情境的符号，甚至有人会认为这是一个特殊的宏定义。然而实际上这只是一个普通的位运算，\texttt{GPIO\_Pin\_1} 和 \texttt{GPIO\_Pin\_2} 都是整数，它们的二进制表示分别是 00000010 和 00000100，而 \texttt{|} 就是位或运算，它会把两个数的对应位进行或运算，因此 \texttt{GPIO\_Pin\_1 | GPIO\_Pin\_2} 的结果就是 00000110（十进制为 6），这个数就能表示 A1 和 A2 两个位被设置了。
+
+    如果我们列一个二进制的竖式，这个运算就变得十分清晰：
+    \[
+    \begin{array}{cc}
+        & \color{lightgray}000000{\color{black}1}0 \\
+        {|} & \color{lightgray}00000{\color{black}1}00 \\
+        \hline
+        & \color{lightgray}00000{\color{black}11}0
+    \end{array}
+    \]
+
+    当两位中存在 1 时，结果的对应位也是 1，否则为 0。这时可能有人会问，为什么不直接用加法呢？实际上对于这个例子来说，加法和位或运算的结果是一样的，但是使用位运算的意图更加清晰，它表明每一位是独立的。这怎么说呢？例如，让我们想象 2+2=4 这个式子会代表什么。如果我们使用加法，就会得到一个很反直觉的结果，即两个 \texttt{GPIO\_Pin\_1} 的和是 4，等于 \texttt{GPIO\_Pin\_2}。它超出原本讨论的引脚，显然与实际不符。而使用位或运算，两个 \texttt{GPIO\_Pin\_1} 做位或运算的结果仍然为 \texttt{GPIO\_Pin\_1}，这样就不会“污染”其它位。比如如果我们随便写两个二进制数，01001001 和 00101010，它们做位或运算的结果是 01101011：
+    \[
+    \begin{array}{cc}
+        & \color{lightgray}0{\color{black}1}00{\color{black}1}00{\color{black}1} \\
+        {|} & \color{lightgray}00{\color{black}1}0{\color{black}1}0{\color{black}1}0 \\
+        \hline
+        & \color{lightgray}0{\color{black}11}0{\color{black}1}0{\color{black}11}
+    \end{array}
+    \]
+
+    这样每一位的变化都是独立的，不会相互影响。更加符合它作为标志，独立编码多个状态的特性。
+\end{itemize}
