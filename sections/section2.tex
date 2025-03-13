@@ -6,45 +6,45 @@
 
 \begin{enumerate}
     \item \textoverset{Not}{非}（数学写法：$\neg$，C 语言写法：\texttt{!}，Python 写法：\texttt{not}）
-    
-    非是一元运算符，它只有一个输入，输出与输入相反，其中
-    \[
-        \neg 0 = 1, \neg 1 = 0
-    \]
-    也就是说 $\neg x = 1 - x$，$x$ 与 $\neg x$ 是互补的。如果你看逻辑 0, 1 仍然感觉不太自然，你可以把它想成 False = not True, True = not False。
+
+          非是一元运算符，它只有一个输入，输出与输入相反，其中
+          \[
+              \neg 0 = 1, \neg 1 = 0
+          \]
+          也就是说 $\neg x = 1 - x$，$x$ 与 $\neg x$ 是互补的。如果你看逻辑 0, 1 仍然感觉不太自然，你可以把它想成 False = not True, True = not False。
 
     \item \textoverset{And}{与}（数学写法：$\land$，C 语言写法：\texttt{\&\&}，Python 写法：\texttt{and}）
-    
-    与是二元运算符，它有两个输入，仅当两输入都为 1 时输出为 1，否则输出为 0，从真值表\footnote{真值表：逻辑运算的输出与输入的关系表。}就可以看出这一点：
-    \[
-        \begin{array}{ccc}
-            \hline
-            x & y & x \land y \\
-            \hline
-            0 & 0 & 0 \\
-            0 & 1 & 0 \\
-            1 & 0 & 0 \\
-            1 & 1 & 1 \\
-            \hline
-        \end{array}
-    \]
-    这与乘法的结果是一样的，所以有时也会省去和的符号，使用 $xy$ 表示 $x \land y$。
-    
+
+          与是二元运算符，它有两个输入，仅当两输入都为 1 时输出为 1，否则输出为 0，从真值表\footnote{真值表：逻辑运算的输出与输入的关系表。}就可以看出这一点：
+          \[
+              \begin{array}{ccc}
+                  \hline
+                  x & y & x \land y \\
+                  \hline
+                  0 & 0 & 0         \\
+                  0 & 1 & 0         \\
+                  1 & 0 & 0         \\
+                  1 & 1 & 1         \\
+                  \hline
+              \end{array}
+          \]
+          这与乘法的结果是一样的，所以有时也会省去和的符号，使用 $xy$ 表示 $x \land y$。
+
     \item \textoverset{Or}{或}（数学写法：$\lor$，C 语言写法：\texttt{||}，Python 写法：\texttt{or}）
-    
-    或是二元运算符，它有两个输入，仅当两输入都为 0 时输出为 0，否则输出为 1，真值表如下：
-    \[
-        \begin{array}{ccc}
-            \hline
-            x & y & x \lor y \\
-            \hline
-            0 & 0 & 0 \\
-            0 & 1 & 1 \\
-            1 & 0 & 1 \\
-            1 & 1 & 1 \\
-            \hline
-        \end{array}
-    \]
+
+          或是二元运算符，它有两个输入，仅当两输入都为 0 时输出为 0，否则输出为 1，真值表如下：
+          \[
+              \begin{array}{ccc}
+                  \hline
+                  x & y & x \lor y \\
+                  \hline
+                  0 & 0 & 0        \\
+                  0 & 1 & 1        \\
+                  1 & 0 & 1        \\
+                  1 & 1 & 1        \\
+                  \hline
+              \end{array}
+          \]
 \end{enumerate}
 
 在图上这些运算一般会这样表示：
@@ -56,57 +56,68 @@
     \caption{逻辑门：从左到右分别为非门、与门、或门}
 \end{figure}
 
-看起来这只是一些非常简单的运算，但是基本上有这些就可以构建出所有的计算\footnote{所有的运算：这里指的是\textoverset{Turing Completeness}{图灵完备性}，如果你想深入了解，可以在 Steam 上购买一个叫做 \uhref{https://store.steampowered.com/app/1444480/Turing_Complete/}{Turing Complete} 的硬核游戏，推荐游玩。}。例如\textoverset{Exclusive Or}{异或}运算表示两个输入中有且仅有一个为真。最粗暴简单的方法是列出它为 1 的所有情况：$x \; \text{xor} \; y = (x\land \neg y) \lor (\neg x \land y)$。这样我们就可以用非、与、或门来构建出一个异或门。
+看起来这只是一些非常简单的运算，但是有了这些就可以构建出所有的计算\footnote{所有的运算：这里指的是\textoverset{Turing Completeness}{图灵完备性}，如果你想深入了解，可以在 Steam 上购买一个叫做 \uhref{https://store.steampowered.com/app/1444480/Turing_Complete/}{Turing Complete} 的硬核游戏，推荐游玩。}。例如\textoverset{Exclusive Or}{异或}运算表示两个输入不同。最粗暴简单的定义方法是列出其输出为 1 的所有情况：$x \; \text{xor} \; y = (x\land \neg y) \lor (\neg x \land y)$。这样就可以用非、与、或门来构建出一个异或门。
 
 虽然它可以完成“所有的运算”，但是具体来说，比如有读者可能要问，如果我想计算加法，它应该怎么办呢？既然逻辑上只有两个值，那么自然地计算机就要使用二进制来表示数字了。二进制的加法非常简单，就以 $5+3$ 为例，我们可以这样计算：
 \[
     \begin{array}{rr}
-        &101 \\
-        + & 011 \\
+          & 101  \\
+        + & 011  \\
         \hline
-        & 1000
+          & 1000
     \end{array}
 \]
 
 逻辑门又是如何完成这一过程的呢？我们将它拆解成一个个小问题。当加到某一位时，我们需要考虑三个数：两个加数和来自后方的进位。例如下面这种情况
 \[
     \begin{array}{rr}
-        &\ldots_{\phantom{0}} 1_{\phantom{0}} \color{lightgray}\ldots\\
-        + &\ldots_{\color{red}1} 0_{\color{blue}1} \color{lightgray}\ldots\\
+          & \ldots_{\phantom{0}} 1_{\phantom{0}} \color{lightgray}\ldots              \\
+        + & \ldots_{\color{red}1} 0_{\color{blue}1} \color{lightgray}\ldots           \\
         \hline
-        & \cdots_{\phantom{0}} {\color{red}1}_{\phantom{0}} \color{lightgray}\ldots
+          & \cdots_{\phantom{0}} {\color{red}1}_{\phantom{0}} \color{lightgray}\ldots
     \end{array}
 \]
 
-如果考虑这一位相加得到的结果，后面相加得到结果的情况我们已经不关心了（因此标为浅灰色），在这里我们只关心从后方是否有进位（按照列竖式加法习惯，图中蓝色标注的下标 1）。再考虑两个加数的这一位分别为 1 和 0，所以 $1+0+1=2$，在结果栏写下一个 0（横线下方红色的 0），向前进位 1（写在前面一位下标的红色的 1），然后以同样的流程处理前一位。
+考虑这一位时，后面相加得到结果的情况我们已经不关心了（因此标为浅灰色），在这里只需关心从后方是否有进位（按照列竖式加法习惯，图中蓝色标注的下标 1）。再考虑两个加数的这一位分别为 1 和 0，所以 $1+0+1=2$，在结果栏写下一个 0（横线下方红色的 0），向前进位 1（写在前面一位下标的红色的 1），然后以同样的流程处理前一位。
 
 记两个加数的这一位分别为 $x, y$，后方进位为 $c$，那么这一位的加和 $s$ 和向前进位 $c'$ 可以表示为
 \[
     \begin{aligned}
-        s &= (x \; \text{xor} \; y) \; \text{xor} \; c \\
-        c' &= (x \land y) \lor (c \land (x \; \text{xor} \; y))
+        s  & = (x \; \text{xor} \; y) \; \text{xor} \; c         \\
+        c' & = (x \land y) \lor (c \land (x \; \text{xor} \; y))
     \end{aligned}
 \]
 
-当然这并不是唯一正确的写法，实际上有很多正确的写法，证明就免了，如果读者有兴趣可以自行尝试，或许也可以找到另外的表达式。最简单粗暴的方法就是把两个加数的情况和是否带进位的情况全部列出来，分成 $2^3 = 8$ 种情况，就得到了如下的表，并逐一验证：
+当然这并不是唯一正确的写法，实际上有很多正确的写法，证明就免了，如果读者有兴趣可以自行尝试，或许也可以找到另外的表达式。最简单粗暴的方法就是把两个加数与是否带进位的情况全部列出来，分成 $2^3 = 8$ 种情况，就得到了如下的表，并逐一验证：
 \[
     \begin{array}{cccccc}
         \hline
         \overset{\text{加数1}}{x} & \overset{\text{加数2}}{y} & \overset{\text{后方进位}}{c} & \overset{\text{加和}}{\text{sum}} & \overset{\text{向前进位}}{c'} & \overset{\text{结果位}}{s} \\
         \hline
-        0 & 0 & 0 & 0 & 0 & 0\\
-        0 & 0 & 1 & 1 & 0 & 1\\
-        0 & 1 & 0 & 1 & 0 & 1\\
-        0 & 1 & 1 & 2 & 1 & 0\\
-        1 & 0 & 0 & 1 & 0 & 1\\
-        1 & 0 & 1 & 2 & 1 & 0\\
-        1 & 1 & 0 & 2 & 1 & 0\\
-        1 & 1 & 1 & 3 & 1 & 1\\
+        0                       & 0                       & 0                        & 0                               & 0                         & 0                       \\
+        0                       & 0                       & 1                        & 1                               & 0                         & 1                       \\
+        0                       & 1                       & 0                        & 1                               & 0                         & 1                       \\
+        0                       & 1                       & 1                        & 2                               & 1                         & 0                       \\
+        1                       & 0                       & 0                        & 1                               & 0                         & 1                       \\
+        1                       & 0                       & 1                        & 2                               & 1                         & 0                       \\
+        1                       & 1                       & 0                        & 2                               & 1                         & 0                       \\
+        1                       & 1                       & 1                        & 3                               & 1                         & 1                       \\
         \hline
     \end{array}
 \]
 
 就像等式描述的一样，每一个输出的位都可以通过输入的逻辑运算用一定的电路连接表示，把多个电路串起来\footnote{串起来：对于加法这个例子，在网上\uhref{https://www.bing.com/search?q=\%E5\%85\%A8\%E5\%8A\%A0\%E5\%99\%A8}{搜索全加器}就可以很容易地搜到。}，就可以完成加法了。本质上我们的计算机 CPU 就是由这样的门电路与接线组成的\footnote{说明：实际上制造中，与非门、或非门使用更多，因为它们有更方便制造、体积较小、功耗低等优势。}。一个 CPU 需要大量门电路组合形成，现代的 CPU 包含数十亿个门电路，而一个门又由若干个微型的晶体管构成。为了让电路精确地实现我们预期的功能，需要精准地将电路雕刻在硅片上，这就是光刻技术如此重要的原因。但是山在那，总有人会去登的\footnote{山在那，总有人会去登：语出源自英国登山家 George Mallory 当被问及为何要攀登珠穆朗玛峰时的回答“因为山在那里”。‌刘慈欣的短篇小说\uhref{https://zhiqiang.org/resource/liucixin-mountain.html}{《山》}引用了这句话。写到大量的微晶体管以精妙地排布构成电路让我想起小说中从基本电路开始进化的的硅基生物，如果你看到这里看累了，去看看小说放松一下吧。}，两个多世纪的技术积累才造就了现代计算机的诞生，从逻辑门到通用计算机每一步的发展都凝聚着人类技术与智慧的结晶。
+
+\begin{tcolorbox}[myrecommendbox, title=推荐阅读, breakable=false]
+    \begin{itemize}
+        \item Minecraft 玩家或许见过使用红石电路制作的计算机，背后的原理可阅读：\\
+              \textit{计算器计算出「1+1=2」的整个计算过程是怎样的？为什么能秒算？ - WonderL的回答 - 知乎}\\
+              \url{https://www.zhihu.com/question/29432827/answer/150408732}
+        \item 如果你有一些数字电路的基础，并想了解逻辑门是如何组合的，可以阅读：\\
+              \textit{计算器计算出「1+1=2」的整个计算过程是怎样的？为什么能秒算？ - Pulsar的回答 - 知乎}\\
+              \url{https://www.zhihu.com/question/29432827/answer/150337041}
+    \end{itemize}
+\end{tcolorbox}
 
 \newpage
 
@@ -160,12 +171,12 @@ mov 1, 2    ; 将 2 号内存的值赋给 1 号内存
 这个过程运行时\footnote{你先别管它怎么运行起来的。}看起来是这样的，右边的列表表示内存，每个元素是内存的一个单元，这里 $x_i$ 示意第 $i$ 个内存单元。$x,y$ 都是数，你可以把它带入 $1, 2$ 或者你想的任何数字，右侧的列表则表示对应的指令执行后的内存状态：
 \[
     \begin{array}{l|l}
-        \text{指令} & [x_1, x_2, x_3, \cdots] \\
+        \text{指令}                                    & [x_1, x_2, x_3, \cdots]                                             \\
         \hline
-        \phantom{\triangleright} \; (\text{initial}) & [{\color{red!50}x}, {\color{blue!50}y}, \_, \ldots] \\
-        \triangleright \; \text{mov 2, 0} & [{\color{red!50}x}, {\color{blue!50}y}, {\color{red!50}x}, \ldots] \\
-        \triangleright \; \text{mov 0, 1} & [{\color{blue!50}y}, {\color{blue!50}y}, {\color{red!50}x}, \ldots] \\
-        \triangleright \; \text{mov 1, 2} & [{\color{blue!50}y}, {\color{red!50}x}, {\color{red!50}x}, \ldots] \\
+        \phantom{\triangleright} \; (\text{initial}) & [{\color{red!50}x}, {\color{blue!50}y}, \_, \ldots]                 \\
+        \triangleright \; \text{mov 2, 0}            & [{\color{red!50}x}, {\color{blue!50}y}, {\color{red!50}x}, \ldots]  \\
+        \triangleright \; \text{mov 0, 1}            & [{\color{blue!50}y}, {\color{blue!50}y}, {\color{red!50}x}, \ldots] \\
+        \triangleright \; \text{mov 1, 2}            & [{\color{blue!50}y}, {\color{red!50}x}, {\color{red!50}x}, \ldots]  \\
     \end{array}
 \]
 
@@ -194,22 +205,22 @@ mov 10, r0  ; 将 0 号寄存器的值存入 10 号内存
 这个程序运行起来是怎么样的呢？假设我们在 \texttt{8} 号位置存储了起点地址 \texttt{15}，\texttt{9} 号位置存储了终点地址 \texttt{18}（它们虽然储存的是地址，从程序逻辑上指向的是内存块，但是本质上在 CPU 看来仍然是一种“整数”，只是这个整数记录了另一个整数的位置信息）。那么程序运行的过程大概是这样的（这里假设内存中 $x_{15}, x_{16}, x_{17}$ 分别存储了 \texttt{1, 2, 3}）：
 \[
     \begin{array}{l|lll}
-        \text{指令} & [r_0, r_1, r_2, \cdots, & x_8, x_9, x_{10}, \cdots, & x_{15}, x_{16}, x_{17}, \cdots]\\
+        \text{指令}                                    & [r_0, r_1, r_2, \cdots, & x_8, x_9, x_{10}, \cdots, & x_{15}, x_{16}, x_{17}, \cdots]                                    \\
         \hline
-        \phantom{\triangleright} \; (\text{initial}) & [\_, \_, \_, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \\
-        \triangleright \; \text{mov r0, \#0} & [0, \_, \_, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{向 $r_0$ 写入 0}\\
-        \triangleright \; \text{mov r1, 8} & [0, 15, \_, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{将 $x_8$ 的 15 赋给 $r_1$}\\
-        \triangleright \; \text{mov r2, 9} & [0, 15, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{将 $x_9$ 的 18 赋给 $r_2$}\\
-        \triangleright \; \text{add r0, [r1]} & [1, 15, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{$r_1 = 15,$ 取 $x_{15}=1$ 加到 $r_0$}\\
-        \triangleright \; \text{add r1, \#1} & [1, 16, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{$r_1$ 加 1 (指向 $x_{16}$)}\\
-        \triangleright \; \text{cmp r1, r2} & [1, 16, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \to (16 \neq 18, \text{跳回 loop}) \\
-        \triangleright \; \text{add r0, [r1]} & [3, 16, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{$r_1 = 16,$ 取 $x_{16}=2$ 加到 $r_0$}\\
-        \triangleright \; \text{add r1, \#1} & [3, 17, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{$r_1$ 加 1 (指向 $x_{17}$)}\\
-        \triangleright \; \text{cmp r1, r2} & [3, 17, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \to (17 \neq 18, \text{跳回 loop}) \\
-        \triangleright \; \text{add r0, [r1]} & [6, 17, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{$r_1 = 17,$ 取 $x_{17}=3$ 加到 $r_0$}\\
-        \triangleright \; \text{add r1, \#1} & [6, 18, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{$r_1$ 加 1 (指向 $x_{18}$)}\\
-        \triangleright \; \text{cmp r1, r2} & [6, 18, 18, \cdots, & 15, 18, \_, \cdots, & 1, 2, 3, 4, \cdots] \to (18 = 18, \text{顺序执行}) \\
-        \triangleright \; \text{mov 10, r0} & [6, 18, 18, \cdots, & 15, 18, 6, \cdots, & 1, 2, 3, 4, \cdots] \quad \text{将 $r_0$ 的 6 存入 $x_{10}$}
+        \phantom{\triangleright} \; (\text{initial}) & [\_, \_, \_, \cdots,    & 15, 18, \_, \cdots,       & 1, 2, 3, 4, \cdots]                                                \\
+        \triangleright \; \text{mov r0, \#0}         & [0, \_, \_, \cdots,     & 15, 18, \_, \cdots,       & 1, 2, 3, 4, \cdots] \quad \text{向 $r_0$ 写入 0}                      \\
+        \triangleright \; \text{mov r1, 8}           & [0, 15, \_, \cdots,     & 15, 18, \_, \cdots,       & 1, 2, 3, 4, \cdots] \quad \text{将 $x_8$ 的 15 赋给 $r_1$}             \\
+        \triangleright \; \text{mov r2, 9}           & [0, 15, 18, \cdots,     & 15, 18, \_, \cdots,       & 1, 2, 3, 4, \cdots] \quad \text{将 $x_9$ 的 18 赋给 $r_2$}             \\
+        \triangleright \; \text{add r0, [r1]}        & [1, 15, 18, \cdots,     & 15, 18, \_, \cdots,       & 1, 2, 3, 4, \cdots] \quad \text{$r_1 = 15,$ 取 $x_{15}=1$ 加到 $r_0$} \\
+        \triangleright \; \text{add r1, \#1}         & [1, 16, 18, \cdots,     & 15, 18, \_, \cdots,       & 1, 2, 3, 4, \cdots] \quad \text{$r_1$ 加 1 (指向 $x_{16}$)}           \\
+        \triangleright \; \text{cmp r1, r2}          & [1, 16, 18, \cdots,     & 15, 18, \_, \cdots,       & 1, 2, 3, 4, \cdots] \to (16 \neq 18, \text{跳回 loop})               \\
+        \triangleright \; \text{add r0, [r1]}        & [3, 16, 18, \cdots,     & 15, 18, \_, \cdots,       & 1, 2, 3, 4, \cdots] \quad \text{$r_1 = 16,$ 取 $x_{16}=2$ 加到 $r_0$} \\
+        \triangleright \; \text{add r1, \#1}         & [3, 17, 18, \cdots,     & 15, 18, \_, \cdots,       & 1, 2, 3, 4, \cdots] \quad \text{$r_1$ 加 1 (指向 $x_{17}$)}           \\
+        \triangleright \; \text{cmp r1, r2}          & [3, 17, 18, \cdots,     & 15, 18, \_, \cdots,       & 1, 2, 3, 4, \cdots] \to (17 \neq 18, \text{跳回 loop})               \\
+        \triangleright \; \text{add r0, [r1]}        & [6, 17, 18, \cdots,     & 15, 18, \_, \cdots,       & 1, 2, 3, 4, \cdots] \quad \text{$r_1 = 17,$ 取 $x_{17}=3$ 加到 $r_0$} \\
+        \triangleright \; \text{add r1, \#1}         & [6, 18, 18, \cdots,     & 15, 18, \_, \cdots,       & 1, 2, 3, 4, \cdots] \quad \text{$r_1$ 加 1 (指向 $x_{18}$)}           \\
+        \triangleright \; \text{cmp r1, r2}          & [6, 18, 18, \cdots,     & 15, 18, \_, \cdots,       & 1, 2, 3, 4, \cdots] \to (18 = 18, \text{顺序执行})                     \\
+        \triangleright \; \text{mov 10, r0}          & [6, 18, 18, \cdots,     & 15, 18, 6, \cdots,        & 1, 2, 3, 4, \cdots] \quad \text{将 $r_0$ 的 6 存入 $x_{10}$}
     \end{array}
 \]
 
@@ -229,8 +240,8 @@ mov 10, r0  ; 将 0 号寄存器的值存入 10 号内存
         \draw (-1, 0) -- (10, 0);
         \draw (-1, 1) -- (10, 1);
         \foreach \x in {0, 1, ..., 9} {
-            \draw (\x, 0) -- (\x, 1);
-        }
+                \draw (\x, 0) -- (\x, 1);
+            }
         \draw [thick, red] (0, 0) node [below] {栈底(栈顶)} -- (0, 1);
         \draw [->] (0.5, 1.75) node [above] {读写头} -- (0.5, 1.25);
         \node at (4.5, -0.8) {空栈};
@@ -246,8 +257,8 @@ mov 10, r0  ; 将 0 号寄存器的值存入 10 号内存
         \draw (-1, 0) -- (10, 0);
         \draw (-1, 1) -- (10, 1);
         \foreach \x in {0, 1, ..., 9} {
-            \draw (\x, 0) -- (\x, 1);
-        }
+                \draw (\x, 0) -- (\x, 1);
+            }
         \draw [thick, red] (0, 0) node [below] {栈底} -- (0, 1);
         \draw [thick, red] (1, 0) node [below] {栈顶} -- (1, 1);
         \draw [->] (1.5, 1.75) node [above] {读写头} -- (1.5, 1.25);
@@ -265,8 +276,8 @@ mov 10, r0  ; 将 0 号寄存器的值存入 10 号内存
         \draw (-1, 0) -- (10, 0);
         \draw (-1, 1) -- (10, 1);
         \foreach \x in {0, 1, ..., 9} {
-            \draw (\x, 0) -- (\x, 1);
-        }
+                \draw (\x, 0) -- (\x, 1);
+            }
         \draw [thick, red] (0, 0) node [below] {栈底} -- (0, 1);
         \draw [thick, red] (2, 0) node [below] {栈顶} -- (2, 1);
         \draw [->] (2.5, 1.75) node [above] {读写头} -- (2.5, 1.25);
@@ -285,8 +296,8 @@ mov 10, r0  ; 将 0 号寄存器的值存入 10 号内存
         \draw (-1, 0) -- (10, 0);
         \draw (-1, 1) -- (10, 1);
         \foreach \x in {0, 1, ..., 9} {
-            \draw (\x, 0) -- (\x, 1);
-        }
+                \draw (\x, 0) -- (\x, 1);
+            }
         \draw [thick, red] (0, 0) node [below] {栈底} -- (0, 1);
         \draw [thick, red] (1, 0) node [below] {栈顶} -- (1, 1);
         \draw [->] (1.5, 1.75) node [above] {读写头} -- (1.5, 1.25);
@@ -309,8 +320,8 @@ mov 10, r0  ; 将 0 号寄存器的值存入 10 号内存
         \draw (-1, 0) -- (10, 0);
         \draw (-1, 1) -- (10, 1);
         \foreach \x in {0, 1, ..., 9} {
-            \draw (\x, 0) -- (\x, 1);
-        }
+                \draw (\x, 0) -- (\x, 1);
+            }
         \draw [thick, red] (0, 0) node [below] {栈底} -- (0, 1);
         \draw [thick, red] (3, 0) node [below] {栈顶} -- (3, 1);
         \draw [->] (3.5, 1.75) node [above] {读写头} -- (3.5, 1.25);
@@ -331,8 +342,8 @@ mov 10, r0  ; 将 0 号寄存器的值存入 10 号内存
         \draw (-1, 0) -- (10, 0);
         \draw (-1, 1) -- (10, 1);
         \foreach \x in {0, 1, ..., 9} {
-            \draw (\x, 0) -- (\x, 1);
-        }
+                \draw (\x, 0) -- (\x, 1);
+            }
         \draw [thick, red] (0, 0) node [below] {栈底} -- (0, 1);
         \draw [thick, red] (2, 0) node [below] {栈顶} -- (2, 1);
         \draw [->] (2.5, 1.75) node [above] {读写头} -- (2.5, 1.25);
@@ -473,26 +484,26 @@ main:
 但是其实抽象远没有结束，还可以进一步提炼出更精简的代码。我们感觉直接操作指令的方式过于野蛮了，但是我们可以写一个简单的文本替换程序来帮我们从较为简洁的代码生成这些指令。我们假设有这样一个程序，能完成如下的替换：
 
 \begin{center}
-\begin{tabular}{c|c|c}
-    \hline 
-    \textbf{原文本} & \textbf{替换后} & \textbf{说明} \\
-    \hline
-    ``...'' & ; ... & 注释 \\[5pt]
-    ; & (换行) & 换行 \\[5pt]
-    \texttt{123} & \texttt{\#123} & 立即数 \\[5pt]
-    \texttt{x123} & \texttt{123} & 内存地址 \\[5pt]
-    \texttt{a += b} & \texttt{add a, b} & 加法 \\[5pt]
-    \texttt{a -= b} & \texttt{sub a, b} & 减法 \\[5pt]
-    \texttt{a *= b} & \texttt{mul a, b} & 乘法 \\[5pt]
-    \texttt{a /= b} & \texttt{div a, b} & 除法 \\[5pt]
-    \texttt{a = b} & \texttt{mov a, b} & 赋值 \\[5pt]
-    \texttt{return a} & $\boxed{\begin{array}{l} \texttt{mov ans, a} \\ \texttt{ret} \end{array}}$ & 返回 \\[20pt] 
-    \texttt{if a != b jmp addr} & $\boxed{\begin{array}{l} \texttt{cmp a, b} \\ \texttt{jne addr} \end{array}}$ & 不等跳转 \\[20pt]
-    \texttt{if a == b jmp addr} & $\boxed{\begin{array}{l} \texttt{cmp a, b} \\ \texttt{je addr} \end{array}}$ & 等于跳转 \\[20pt]
-    \texttt{if a < b jmp addr} & $\boxed{\begin{array}{l} \texttt{cmp a, b} \\ \texttt{jl addr} \end{array}}$ & 小于跳转 \\[20pt]
-    \texttt{do} \{...\} \texttt{while (a != b)} & $\boxed{\begin{array}{l} \texttt{loop\_i:} \\ \quad\texttt{...} \\ \texttt{cmp a, b} \\ \texttt{jne loop\_i} \end{array}}$ & 循环，其中 i 为自动分配的编号 \\[40pt]
-    \hline
-\end{tabular}
+    \begin{tabular}{c|c|c}
+        \hline
+        \textbf{原文本}                                & \textbf{替换后}                                                                                                               & \textbf{说明}      \\
+        \hline
+        ``...''                                     & ; ...                                                                                                                      & 注释               \\[5pt]
+        ;                                           & (换行)                                                                                                                       & 换行               \\[5pt]
+        \texttt{123}                                & \texttt{\#123}                                                                                                             & 立即数              \\[5pt]
+        \texttt{x123}                               & \texttt{123}                                                                                                               & 内存地址             \\[5pt]
+        \texttt{a += b}                             & \texttt{add a, b}                                                                                                          & 加法               \\[5pt]
+        \texttt{a -= b}                             & \texttt{sub a, b}                                                                                                          & 减法               \\[5pt]
+        \texttt{a *= b}                             & \texttt{mul a, b}                                                                                                          & 乘法               \\[5pt]
+        \texttt{a /= b}                             & \texttt{div a, b}                                                                                                          & 除法               \\[5pt]
+        \texttt{a = b}                              & \texttt{mov a, b}                                                                                                          & 赋值               \\[5pt]
+        \texttt{return a}                           & $\boxed{\begin{array}{l} \texttt{mov ans, a} \\ \texttt{ret} \end{array}}$                                                 & 返回               \\[20pt]
+        \texttt{if a != b jmp addr}                 & $\boxed{\begin{array}{l} \texttt{cmp a, b} \\ \texttt{jne addr} \end{array}}$                                              & 不等跳转             \\[20pt]
+        \texttt{if a == b jmp addr}                 & $\boxed{\begin{array}{l} \texttt{cmp a, b} \\ \texttt{je addr} \end{array}}$                                               & 等于跳转             \\[20pt]
+        \texttt{if a < b jmp addr}                  & $\boxed{\begin{array}{l} \texttt{cmp a, b} \\ \texttt{jl addr} \end{array}}$                                               & 小于跳转             \\[20pt]
+        \texttt{do} \{...\} \texttt{while (a != b)} & $\boxed{\begin{array}{l} \texttt{loop\_i:} \\ \quad\texttt{...} \\ \texttt{cmp a, b} \\ \texttt{jne loop\_i} \end{array}}$ & 循环，其中 i 为自动分配的编号 \\[40pt]
+        \hline
+    \end{tabular}
 \end{center}
 
 这样事情会变得简单很多，我们只需要写出一个更加易于理解的代码，再让这个文本替换工具把它翻译成可以被执行的指令就可以了。例如对于前面的例子，我们可以写出这样的代码（为了美观起见给每一行加上分号结尾）：
@@ -530,6 +541,20 @@ main:
 
 但是接下来转头看向 GPU，我们将会看到一个全然不同的世界。
 
+\begin{tcolorbox}[myrecommendbox, title=推荐阅读, breakable=false]
+    \begin{itemize}
+        \item 前面我们提到的只是一个极其简单的模型，如果你想了解现代 CPU 的寄存器分布，可以看：\\
+              \textit{CPU寄存器到底有多大？《深入理解计算机系统》说大概有几百字节，可是汇编课上却说理论上有64kb - 北极的回答 - 知乎}\\
+              \url{https://www.zhihu.com/question/28611947/answer/55987003}
+        \item 如果读者有一定的基础并想了解现代 CPU 的一些优化技术，可以看：\\
+              \textit{分支预测，uOP，乱序执行 - XZiar的文章 - 知乎}\\
+              \url{https://zhuanlan.zhihu.com/p/349758402}
+        \item 如果读者具有坚实的 C 语言和数据结构基础，想自己试图写一个简单的编译器，可以试着看看这个项目：\\
+              \textit{rswier/c4: C in four functions}\\
+              \url{https://github.com/rswier/c4}
+    \end{itemize}
+\end{tcolorbox}
+
 \newpage
 
 \subsection{那么，GPU 呢？}
@@ -557,7 +582,7 @@ void draw_circle(int x, int y, int r) {
 
 有一个虽然不太严谨但是很形象的\uhref{https://www.zhihu.com/question/22219245/answer/365354011}{比喻}：CPU 就像是大学生，有几个核就有几个大学生，他们都很聪明，但是只能做一件事情。GPU 如果有几千个核，就像是几千个小学生，虽然每个人都不太聪明，只能完成简单的任务，但是适合完成大规模的任务。这个比喻虽然不够准确，也有人对这样的比喻提出过\uhref{https://zhuanlan.zhihu.com/p/60627768}{质疑}，但是可以让我们对 CPU 和 GPU 有一个直观的认识。一个更为细致的\uhref{https://www.bilibili.com/video/BV1wbcdeWENh}{解释}是 CPU 可以完成细致的分支预测等工作，大大提高了处理了复杂逻辑的能力，然而 GPU 并不适合处理\textoverset{Branch Diverge}{分支分歧}，分支语句会让 GPU 的并行计算效率大大降低（见 Nvidia 的\uhref{https://docs.nvidia.com/gameworks/content/developertools/desktop/analysis/report/cudaexperiments/sourcelevel/divergentbranch.htm}{文档}）。
 
-总的来讲，CPU 有少量的寄存器和算数逻辑单元，适合处理复杂的逻辑运算。但是 GPU 有一个许多的线程，每个线程都有自己的多个寄存器。同时有多个运算单元\footnote{运算单元：在 Nvidia 的显卡中通常称为 CUDA (Compute Unified Device Architecture) 核心}来提供大规模的并行计算。这里不多介绍 GPU 的具体架构与底层组成，因为 GPU 的架构是多变的，不同的厂商、不同的型号都有不同的架构，而且 GPU 的架构也在不断地发展。
+总的来讲，CPU 有少量的寄存器和算数逻辑单元，适合处理复杂的逻辑运算。但是 GPU 有一个许多的线程，每个线程都有自己的多个寄存器。同时有多个运算单元\footnote{运算单元：在 Nvidia 的显卡中通常称为 CUDA (Compute Unified Device Architecture) 核心。}来提供大规模的并行计算。这里不多介绍 GPU 的具体架构与底层组成，因为 GPU 的架构是多变的，不同的厂商、不同的型号都有不同的架构，而且 GPU 的架构也在不断地发展。
 
 GPU 上要运行的指令所属的指令集与 CPU 上并不相同，甚至不同型号的 GPU 也有不同的指令集，因此自然地，程序需要适配到自己的 GPU 上。经常玩游戏的同学可能会发现不少游戏在启动时会有一个正在编译\textoverset{Shader}{着色器}的过程，或许不少人也好奇过\uhref{https://www.bilibili.com/video/BV1zi421h7tJ}{为什么}。实际上这个过程就是把图形渲染的代码编译成 GPU 可以执行的指令，就像不同的语言需要用不同的编译器一样，GPU 驱动中通常会包含一个着色器编译器，用来把着色器翻译成适配具体 GPU，可以被顺利执行的指令。
 
@@ -587,33 +612,33 @@ https://download.pytorch.org/whl/cu124
 不过这里我们来看一个更为重要的概念：\textoverset{Bit-flag}{位标志}。位标志是一种用来表示状态的方法，它可以用一个整数的某一位来表示某种状态。例如，我们可以用一个 32 位整数的第 0 位来表示一个开关是否打开，第 1 位来表示一个设备是否连接，第 2 位来表示一个权限是否开启，等等。这样我们就可以用一个整数来表示多个状态，而且可以同时操作多个状态。位标志在许多系统的底层仍然随处可见。下面仅举出几例：
 
 \begin{itemize}
-    \item \textbf{文件权限}：在 Linux 系统中，文件的权限是用一个整数表示的，有 9 个有效的位，分别表示文件所有者的权限、文件所在组的权限、其他用户的权限。例如，如果你在根目录（即 \texttt{/} 目录）下运行 \texttt{ls -l} 命令\footnote{\texttt{ls -l}：其中 \text{ls} 命令用于\textoverset{List}{列出}文件夹中的文件和子文件夹，选项 \texttt{-l} 表明使用的是以\textoverset{Long Format}{长格式}输出文件信息}，你可以看到许多文件夹的详细信息，例如对 \texttt{home} 这个文件夹，信息可能类似这样：
-    \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{bash}
+    \item \textbf{文件权限}：在 Linux 系统中，文件的权限是用一个整数表示的，有 9 个有效的位，分别表示文件所有者的权限、文件所在组的权限、其他用户的权限。例如，如果你使用过 Linux 系统并在某个目录下运行 \texttt{ls -l} 命令\footnote{\texttt{ls -l}：其中 \text{ls} 命令用于\textoverset{List}{列出}文件夹中的文件和子文件夹，选项 \texttt{-l} 表明以\textoverset{Long Format}{长格式}输出文件。}，你可以看到许多文件夹的详细信息。例如在根目录（即 \texttt{/} 目录）中 \texttt{home} 这个文件夹的信息可能类似这样：
+          \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{bash}
 drwxr-xr-x   3 root root    4096 Nov 13 18:02 home
     \end{minted}
 
-    我们仅关注最前面的 \texttt{drwxr-xr-x}，这是文件的权限信息，其中第一个字符 \texttt{d} 表示这是一个文件夹。而后面就是我们说的 9 位的权限信息。\texttt{r}, \texttt{w}, \texttt{x} 分别表示 \textoverset{Read}{读}，\textoverset{Write}{写} 和 \textoverset{Execute}{执行} 的权限。虽然写作 \texttt{rwxr-xr-x}，但是实际上它是一个使用了 9 个有效位的二进制数，而并非储存了 9 个字符。就以前面提到的 \texttt{drwxr-xr-x} 为例，其作为一个 16 位整数的布局大约是这样的，所有用户可读可打开，但仅所有者可修改：
-    \[
-        \underset{\text{未使用}}{\underbrace{\color{lightgray}0000000}}
-        \underset{\text{U}}{\underbrace{\overset{\text{r}}{1}\overset{\text{w}}{1}\overset{\text{x}}{1}}}
-        \underset{\text{G}}{\underbrace{{\overset{\text{r}}{1}{\color{lightgray}\overset{\text{w}}{0}}\overset{\text{x}}{1}}}}
-        \underset{\text{O}}{\underbrace{{\overset{\text{r}}{1}{\color{lightgray}\overset{\text{w}}{0}}\overset{\text{x}}{1}}}}
-    \]
+          我们仅关注最前面的 \texttt{drwxr-xr-x}，这是文件的权限信息，其中第一个字符 \texttt{d} 表示这是一个\textoverset{Directory}{文件夹}。而后面就是我们说的 9 位的权限信息。\texttt{r}, \texttt{w}, \texttt{x} 分别表示 \textoverset{Read}{读}，\textoverset{Write}{写} 和 \textoverset{Execute}{执行} 的权限。虽然写作 \texttt{rwxr-xr-x}，但是实际上它是一个使用了 9 个有效位的二进制数，而并非储存了 9 个字符。就以前面提到的 \texttt{drwxr-xr-x} 为例，其作为一个 16 位整数的布局大约是这样的，所有用户可读可打开，但仅所有者可修改：
+          \[
+              \underset{\text{未使用}}{\underbrace{\color{lightgray}0000000}}
+              \underset{\text{U}}{\underbrace{\overset{\text{r}}{1}\overset{\text{w}}{1}\overset{\text{x}}{1}}}
+              \underset{\text{G}}{\underbrace{{\overset{\text{r}}{1}{\color{lightgray}\overset{\text{w}}{0}}\overset{\text{x}}{1}}}}
+              \underset{\text{O}}{\underbrace{{\overset{\text{r}}{1}{\color{lightgray}\overset{\text{w}}{0}}\overset{\text{x}}{1}}}}
+          \]
 
-    这里 U、G、O 分别表示文件所有者(User)、文件所在组(Group)、其他用户(Other)。同样的，设置权限时也是设置这些位。例如如果我们想给文件 \texttt{example} 所有者设置读写权限，同时对组和其他用户设置读权限，我们可以使用 \texttt{chmod} 命令：
-    \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{bash}
+          这里 U、G、O 分别表示文件所有者(User)、文件所在组(Group)、其他用户(Other)。同样的，设置权限时也是设置这些位。例如如果我们想给文件 \texttt{example} 所有者设置读写权限，同时对组和其他用户设置读权限，我们可以使用 \texttt{chmod} 命令：
+          \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{bash}
 chmod u=rw,g=r,o=r example
     \end{minted}
 
-    可是这仍然有些麻烦，有没有更简洁紧凑的写法呢？答案是有的，我们可以使用八进制数来表示这些权限。我们把每 3 位看成一个八进制数，分别表示 User、Group、Other 的权限。例如 7 在 2 进制中是 111，表示所有权限都开启，而 5 是 101，表示读和执行权限开启。\texttt{rw} 的二进制表示就是 110，对应的八进制数就是 6。而 \texttt{r} 的二进制表示就是 100，对应的八进制数就是 4。因此上面的代码就可以简化为
-    \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{bash}
+          可是这仍然有些麻烦，有没有更简洁紧凑的写法呢？答案是有的，我们可以使用八进制数来表示这些权限。我们把每 3 位看成一个八进制数，分别表示 User、Group、Other 的权限。例如 7 在 2 进制中是 111，表示所有权限都开启，而 5 是 101，表示读和执行权限开启。\texttt{rw} 的二进制表示就是 110，对应的八进制数就是 6。而 \texttt{r} 的二进制表示就是 100，对应的八进制数就是 4。因此上面的代码就可以简化为
+          \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{bash}
 chmod 644 example
     \end{minted}
 
-    通过这个例子我们已经可以看到了位标志是如何简化操作的，不过让我们再继续看一些例子来更好地理解位标志的应用。
+          通过这个例子我们已经可以看到了位标志是如何简化操作的，不过让我们再继续看一些例子来更好地理解位标志的应用。
 
-    \item \textbf{嵌入式系统}：在嵌入式系统中，位标志的使用更是无处不在。就以 STM32 系列的芯片\footnote{STM32：\textoverset{STMicroelectronics}{意法半导体}公司推出的一系列基于ARM Cortex-M内核的\textoverset{Micro Controll Unit}{微控制器}}为例，它们的许多寄存器是每一位都有特殊含义的，特别是关于 GPIO\footnote{GPIO：即\textoverset{General-Purpose Input/Output}{通用型输入输出}，微控制器通过它与外设连接。}、\textoverset{Serial}{串口}、\textoverset{Timer}{定时器}、\textoverset{Interrupt}{中断}等模块。例如设置 GPIO 的输入输出状态时，我们可能会这样写来启用 A1 与 A2：
-    \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{c}
+    \item \textbf{嵌入式系统}：在嵌入式系统中，位标志的使用更是无处不在。就以 STM32 系列的芯片\footnote{STM32：\textoverset{STMicroelectronics}{意法半导体}公司推出的一系列基于ARM Cortex-M内核的\textoverset{Micro Controll Unit}{微控制器}。}为例，它们的许多寄存器是每一位都有特殊含义的，特别是关于 GPIO\footnote{GPIO：即\textoverset{General-Purpose Input/Output}{通用型输入输出}，微控制器通过它与外设连接。}、\textoverset{Serial}{串口}、\textoverset{Timer}{定时器}、\textoverset{Interrupt}{中断}等模块。例如设置 GPIO 的输入输出状态时，我们可能会这样写来启用 A1 与 A2（如果读者不会 C 语言也可以大概意会一下它的作用）：
+          \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{c}
 #include "stm32f4xx.h"
 
 void GPIO_Init(void) {
@@ -629,27 +654,236 @@ void GPIO_Init(void) {
 }
     \end{minted}
 
-    这其中最关键的部分其实就在于 \texttt{GPIO\_Pin\_1 | GPIO\_Pin\_2}。对于不熟悉的人来讲，这看起来像是什么特殊设计出来用于这个情境的符号，甚至有人会认为这是一个特殊的宏定义。然而实际上这只是一个普通的位运算，\texttt{GPIO\_Pin\_1} 和 \texttt{GPIO\_Pin\_2} 都是整数，它们的二进制表示分别是 00000010 和 00000100，而 \texttt{|} 就是位或运算，它会把两个数的对应位进行或运算，因此 \texttt{GPIO\_Pin\_1 | GPIO\_Pin\_2} 的结果就是 00000110（十进制为 6），这个数就能表示 A1 和 A2 两个位被设置了。
+          这其中最关键的部分其实就在于 \texttt{GPIO\_Pin\_1 | GPIO\_Pin\_2}。对于不熟悉的人来讲，这看起来像是什么特殊设计出来用于这个情境的符号，甚至有人会认为这是一个特殊的宏定义。然而实际上这只是一个普通的位运算，\texttt{GPIO\_Pin\_1} 和 \texttt{GPIO\_Pin\_2} 都是整数，它们的二进制表示分别是 00000010 和 00000100，而 \texttt{|} 就是位或运算，它会把两个数的对应位进行或运算，因此 \texttt{GPIO\_Pin\_1 | GPIO\_Pin\_2} 的结果就是 00000110（十进制为 6），这个数就能表示 A1 和 A2 两个位被设置了。
 
-    如果我们列一个二进制的竖式，这个运算就变得十分清晰：
-    \[
-    \begin{array}{cc}
-        & \color{lightgray}000000{\color{black}1}0 \\
-        {|} & \color{lightgray}00000{\color{black}1}00 \\
-        \hline
-        & \color{lightgray}00000{\color{black}11}0
-    \end{array}
-    \]
+          如果我们列一个二进制的竖式，这个运算就变得十分清晰：
+          \[
+              \begin{array}{cc}
+                      & \color{lightgray}000000{\color{black}1}0 \\
+                  {|} & \color{lightgray}00000{\color{black}1}00 \\
+                  \hline
+                      & \color{lightgray}00000{\color{black}11}0
+              \end{array}
+          \]
 
-    当两位中存在 1 时，结果的对应位也是 1，否则为 0。这时可能有人会问，为什么不直接用加法呢？实际上对于这个例子来说，加法和位或运算的结果是一样的，但是使用位运算的意图更加清晰，它表明每一位是独立的。这怎么说呢？例如，让我们想象 2+2=4 这个式子会代表什么。如果我们使用加法，就会得到一个很反直觉的结果，即两个 \texttt{GPIO\_Pin\_1} 的和是 4，等于 \texttt{GPIO\_Pin\_2}。它超出原本讨论的引脚，显然与实际不符。而使用位或运算，两个 \texttt{GPIO\_Pin\_1} 做位或运算的结果仍然为 \texttt{GPIO\_Pin\_1}，这样就不会“污染”其它位。比如如果我们随便写两个二进制数，01001001 和 00101010，它们做位或运算的结果是 01101011：
-    \[
-    \begin{array}{cc}
-        & \color{lightgray}0{\color{black}1}00{\color{black}1}00{\color{black}1} \\
-        {|} & \color{lightgray}00{\color{black}1}0{\color{black}1}0{\color{black}1}0 \\
-        \hline
-        & \color{lightgray}0{\color{black}11}0{\color{black}1}0{\color{black}11}
-    \end{array}
-    \]
+          当两位中存在 1 时，结果的对应位也是 1，否则为 0。这时可能有人会问，为什么不直接用加法呢？实际上对于这个例子来说，加法和位或运算的结果是一样的，但是使用位运算的意图更加清晰，它表明每一位是独立的。这怎么说呢？例如，让我们想象 2+2=4 这个式子会代表什么。如果我们使用加法，就会得到一个很反直觉的结果，即两个 \texttt{GPIO\_Pin\_1} 的和是 4，等于 \texttt{GPIO\_Pin\_2}。它超出原本讨论的引脚，显然与实际不符。而使用位或运算，两个 \texttt{GPIO\_Pin\_1} 做位或运算的结果仍然为 \texttt{GPIO\_Pin\_1}，这样就不会“污染”其它位。比如如果我们随便写两个二进制数，01001001 和 00101010，它们做位或运算的结果是 01101011：
+          \[
+              \begin{array}{cc}
+                      & \color{lightgray}0{\color{black}1}00{\color{black}1}00{\color{black}1} \\
+                  {|} & \color{lightgray}00{\color{black}1}0{\color{black}1}0{\color{black}1}0 \\
+                  \hline
+                      & \color{lightgray}0{\color{black}11}0{\color{black}1}0{\color{black}11}
+              \end{array}
+          \]
 
-    这样每一位的变化都是独立的，不会相互影响。更加符合它作为标志，独立编码多个状态的特性。
+          这样每一位的变化都是独立的，不会相互影响。更加符合它作为标志，独立编码多个状态的特性。
+
+    \item \textbf{窗口程序}：现代的开发者是幸福的，得益于一系列强大的图形库，他们可以很方便地开发出各种各样的图形界面。然而读者如果恰好学习过 C 语言课程并尝试过使用 Win32 API\footnote{Win32 API：\textoverset{Application Programming Interface}{应用程序编程接口}，是 Windows 操作系统的一套接口。}来编写窗口程序，就会发现窗口样式、窗口消息等的设计都是通过位标志来实现的。例如，我们可以使用 \texttt{CreateWindowEx} 函数\footnote{CreateWindowEx：最早的接口是 CreateWindow，但是后来为了支持更多的\textoverset{Extended}{拓展}功能，微软推出了 CreateWindowEx。}来创建一个窗口，其中有一个参数叫 \texttt{dwStyle}\footnote{dwStyle：\textoverset{Double Word}{双字}风格，在 16 位 CPU 的年代，一个基本的 CPU 数据单元是 16 位，当时一个\textoverset{Word}{字}指的是 16 位，因此 32 位的整数就被称为双字。如果打开 \texttt{minwindef.h} 仍然可以看到它们的定义。今天的 CPU 大多已经是 64 位的，自然会看起来有些奇怪，但库已经定下来了，这个有些奇怪的名称就一定程度上成为了历史遗留问题。一些现代的语言，如 Rust 则直接使用 \texttt{u32} 来表示 32 位无符号整数，这从某种程度上是更清晰的。}，它就用于设置窗口样式。与现代的许多使用类 CSS\footnote{CSS：\textoverset{Cascading Style Sheets}{层叠样式表}，用于\uhref{https://www.w3schools.com/css/}{设置网页的样式}，例如字体、颜色、布局等。类似的机制也用于许多现代的图形库，如 Qt、GTK 等。}的库不同，Win32 API 使用位标志来设置窗口的样式。例如，如果要设置一个窗口为普通窗口，同时具有标题栏、系统菜单、边框可调、具有最大化、最小化按钮等。那么窗口样式应该是这样的：
+          \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{c}
+WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU |\
+WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
+    \end{minted}
+
+          虽然这一长串更常见的叫法是直接作为一个宏整体叫做 \texttt{WS\_OVERLAPPEDWINDOW}，不过我们还是可以从二进制的角度来看看
+          \[
+              \begin{array}{ccl}
+                                                & \color{lightgray} 00000000000000000000000000000000                                              & \text{overlapped}        \\
+                                                & \color{lightgray} 00000000{\color{black}11}0000000000000000000000                               & \text{caption}           \\
+                                                & \color{lightgray} 000000000000{\color{black}1}0000000000000000000                               & \text{sysmenu}           \\
+                                                & \color{lightgray} 0000000000000{\color{black}1}000000000000000000                               & \text{thick frame}       \\
+                                                & \color{lightgray} 00{\color{black}1}
+                  00000000000000000000000000000 & \text{minimize box}                                                                                                        \\
+                  |                             & \color{lightgray} 0000000{\color{black}1}000000000000000000000000                               & \text{maximize box}      \\
+                  \hline
+                                                & \color{lightgray} 00{\color{black}1}0000{\color{black}111}00{\color{black}11}000000000000000000 & \text{overlapped window}
+              \end{array}
+          \]
+
+          各个位有各自的含义，把它们组合到一起就可以得到一个完整的窗口样式。对于需要高性能的场景，这种设计也让我们可以一次记录多个状态，相比解析字符串构成的样式表速度更快。
+
+    \item \textoverset{Layer Mask}{\textbf{图层蒙版}}：从广义的角度看，bit-mask 并没有必要局限于用一个整数的位来表示状态，如果“升级”一下，完全可以使用一个真正的 0-1 数组来记录一个图像每个像素的属性。如果把 0 和 1 视作黑和白，一个黑白图像完全可以视作一个二维数组。黑色表示“不开启”，像素就隐藏了起来，像是被删除了。白色表示“开启”，像素则显现出来，因此只需要在图层蒙版上涂上黑白，就可以实现图层的显示与隐藏。看起来效果像是这样\footnote{说明：此处的蒙版截自视频\uhref{https://www.bilibili.com/video/BV1xx411c79H}{【東方】Bad Apple!! ＰＶ【影絵】}，有改动。在更早的时候这一视频常被网友用作显示技术测试，有众多二次创作与不同显示设备的呈现。}（这里沿用 Photoshop 中的约定，将透明的部分用格子表示）：
+          \begin{figure}[H]
+              \centering
+              \begin{tikzpicture}[>=Stealth]
+                  \begin{scope}[shift={(-3, 0)}]
+                      \begin{scope}[shift={(0.05, -0.05)}]
+                          \fill [thick, violet!30!gray] (-2, -1.5) rectangle (2, 1.5);
+                      \end{scope}
+                      \node at (0, 0) {\includegraphics[width=4cm]{img/img_no_mask.png}};
+                      \draw [thick, violet] (-2, -1.5) rectangle (2, 1.5);
+                      \node [below] at (0, -1.6) {原图};
+                  \end{scope}
+                  \node at (0, 0) {$\times$};
+                  \begin{scope}[shift={(3, 0)}]
+                      \begin{scope}[shift={(0.05, -0.05)}]
+                          \fill [thick, violet!30!gray] (-2, -1.5) rectangle (2, 1.5);
+                      \end{scope}
+                      \node at (0, 0) {\includegraphics[width=4cm]{img/layer_mask.png}};
+                      \draw [thick, violet] (-2, -1.5) rectangle (2, 1.5);
+                      \node [below] at (0, -1.6) {蒙版};
+                  \end{scope}
+                  \draw [thick, ->] (0, -1.7) -- (0, -3.2);
+                  \begin{scope}[shift={(0, -5)}]
+                      \begin{scope}[shift={(0.05, -0.05)}]
+                          \fill [thick, violet!30!gray] (-2, -1.5) rectangle (2, 1.5);
+                      \end{scope}
+                      \node at (0, 0) {\includegraphics[width=4cm]{img/img_with_mask.png}};
+                      \draw [thick, violet] (-2, -1.5) rectangle (2, 1.5);
+                      \node [below] at (0, -1.6) {蒙版应用};
+                  \end{scope}
+              \end{tikzpicture}
+          \end{figure}
+
+          在这里我们可以看到，原图中蒙版为白色的部分显示出来，黑色的部分隐藏了起来。将它叠加到其它的图层上，黑色部分展示的就是下一个图层。
 \end{itemize}
+
+至此我们已经看到了位标志的许多应用，使用这样的表达方式从根本上是因为它用一种统一而简洁的方式将多个状态编码到数字中，各种从逻辑上有所区别的状态就这样打包成了数字。我们不妨再以图像为载体的数组为呈现方式，看看几种位运算是如何工作的。
+
+先回忆一下几种基本运算，一元的 Not 运算是对一个数的每一位取反，即 0 变为 1，1 变为 0。如果在图像的蒙版上看呢？Not 就是将黑色变白，白色变黑，即反色。呈现的效果大约是这样：
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \begin{scope}[shift={(-4, 0)}]
+            \begin{scope}[shift={(0.05, -0.05)}]
+                \fill [thick, violet!30!gray] (-2, -1.5) rectangle (2, 1.5);
+            \end{scope}
+            \node at (0, 0) {\includegraphics[width=4cm]{img/layer_mask.png}};
+            \draw [thick, violet] (-2, -1.5) rectangle (2, 1.5);
+            \node [below] at (0, -1.6) {原蒙版};
+        \end{scope}
+        \draw [thick, ->] (-1.3, 0) -- node[above]{Not} (1.3, 0);
+        \begin{scope}[shift={(4, 0)}]
+            \begin{scope}[shift={(0.05, -0.05)}]
+                \fill [thick, violet!30!gray] (-2, -1.5) rectangle (2, 1.5);
+            \end{scope}
+            \node at (0, 0) {\includegraphics[width=4cm]{img/layer_mask_rev.png}};
+            \draw [thick, violet] (-2, -1.5) rectangle (2, 1.5);
+            \node [below] at (0, -1.6) {反色蒙版};
+        \end{scope}
+    \end{tikzpicture}
+\end{figure}
+
+再看二元的运算：And 运算取的是两个数中较小的值，一旦有 0，And 运算的结果就是 0。Or 运算取的是两个数中较大的值，一旦有 1，Or 运算的结果就是 1。Xor 运算比较两个数是否相同，如果相同，结果就是 0，否则就是 1。因此 And 运算就像是把所有黑色的部分都保留下来，Or 则是把所有白色的部分保留下来，Xor 把两个图像不同的部分标记为白色，在图上的呈现效果大抵是这样的：
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \begin{scope}[shift={(0.05, -0.05)}]
+            \fill [lightgray!30!gray, thick] (-4.5, -2.4) rectangle (4.5, 1.8);
+        \end{scope}
+        \draw [lightgray, thick, fill=white] (-4.5, -2.4) rectangle (4.5, 1.8);
+        \begin{scope}[shift={(-2.2, 0)}]
+            \begin{scope}[shift={(0.05, -0.05)}]
+                \fill [thick, violet!30!gray] (-2, -1.5) rectangle (2, 1.5);
+            \end{scope}
+            \node at (0, 0) {\includegraphics[width=4cm]{img/layer_mask.png}};
+            \draw [thick, violet] (-2, -1.5) rectangle (2, 1.5);
+            \node [below] at (0, -1.6) {蒙版 1};
+        \end{scope}
+        \begin{scope}[shift={(2.2, 0)}]
+            \begin{scope}[shift={(0.05, -0.05)}]
+                \fill [thick, violet!30!gray] (-2, -1.5) rectangle (2, 1.5);
+            \end{scope}
+            \node at (0, 0) {\includegraphics[width=4cm]{img/layer_mask_2.png}};
+            \draw [thick, violet] (-2, -1.5) rectangle (2, 1.5);
+            \node [below] at (0, -1.6) {蒙版 2};
+        \end{scope}
+        \draw [thick, ->] (-2, -2.7) -- node[fill=white]{And} (-3.5, -4.2);
+        \begin{scope}[shift={(-5, -6)}]
+            \begin{scope}[shift={(0.05, -0.05)}]
+                \fill [thick, violet!30!gray] (-2, -1.5) rectangle (2, 1.5);
+            \end{scope}
+            \node at (0, 0) {\includegraphics[width=4cm]{img/layer_mask_and.png}};
+            \draw [thick, violet] (-2, -1.5) rectangle (2, 1.5);
+            \node [below] at (0, -1.6) {And 结果};
+        \end{scope}
+        \draw [thick, ->] (0, -2.7) -- node[fill=white]{Or} (0, -4.2);
+        \begin{scope}[shift={(0, -6)}]
+            \begin{scope}[shift={(0.05, -0.05)}]
+                \fill [thick, violet!30!gray] (-2, -1.5) rectangle (2, 1.5);
+            \end{scope}
+            \node at (0, 0) {\includegraphics[width=4cm]{img/layer_mask_or.png}};
+            \draw [thick, violet] (-2, -1.5) rectangle (2, 1.5);
+            \node [below] at (0, -1.6) {Or 结果};
+        \end{scope}
+        \draw [thick, ->] (2, -2.7) -- node[fill=white]{Xor} (3.5, -4.2);
+        \begin{scope}[shift={(5, -6)}]
+            \begin{scope}[shift={(0.05, -0.05)}]
+                \fill [thick, violet!30!gray] (-2, -1.5) rectangle (2, 1.5);
+            \end{scope}
+            \node at (0, 0) {\includegraphics[width=4cm]{img/layer_mask_xor.png}};
+            \draw [thick, violet] (-2, -1.5) rectangle (2, 1.5);
+            \node [below] at (0, -1.6) {Xor 结果};
+        \end{scope}
+    \end{tikzpicture}
+\end{figure}
+
+可以看见，对于 And 运算，它仅保留了白色的公共区域，处理后的一个像素为白则表示原本两个像素均为白。而对于 Or 运算，它保留了黑色的公共区域，一个像素为黑表示原本两个像素均为黑。而 Xor 运算则保留了两个图像不同的部分，一个像素为白表示原本的像素一黑一白。
+
+但是读者不禁要问，从文件系统讲到嵌入式，从窗口程序再到图层蒙版，这与本书的主题——机器学习有什么关系呢？在第一章我们看到了许多的拟合问题，它们的自变量都是连续的，但是实际问题中并非这样。
+
+就比如如果我们想通过对社会人群的调查来研究某个现象，有许多是/否类型的问题。例如如果要调查人口与社会流动，可能要对研究对象提出是否结婚、是否是本地户口、是否购房、是否在具有长期的工作等等。这些问题的答案只有两种，是或否。如果使用文字记录所有的信息，并不利于计算机的处理，但是如果约定好每个问题的顺序，将答案看作一个 0-1 数组，这样一些问题答案就可以被量化，更方便计算机的处理。
+
+而同样，在图像分类问题中（例如分类猫、狗、家兔、仓鼠四种宠物），直接输出标签这个字符串似乎不太现实。我们暂且不讨论中间的过程是如何分类出最终结果的，就假设有这样的一个能学习的分类器。可能有人会想，给它们四个标签 0, 1, 2, 3，直接让计算机输出一个数字，这样不就可以了吗？但是问题就在于在我们赋予它一个顺序的过程中，我们是否真的能够保证这个顺序是正确的呢？如果作为数字，那么 1 和 2 之间的距离显然小于 0 和 3 之间的距离，但是你似乎很难说狗和家兔之间的距离比猫和仓鼠之间的距离更大，这个话无论怎么说都显得非常荒谬。同样地，就像之前的 GPIO 引脚一样，你显然不能说因为 $2 = (1 + 3) / 2$，所以说家兔时狗和仓鼠的平均值。
+
+于是我们得到了这样的结论：这四个类别就不能简单地用一条数轴来容纳，更为保险的方法是分别提出四个问题：这个动物是猫吗？这个动物是狗吗？这个动物是家兔吗？这个动物是仓鼠吗？然后将四个问题的答案放在一起，得到一个长度为 4 的 0-1 数组，如果你仔细检查就会发现四种动物对应的四个向量
+\begin{align*}
+    \text{猫}  & : (1, 0, 0, 0) \\
+    \text{狗}  & : (0, 1, 0, 0) \\
+    \text{家兔} & : (0, 0, 1, 0) \\
+    \text{仓鼠} & : (0, 0, 0, 1)
+\end{align*}
+
+两两之间的距离是相等的，这种做法的好处就是说我们并没有给它预设一个可能有问题的顺序，不同的顺序只不过是交换了问题的顺序而已。而且如果读者还记得线性代数中线性相关的概念，就会很容易地发现这四个向量是线性无关的，不会出现某个动物是其它动物的组合这样的情况。
+
+这样我们就可以用 4 维的向量来表示这四种动物，这种编码方式在后续的机器学习中非常常见，通常称为\textoverset{One-Hot Encoding}{独热编码}。由此可以看见，关于逻辑的判断本质上也可以转化成若干个问题的答案，以 0-1 来编码，这其实是一个相当自然、合理的过程。
+
+另外假设我们有这样的一些图片，每张图片有一个类别标签，不同数字表示不同类。这些图片的标签依次为 $3, 0, 2, 0, 2, 3, 0, 2, 0, 1, \cdots$。按照独热编码，即有一个被标为 1 的维度，其它维度都标为 0。图中我们用灰色来标记 0，使用红色来标记 1，每个图像的标签作为一行，那么这个数组看起来是这样的：
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[scale=0.5]
+        \fill [gray, opacity=0.15] (0, 0) rectangle (4, 10);
+        \fill [red, opacity=0.5] (3, 9) rectangle (4, 10);
+        \fill [red, opacity=0.5] (0, 8) rectangle (1, 9);
+        \fill [red, opacity=0.5] (2, 7) rectangle (3, 8);
+        \fill [red, opacity=0.5] (0, 6) rectangle (1, 7);
+        \fill [red, opacity=0.5] (2, 5) rectangle (3, 6);
+        \fill [red, opacity=0.5] (3, 4) rectangle (4, 5);
+        \fill [red, opacity=0.5] (0, 3) rectangle (1, 4);
+        \fill [red, opacity=0.5] (2, 2) rectangle (3, 3);
+        \fill [red, opacity=0.5] (0, 1) rectangle (1, 2);
+        \fill [red, opacity=0.5] (1, 0) rectangle (2, 1);
+        \draw [lightgray, thin] (0, 0) grid (4, 10);
+        \node at (2, -0.7) {......};
+        \node at (2, 11.5) {类别编号};
+        \node at (0.5, 10.5) {0};
+        \node at (1.5, 10.5) {1};
+        \node at (2.5, 10.5) {2};
+        \node at (3.5, 10.5) {3};
+    \end{tikzpicture}
+\end{figure}
+
+还记得我们在第一章的行列对偶视角吗？我们知道从行看过去，它是一张张图像的标签，但是从列看过去，每个列都是一个类别，标明了哪些对象属于这个类别。这也意味着你可以方便地提取出具有某个特征的所有对象，在许多程序处理用户数据时实际上是以列储存的，这种方法在处理非常多的特征时很有效，这一算法称作\textoverset{Bitmap Algorithm}{\uhref{https://zhuanlan.zhihu.com/p/54783053}{位图算法}}。不过这里我们并不打算就位图算法深入展开，只是提示读者回忆一下矩阵的行、列之间的关系。
+
+至此，我们大致理清了逻辑与数据的关系，也许读者会发现，逻辑的判断本质上就是对数据的处理，而数据的处理也可以转化为逻辑的判断。这样的思想在现代的机器学习中推导了极致，不过按照惯例，我们在此回顾一下这一章的内容。
+
+\begin{itemize}
+    \item 从基本的逻辑 0-1 开始引入了逻辑门，它们是逻辑运算的基础，可以用来构建复杂的逻辑关系，物理上的电路组合造就了计算机的基础。
+    \item 人类将任务分解为一系列较为简单的指令，让 CPU 可以跟着执行。这些指令本身只是简单的运算和调准，但是足以实现复杂的功能，构建起各式各样的程序。
+    \item 通过使用许多寄存器来记录程序状态，我们实现了程序的抽象，能够又好有精准地控制程序的运行，同时一些常见的指令组合给了我们抽象的空间，提炼出这些关系后便发明出了高级语言。
+    \item 现代 CPU 的架构实际上非常复杂，但是其目的从根本上看就是为了更快地方式，但是仍然确定性\footnote{确定性：这是个伏笔，强调这一点是因为神经网络的训练过程有许多的非确定性因素，与之形成对比。}地执行指令。
+    \item GPU 给我们提供了高效的并行计算能力，使得我们可以更快地处理大量的数据，有安装 CUDA 工具需求的读者可以参阅与 GPU 相关的这一节大致理清几种工具的关系，或许对快速地配好环境是有益的。
+    \item 位标志是一种非常高效的编码方式，它可以将多个状态编码到一个数字中，使得我们可以更加高效地处理这些状态。
+    \item 从更广阔的意义上，许多问题都可以看作对若干个问题的答案，以 0-1 数组的形式来编码，独热编码为编码相互独立的概念提供了一种非常自然的方式。
+\end{itemize}
+
+
+\begin{tcolorbox}[myrecommendbox, title=推荐阅读, breakable=false]
+    \begin{itemize}
+        \item 如果你想要预习机器学习中 mask 的作用，可以参考：\\
+              \textit{深度学习中的mask到底是什么意思？ - 随时学丫的回答 - 知乎}\\
+              \url{https://www.zhihu.com/question/320615749/answer/1080485410}
+        \item 如果你想要预习一下独热编码，可以参考：\\
+              \textit{深入浅出 one-hot - 董董灿是个攻城狮的文章 - 知乎}\\
+              \url{https://zhuanlan.zhihu.com/p/634296763}
+    \end{itemize}
+\end{tcolorbox}
