@@ -847,7 +847,7 @@ WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
 
 \subsection*{拓展阅读——那么，GPU 呢？}
 
-GPU，全称\textoverset{Graphics Processing Unit}{图形处理器}，是一种专门用来处理图形计算的处理器。打游戏的同学或许知道，为了打开高画质高刷新的游戏，需要一块强大的显卡，显卡的核心就是 GPU。都是执行指令，CPU 和 GPU 有什么区别呢？
+GPU，全称\textoverset{Graphics Processing Unit}{图形处理器}，是一种专门用来处理图形计算的处理器。打游戏的同学或许知道，为了打开高画质高刷新的游戏，需要一块强大的显卡，显卡的核心就是 GPU。都是执行指令，\uhref{https://www.bilibili.com/video/BV1xE421j7Uv}{显卡如何构成}，CPU 和 GPU 又有什么区别呢？
 
 在回答这个问题前我想有必要提出一个更为根本性的问题：渲染图形提出了怎样的特别的需求？让我们举一个最简单的例子：在平面上绘制一个圆。我们且不讨论怎么把圆加载到屏幕上，且就假设我们只需要把每个点都计算出来，或者更为具体地：在一个高 1080 宽 1920 的数组中计算出每个像素的颜色\footnote{方便起见，这里只考虑黑白颜色。}，按照惯例，黑色是 0，白色是 255。看起来很简单，我在这里用一份 C 语言代码来实现这个功能：
 \begin{minted}[bgcolor=gray!15, frame=single, framesep=10pt, baselinestretch=1.2]{c}
