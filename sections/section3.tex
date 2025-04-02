@@ -2,11 +2,11 @@
 % 从函数拟合的角度引入神经网络
 \subsection{神经网络：一个大的函数}
 
-相比于\textoverset{Neural Network}{神经网络}如何实现其功能，读者或许更想问的是：为什么要用神经网络？现有的神经网络为什么用了这些方法？对于这一类问题，一个统一但是现实的回答是：机器学习是高度以实用为导向的，实验显示这样做效果更好。在现实中，我们往往要解决各种各样的问题，人类开发者以手写每一行代码创造了各种各样的程序，自动化地解决了许多问题。但很多问题难以在有限的时间内找到确定性的解决方案，例如识别图片中的物体、识别语音、自然语言处理等等。它们有一个共同点：输入的信息量巨大、关系复杂，难以用确定的规则来描述。手动规定像素范围来判断物体类型，或用固定的规则来解析自然语言显然并不现实。因此人们自然要问有没有更加自动化、灵活、智能的方法来一劳永逸地解决这些问题。人工智能的概念就此提出，人们希望让机器自己学习知识来解决问题。
+相比于\textoverset{Neural Network}{神经网络}如何实现其功能，读者或许更想问的是：为什么要用神经网络？现有的神经网络为什么用了这些方法？对于这一类问题，一个现实的回答是：机器学习是高度以实用为导向的，实验显示这样做效果更好。在现实中，我们往往要解决各种各样的问题，人类开发者以手写每一行代码创造了各种各样的程序，自动化地解决了许多问题。但很多问题难以在有限的时间内找到确定性的解决方案，例如识别图片中的物体、识别语音、自然语言处理等等。它们有一个共同点：输入的信息量巨大、关系复杂，难以用确定的规则来描述。手动规定像素范围来判断物体类型，或用固定的规则来解析自然语言显然并不现实。因此人们自然要问有没有更加自动化、灵活、智能的方法来一劳永逸地解决这些问题。人工智能的概念就此提出，人们希望让机器自己学习知识来解决问题。
 
 虽然目前人类仍然很难说摸到了\textoverset{Artificial General Intelligence}{通用人工智能}\footnote{通用人工智能：指能像人类一样解决各种通用的问题的人工智能。}的边界，但人工智能已然在许多问题上取得了巨大成就，走出了 20 世纪末 21 世纪初被大众认为是“伪科学”的寒冬。经过\uhref{https://arxiv.org/pdf/1512.03385}{深度残差网络}在图像识别的重大突破、\uhref{https://www.davidsilver.uk/wp-content/uploads/2020/03/unformatted_final_mastering_go.pdf}{AlphaGo}学会下围棋、\uhref{https://arxiv.org/pdf/1706.03762}{Transformer}在翻译比赛取得优异成绩并引来一波生成式模型的热潮等等，人工智能就这样走向了时代的焦点。但是如果要问：为什么它这么成功？最直接的回答仍是：It works.
 
-除了一些基础的训练方法外，其它的结构构成、参数调整等等往往都是人们有一个想法，于是就这样展开了实验。部分实验成功了，就说明这个想法是对的，从而延伸出新的调节思路。如此循环往复，形成了现在的人工智能领域。因此就模型结构而言并没有非常统一的理论，有的只能说是经验法则。
+除了一些基础的训练方法外，其它的结构构成、参数调整等等往往都是人们有一个想法，于是就这样展开了实验。部分实验成功了，就说明这个想法是对的，从而延伸出新的调节思路。如此循环往复，形成了现在的人工智能领域。因此就模型结构而言并没有非常完备的理论，有的只能说是经验法则。
 
 不过我想可以对解决的方法做一个简单的分类。按照参数的数量，从参数复杂到参数简单可以画出一条轴。按照模型获取经验的方式，从模型完全编码了先验经验，到通过一些例子得到经验，再到持续在与环境的互动中获取经验，可以画出另一条轴。在这里我也试图并不严谨地画出了这样一个表格。
 \begin{table}[H]
@@ -63,18 +63,274 @@
 
 在这里我想简单讲讲使用矩阵运算的原因。在第一章中我们已经简单地学习了矩阵运算的基本知识，它本质上是正比例函数在向量空间中的推广，只是 $y=kx$ 中的斜率变成了一个个从输入 $x_j$ 连接到输出 $y_i$ 的权重 $w_{ij}$。从行看过去，它反映了输出的每个分量（或称为特征）是如何由输入的每个分量线性组合而成的。而从列看过去，它表明了输入的每个分量是如何影响输出的。就像一次函数有一个常数项一样，矩阵运算也有一个偏置项 $b$，运算实际上是 $y = wx + b$。从代数上看，它运算简单\footnote{简单：仅由简单的四则运算组成，现代 GPU 也常常提供高效的矩阵运算加速。}，而从分析上看，它的输出变化光滑，容易求导\footnote{容易求导：记住这一点，这对后续反向传播等算法的实现至关重要。如果在离散的空间中操作，例如使用阶跃函数或者逻辑门，便无法借助导数来进行参数更新。}。
 
-下一节中我们会引入激活函数，暂且不论它们的具体形式如何，它们也是一些非常简单的运算。或许读者会有疑问，这样一些简单的运算，真的有能力让神经网络胜任复杂的任务吗？但是无数的实验表明：可以，量变可以引起质变，将一系列简单的单元堆叠起来，便可以形成复杂的行为。Philip W. Anderson\footnote{Philip W. Anderson：美国物理学家，1977 年诺贝尔物理学奖获得者。}曾说过：“More is different”，他的原意指的是物理学中，微观的规律并不能简单地推导出宏观的规律，整个系统可以表现的与单个元素完全不同。但这里我们不妨借用一下，大量简单的数学函数可以产生复杂的行为，在神经网络的\textoverset{Emergent}{涌现}\footnote{涌现：即增大参数量带来性能突然提升的现象。}现象中，这一事实不断地被验证。就像婴儿可以通过教育称为适应社会的成年人一样，适当的算法和足够的训练数据可以让神经网络学会知识。
+下一节中我们会引入激活函数，暂且不论它们的具体形式如何，它们也是一些非常简单的运算。或许读者会有疑问，这样一些简单的运算，真的有能力让神经网络胜任复杂的任务吗？\uhref{https://www.zhihu.com/question/594296903/answer/2979485641}{万能逼近定理}\footnote{万能逼近定理：指出足够大的神经网络可以以任意精度在给定范围内拟合任意的复杂函数。}虽然在理论上告诉我们它可以，却需要假定足够多的神经元，并不令人安心。所幸无数的实验表明：可以，在人类能实现的范围内，量变也可以引起质变，将一系列简单的单元堆叠起来，便可以形成复杂的行为。Philip W. Anderson\footnote{Philip W. Anderson：美国物理学家，1977 年诺贝尔物理学奖获得者。}曾说过：“More is different”，他的原意指的是物理学中，微观的规律并不能简单地推导出宏观的规律，整个系统可以表现的与单个元素完全不同，因此微观和宏观需要不同的理论来描述。但这里我们不妨借用一下，同样地认识到大量简单的数学函数也可以产生复杂的行为。在神经网络的\textoverset{Emergent}{涌现}\footnote{涌现：即增大参数量带来性能突然提升的现象。}现象中，这一事实不断地被验证。就像婴儿可以通过教育称为适应社会的成年人一样，适当的算法和足够的训练数据的确可以让神经网络学会知识。
 
-需要说明的是，现代的机器学习库 PyTorch 与 TensorFlow 都提供了完善的参数更新机制，使得用户不必自己实现优化算法。这可以说是非常简单易用，让用户可以聚焦模型的设计。不过我仍然会解读其中的原理，并试图说明设计网络结构与优化算法的人为什么要这么做。\footnote{其中的原理：实际上人类理解的神经网络工作原理与计算机实际运行的原理或许有很大的区别，人类对现在大部分网络的理解本质上都是经过实验后进行的归纳甚至是猜测，而非从数学上严格证明。神经网络的\textoverset{Interpretability}{可解释性}仍然是很大的问题，因此很多时候人们只知道怎么样做效果好，而不“真正地”理解为什么这么做效果好，有时也被人调侃为“新时代的炼金术”。虽然有许多相关的\uhref{https://www.zhihu.com/question/320688440}{解释}来帮助人们了解神经网络中发生什么，但仍然没有形成一个统一的理论。}
+需要说明的是，现代的机器学习库 PyTorch 与 TensorFlow 都提供了完善的参数更新机制，使得用户不必自己实现优化算法。这可以说是非常简单易用，让用户可以聚焦模型的设计。不过我仍然会解读其中的原理，并试图说明设计网络结构与优化算法的人为什么要这么做。\footnote{其中的原理：实际上人类理解的神经网络工作原理与计算机实际运行的原理或许有很大的区别，人类对现在大部分网络的理解本质上都是经过实验后进行的归纳甚至是猜测，而非从数学上严格证明。神经网络的\textoverset{Interpretability}{可解释性}仍然是很大的问题，因此很多时候人们只知道怎么样做效果好，而不“真正地”理解为什么这么做效果好，有时也被人调侃为“新时代的炼金术”。虽然有许多相关的\uhref{https://www.zhihu.com/question/320688440}{解释}来帮助人们了解神经网络中发生什么，但学界内仍然没有形成一套系统的理论。}
 
 \newpage
 
 \subsection{激活函数与非线性}
 
-将 $y=wx+b$ 作为一次函数的类比应该足以说明它是很简单的一类函数。但是正如一次函数的复合 \( y = w_2(w_1x+b_1)+b_2 = w_2w_1x + (w_2b_1+b_2) \)
-仍然是一次函数一样，如果仅仅沉浸在矩阵运算中，我们便永远无法表达那些复杂的函数。举个最简单的例子，我们甚至无法表示输入的绝对值 $y=|x|$。因此我们需要在模型的结构中加点“非线性”，专业的说法称之为\textoverset{Activation Function}{激活函数}。激活函数直接作用在每个特征上，而且函数本身通常是固定的\footnote{通常是固定的：在一些模型，例如使用可变样条函数的\uhref{https://arxiv.org/pdf/2404.19756}{KAN}中，激活函数也是可学习的，而且各个元素上的效果可能不同，但是可变的激活函数总体来说并不常见。}，且总体通常呈现递增的趋势。
+将 $y=wx+b$ 作为一次函数的类比应该足以说明它是很简单的一类函数。但是正如一次函数的复合 $ y = w_2(w_1x+b_1)+b_2 = w_2w_1x + (w_2b_1+b_2) $
+仍然是一次函数一样，如果仅仅沉浸在矩阵运算中，我们便永远无法表达那些复杂的函数。举个最简单的例子，我们甚至无法表示输入的绝对值 $y=|x|$。因此我们需要在模型的结构中加点“非线性”，让它不仅仅局限于简单的加减乘除，专业的说法称之为\textoverset{Activation Function}{激活函数}。激活函数直接作用在每个特征上，而且函数本身通常是固定的\footnote{通常是固定的：在一些模型，例如使用可变样条函数的\uhref{https://arxiv.org/pdf/2404.19756}{KAN}中，激活函数也是可学习的，而且各个元素上的效果可能不同，但是可变的激活函数总体来说并不常见。}，且总体通常呈现递增的趋势。
 
-所谓逐元素作用，也就是说，与矩阵对特征进行组合不同，激活函数对各个分量的操作是独立的。其输入是一个向量，输出也是一个同样维数的向量。如果选定了激活函数 $f:\mathbb{R}\to\mathbb{R}$，输入为 $x = (x_1, x_2, \cdots, x_n)$，则输出为 $y = (f(x_1), f(x_2), \cdots, f(x_n))$。
+所谓逐元素作用，也就是说，与矩阵对特征进行组合不同，激活函数对各个分量的操作是独立的。其输入是一个向量，输出也是一个同样维数的向量。如果选定了激活函数 $f:\mathbb{R}\to\mathbb{R}$，输入为 $x = [x_1, x_2, \cdots, x_n]$，则输出为 $y = [f(x_1), f(x_2), \cdots, f(x_n)]$。
+
+现在使用最多的激活函数是\textoverset{Rectified Linear Unit}{线性整流函数}(ReLU)，虽然相对于其它激活函数，诸如 Sigmoid、tanh 等等，ReLU 其实算是晚辈，但是在关于激活函数的讨论中，\uhref{https://proceedings.mlr.press/v15/glorot1a/glorot1a.pdf}{有研究}表明它的效果更好，而后\uhref{https://proceedings.neurips.cc/paper_files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf}{AlexNet} 的成功更让它成为了主流的激活函数。虽然失去了早期其它激活函数的仿生背景，但它好用，而且非常简单。它的定义是：
+\[
+    \text{ReLU}(x) = \max\{0, x\} = \begin{cases}
+        x, & x \geq 0 \\
+        0, & x < 0 
+    \end{cases}
+\]
+
+图像是这样的：
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[>=Stealth]
+    \draw [->] (-2, 0) -- (2, 0) node [below] {$x$};
+    \draw [->] (0, -1) -- (0, 2) node [left] {$y$};
+    \draw [domain=-2:0, smooth, variable=\x, blue, thick] plot ({\x}, 0);
+    \draw [domain=0:2, smooth, variable=\x, blue, thick] plot ({\x}, {\x});
+    \end{tikzpicture}
+\caption{ReLU 函数图像}
+\end{figure}
+
+举一个例子就可以看出逐元素作用的含义。例如有输入向量 $x = [1, -2, 3]$，那么它经过 ReLU 激活函数的输出为 $y = [1, 0, 3]$。正的部分被保留了，而负的部分被置为 0。正如电路中的半波\textoverset{Rectifier}{整流器}一样，把负值截断了。
+
+而它的导数也非常简单：
+\[
+    \frac{\mathrm{d}}{\mathrm{d}x}\text{ReLU}(x) = \begin{cases}
+        1, & x > 0 \\
+        0, & x < 0 
+    \end{cases}
+\]
+
+读者或许会关心，那 0 这一点不可导要怎么办？实际上关系不大，因为一个小数几乎不可能\footnote{几乎不可能：在最常用的 32 位浮点数中，一个数恰好取到 0 的概率大概在 $10^{-9}$ 量级。虽然在 FP8 或者 FP16 量化中恰好取到 0 的概率更大，但是实际上这单个不可导点几乎不会对训练产生影响。}在训练中恰好落在 0 上。即使有，也可以任意地选择一个值，例如 0 或者 1\footnote{0 处的导数：PyTorch 通常选择 0}。有了这样的激活函数，我们发现函数的表达能力大大增强了。以目标 $|x|$ 为例，假设有输入 $x$，我们可以用两个 ReLU 函数值的和来表示它：
+\[
+    |x| = \text{ReLU}(x) + \text{ReLU}(-x) = \max\{0, x\} + \max\{0, -x\}
+\]
+
+初看可能会觉得这样的表达方式有点多此一举，像是为了 $|x|$ 这盘醋专门包的饺子。但是别急，让我们把它拆解成神经网络的结构，更加结构化地看待。
+
+最初的输入是 $x$，它先经过一个线性的函数得到 $[x, -x]$，再经过 ReLU 函数得到中间的向量 $x^{(1)} = (\max\{0, x\}, \max\{0, -x\})$，而这使用一个线性函数就可以得到 $y = |x|$。
+
+写成矩阵的形式就有
+\[
+w_1 = \begin{bmatrix}
+    1 \\ -1
+\end{bmatrix}, b_1 = \begin{bmatrix}
+    0 \\ 0
+\end{bmatrix}, w_2 = \begin{bmatrix}
+    1 & 1
+\end{bmatrix}, b_2 = 0
+\]
+
+遂可以写成 $y = w_2 \,\text{ReLU}(w_1x + b_1) + b_2$。我认为，把这件事作为一个 toy case\footnote{toy case：玩具案例，指的是一个简单的例子，用于说明某个概念或方法。}想明白多少可以帮助理解神经网络。把矩阵的每个权重都画出来就是这样了：
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[>=Stealth, scale=1.5]
+    \node [circle, fill=white, draw, minimum size=1.2cm] (x0) at (0, 0) {$x$};
+    \node [circle, fill=white, draw, minimum size=1.2cm] (x11) at (2, 1) {$x_1^{(1)}$};
+    \node [circle, fill=white, draw, minimum size=1.2cm] (x12) at (2, -1) {$x_2^{(1)}$};
+    \node [circle, fill=white, draw, minimum size=1.2cm] (y) at (4, 0) {$|x|$};
+    \draw [->, red] (x0) -- node [above left] {$1$} (x11);
+    \draw [->, blue] (x0) -- node [below left] {$-1$} (x12);
+    \draw [->, red] (x11) -- node [above right] {$1$} (y);
+    \draw [->, red] (x12) -- node [below right] {$1$} (y);
+    \draw [dashed, thin] (1.4, -1.8) rectangle (2.6, 1.8);
+    \node [above] at (2, 1.8) {中间层};
+    \node at (2, 0.4) {ReLU};
+    \node[lightgray] at (2, 1.6) {$+0$};
+    \node[lightgray] at (2, -0.4) {$+0$};
+    \node[lightgray] at (4, 0.6) {$+0$};
+    \node at (2, -1.6) {ReLU};
+    \end{tikzpicture}
+\caption{神经网络表示 $|x|$}
+\end{figure}
+
+这看起来很简单，读者可能想问：还能不能再给力一点，看看更复杂的情况呢？当然可以。不过在看之前先抛出两个思考题：
+\begin{enumerate}
+    \item 试着用线性函数和 ReLU 函数表示 $y = \max\{x_1, x_2\}$，并画出它的神经网络结构图。
+    \item 线性函数和 ReLU 的组合\textbf{不能}表示什么函数呢？
+\end{enumerate}
+
+在思考这个问题时，读者可以先回顾 ReLU 的性质：它的作用是将负数截断为 0，而正数保持不变。那么，我们能否通过适当的线性变换和 ReLU 来分辨两个数的大小呢？实际上我们可以很容易地发现
+\[
+    \max\{x_1, x_2\} = x_1 + \text{ReLU}(x_2 - x_1) 
+\]
+
+但是这个答案并不够好，如果直接把它画成神经网络结构图，就会发现它的结构看起来像是这样：
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[>=Stealth, scale=1.5]
+    \node [circle, fill=white, draw, minimum size=1.2cm] (x01) at (0, 1) {$x_1$};
+    \node [circle, fill=white, draw, minimum size=1.2cm] (x02) at (0, -1) {$x_2$};
+    \node [circle, fill=white, draw, minimum size=1.2cm] (x11) at (2, -1) {$?$};
+    \node [circle, fill=white, draw, minimum size=1.2cm] (y) at (4, 0) {$y$};
+    \draw [->, blue] (x01) -- node [above right] {$-1$} (x11);
+    \draw [->, red] (x02) -- node [below] {$1$} (x11);
+    \draw [->, red] (x11) -- node [below right] {$1$} (y);
+    \draw [->, red] (x01) -- node [above right] {$1$} (y);
+    \node at (2, -1.6) {ReLU};
+    \node[lightgray] at (2, -0.4) {$+0$};
+    \node[lightgray] at (4, 0.6) {$+0$};
+    \end{tikzpicture}
+\caption{神经网络表示 $\max\{x_1, x_2\}$ 的一种方法}
+\end{figure}
+
+变量 $x_1$ 没有经过统一的隐藏层，而是跳过中间，直接连接到了输出层。显然就不能用一致的 $\text{ReLU}(wx+b)$ 的形式来表示了，而是要单独开一个通道来处理。而我们使用神经网络的目的本来就是用一致的方式来处理所有的输入，所以这样的表示方式并不优雅\footnote{并不优雅：与之对比，在深层神经网络网络中通常会引入看起来有些像这里的\textoverset{Shortcut Connection}{跳连接}结构，由此引出\textoverset{Residual Network}{残差网络}的概念。它看起来有些像这里的跳过中间层的结构，但那里是系统性地引入这样的连接，而不是这样对某个分量单独处理。}。
+
+不过使用一点小小的技巧，可以把 $x_1$ 本身写成 $x_1 = \text{ReLU}(x_1) - \text{ReLU}(-x_1)$，这样一来就可以把它写成带有三个中间变量的一个网络结构了。把
+\[
+    \max\{x_1, x_2\} = \text{ReLU}(x_1) - \text{ReLU}(-x_1) + \text{ReLU}(x_2 - x_1)
+\]
+
+这一式子中的三个分量提出来，便可以得到
+\[
+\begin{aligned}
+    x_1^{(1)} &= \text{ReLU}(x_1\,{\color{lightgray}+\,0x_2}) \\
+    x_2^{(1)} &= \text{ReLU}(-x_1\,{\color{lightgray}+\,0x_2}) \\
+    x_3^{(1)} &= \text{ReLU}(- x_1 + x_2) \\
+    y &= x_1^{(1)} - x_2^{(1)} + x_3^{(1)} 
+\end{aligned}
+\]
+
+偏置 $b$ 仍然为 $0$，读者可以自行试着写出对应的权重矩阵 $w$ ，按照新的写法重新绘制，这时结构图就会变成这样：
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[>=Stealth, scale=1.5]
+    \node [circle, fill=white, draw, minimum size=1.2cm] (x01) at (-1, 1.2) {$x_1$};
+    \node [circle, fill=white, draw, minimum size=1.2cm] (x02) at (-1, -1.2) {$x_2$};
+    \node [circle, fill=white, draw, minimum size=1.2cm] (x11) at (2, 2) {$x_1^{(1)}$};
+    \node [circle, fill=white, draw, minimum size=1.2cm] (x12) at (2, 0) {$x_2^{(1)}$};
+    \node [circle, fill=white, draw, minimum size=1.2cm] (x13) at (2, -2) {$x_3^{(1)}$};
+    \node [circle, fill=white, draw, minimum size=1.2cm] (y) at (5, 0) {$y$};
+    \draw [->, lightgray] (x02) -- node [below right] {$0$} (x11);
+    \draw [->, lightgray] (x02) -- node [below right] {$0$} (x12); 
+    \draw [->, red] (x01) -- node [above left] {$1$} (x11);
+    \draw [->, blue] (x01) -- node [above right] {$-1$} (x12);
+    \draw [->, blue] (x01) -- node [above right] {$-1$} (x13);
+    \draw [->, red] (x02) -- node [below left] {$1$} (x13);
+    \draw [->, red] (x11) -- node [above right] {$1$} (y);
+    \draw [->, blue] (x12) -- node [above] {$-1$} (y);
+    \draw [->, red] (x13) -- node [below right] {$1$} (y);
+    \node [lightgray] at (2, 2.6) {$+0$};
+    \node [lightgray] at (2, 0.6) {$+0$};
+    \node [lightgray] at (2, -1.4) {$+0$};
+    \node [below] at (2, 1.6) {ReLU};
+    \node [below] at (2, -0.4) {ReLU};
+    \node [below] at (2, -2.4) {ReLU};
+    \draw [dashed, thin] (1.4, -2.8) rectangle (2.6, 2.8);
+    \node [above] at (2, 2.8) {中间层};
+    \end{tikzpicture}
+\caption{神经网络表示 $\max\{x_1, x_2\}$ 的另一种方法}
+\end{figure}
+
+虽然中间的神经元多了一些，但是它的结构看起来就统一而且整齐得多了。或许有人会有疑问，这里连的线变多了，不是把事情复杂化了吗？但是实际上并没有，恰恰相反，把它整齐地写出来才有利于算法的数值优化。
+
+一个有趣的事实是，如果把 True 和 False 分别视作 1 和 0，那么只需要最多这样的两层就可以表示任意的逻辑函数。例如 
+\[
+\begin{aligned}
+    x_1 \; \text{and} \; x_2 &= \text{ReLU}(x_1 + x_2 - 1) \\
+    x_1 \; \text{or} \; x_2 &= \text{ReLU}(x_1) + \text{ReLU}(x_2 - x_1) \\
+    x_1 \; \text{xor} \; x_2 &= \text{ReLU}(x_1 - x_2) + \text{ReLU}(x_2 - x_1) 
+\end{aligned}
+\]
+
+这至少表明逻辑可以在一定程度上编码进神经网络中，用一些可调的权重来模拟逻辑门\footnote{用权重模拟逻辑门：这里仅说明它可以，但是这么做太奢侈了，很浪费资源。}，因此从这一特例来看，求特征的交集、并集的操作确实可以自然地以权重的方式编码到网络的运算中。
+
+而实际上，推而广之，不难发现 ReLU 本质上完成的是将函数分段的操作。调整权重就可以做到在不同的区域选择不同的段，从而给出不同的表达式。虽然它在每一根区域内仍然是线性的，但却可以通过一些点上的弯折来实现非线性，表达能力比单纯的线性函数大大提高。这样的函数在数学上称为\textoverset{Piecewise Linear Function}{分段线性函数}，如我们所见，ReLU 函数就提供了一种通用的方式来实现分段线性函数，从而将关于“分类”的信息编码到网络中。
+
+那么它不能表示什么函数呢？由于其分段线性的特性，不难证明它实际上无法精准地表示光滑的曲线，例如 $y = x^2$。而且可以证明，对于任何一个分段线性函数 $f(x)$，都可以找到一个常数 $c$ 使对于 $\|x\|$ 足够大的时候，$f(x) \leq c\|x\|$。从而增长速度有限，无法表示指数函数或者高次的多项式函数。
+
+这确实体现出了它的局限性，但是这必然是它的弱点吗？并不一定。一方面，虽然它本身无法\textbf{精准地表示}光滑的函数，但是只要给定一个自变量的区间，在这样的函数堆叠多层之后总是可以调整参数，做到\textbf{良好地近似}给定的函数。事实上只需要四段就可以在区间 $[-1, 1]$ 上用如下的分段线性函数来相当好地近似 $x^2$ 了，例如下面的分段线性函数 $f(x)$：
+\[
+    f(x) = 2\text{ReLU}(x-1) + 2\text{ReLU}(x) + 2\text{ReLU}(-x) + 2\text{ReLU}(-x-1) - 0.04 
+\]
+
+图像是这样的：
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[>=Stealth]
+    \begin{axis}[
+        axis lines=middle,
+        axis equal,
+        xlabel={$x$}, ylabel={$y$},
+        grid=major,
+        legend pos=north west
+    ]
+    \addplot[blue, thick, domain=-1:1, smooth] {x^2};
+    \addlegendentry{$x^2$}
+
+    \addplot[red, thick] coordinates {(-1, 0.96) (-0.5, 0.21) (0, -0.04) (0.5, 0.21) (1, 0.96)};
+    \addlegendentry{$f(x)$}
+    \end{axis}
+\end{tikzpicture}
+\caption{分段线性函数近似光滑函数}
+\end{figure}
+
+另一方面，虽然它的输出会被输入大小的一个常数倍所控制，但在很大程度上，这也避免了在第一章中多项式拟合的数值爆炸问题。此外，这提醒我们应当将模型的输入输出控制在一个范围之内。遵循这些原则，ReLU 网络的表达能力已经足够强大，能解决大多数实际问题。尽管仍有一些细节需要注意，但这并不影响我们对其整体能力的理解。
+
+另外再提一嘴其它的激活函数。Sigmoid 函数\footnote{Sigmoid 函数：Sigmoid 来源于拉丁语，得名于其类似小写字母 sigma 变体 $\varsigma$ 的形状。}是一个 S 型函数，定义为
+\[
+    \text{Sigmoid}(x) = \frac{1}{1 + e^{-x}}
+\]
+
+输出随输入变化的图像是这样的，可见它把输入压缩到了 $[0, 1]$ 的范围内：
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[>=Stealth]
+    \begin{axis}[
+        axis lines=middle,
+        axis equal,
+        xlabel={$x$}, ylabel={$y$},
+        grid=major,
+        legend pos=north west
+    ]
+    \addplot[blue, thick, domain=-2:2, samples=100] {1/(1+exp(-x))};
+    \addlegendentry{Sigmoid($x$)}
+    \end{axis}
+\end{tikzpicture}
+\caption{Sigmoid 函数图像}
+\end{figure}
+
+tanh 函数是双曲正切函数，其定义为
+\[
+    \text{tanh}(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}
+\]
+
+它的图像和 Sigmoid 函数很类似，只是经过了一个伸缩和平移，输出范围是 $[-1, 1]$：
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[>=Stealth]
+    \begin{axis}[
+        axis lines=middle,
+        axis equal,
+        xlabel={$x$}, ylabel={$y$},
+        grid=major,
+        legend pos=north west
+    ]
+    \addplot[blue, thick, domain=-2:2, samples=100] {tanh(x)};
+    \addlegendentry{tanh($x$)}
+    \end{axis}
+\end{tikzpicture}
+\caption{tanh 函数图像}
+\end{figure}
+
+早期的研究中，它们出现在许多生物学的研究中，可以描述生物神经元的激活或者极化程度，于是人工神经网络出于仿生的考虑也使用了它们。然而它们在两端很小的导数也为优化带来了许多麻烦，导致了\textoverset{Vanishing Gradient}{梯度消失}\footnote{梯度消失：是指在深度神经网络中，由于输出随输入的变化过于小，导致信息无法有效地从输出传回输入，从而使得网络难以优化学习的现象。}的问题，后来逐渐被 ReLU 函数取代，仅在特定层要将输出限制在给定范围内时才使用。近期有\uhref{https://arxiv.org/pdf/2503.10622}{研究}指出现在的优化器实际上有能力克服这个问题，不过也仅是一个理论上的结果，实际应用中通常认为它们仍然不如 ReLU 函数好用。这里也能看见，人工智能的发展并不是一帆风顺的，仿生不是唯一的出路，人工的神经网络的发展和对其规律的认识必然要走过曲折的探索。
+
+实际上 ReLU 在 $x<0$ 的区域也存在斜率为 $0$ 导致梯度消失的问题，为此人们还提出了一些变体，例如 Leaky ReLU 函数，它在 $x<0$ 的区域也有一个小的斜率，定义为
+\[
+    \text{Leaky ReLU}(x) = \begin{cases}
+        x, & x \geq 0 \\
+        \alpha x, & x < 0 
+    \end{cases}
+\]
+
+上式中 $\alpha$ 是一个小的常数，通常取 $0.01$，它同样简单易于计算。还有一些较为复杂的变体，包括\textoverset{Gaussian Error Linear Unit}{高斯误差线性单元}(GELU)，\textoverset{Exponential Linear Unit}{指数线性单元}(ELU) 等，都在一定程度上克服了 ReLU 导数为 $0$ 导致信息传播不畅的问题。不过这些都属于工程上的细节问题，读者可以在需要的时候再去了解。
+
+由此我们更加具体化地认识到了神经网络的工作原理：它是一个由线性函数和激活函数交替组成的网络结构。每一层都可以看作是对输入进行线性组合，然后通过激活函数进行非线性变换以实现更复杂的表达能力。从而以一种统一的方式来处理输入数据，并有能力通过调整参数给出复杂的输出。
 
 \newpage
 
