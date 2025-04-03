@@ -100,7 +100,7 @@
 
 而它的导数也非常简单：
 \[
-    \frac{\mathrm{d}}{\mathrm{d}x}\text{ReLU}(x) = \begin{cases}
+    \frac{\mathrm{d}}{\mathrm{d} x}\text{ReLU}(x) = \begin{cases}
         1, & x > 0 \\
         0, & x < 0 
     \end{cases}
@@ -318,7 +318,7 @@ tanh 函数是双曲正切函数，其定义为
 \caption{tanh 函数图像}
 \end{figure}
 
-早期的研究中，它们出现在许多生物学的研究中，可以描述生物神经元的激活或者极化程度，于是人工神经网络出于仿生的考虑也使用了它们。然而它们在两端很小的导数也为优化带来了许多麻烦，导致了\textoverset{Vanishing Gradient}{梯度消失}\footnote{梯度消失：是指在深度神经网络中，由于输出随输入的变化过于小，导致信息无法有效地从输出传回输入，从而使得网络难以优化学习的现象。}的问题，后来逐渐被 ReLU 函数取代，仅在特定层要将输出限制在给定范围内时才使用。近期有\uhref{https://arxiv.org/pdf/2503.10622}{研究}指出现在的优化器实际上有能力克服这个问题，不过也仅是一个理论上的结果，实际应用中通常认为它们仍然不如 ReLU 函数好用。这里也能看见，人工智能的发展并不是一帆风顺的，仿生不是唯一的出路，人工的神经网络的发展和对其规律的认识必然要走过曲折的探索。
+早期的研究中，它们出现在许多生物学的研究中，可以描述生物神经元的激活或者极化程度，于是人工神经网络出于仿生的考虑也使用了它们。然而它们在两端很小的导数也为优化带来了许多麻烦，导致了\textoverset{Vanishing Gradient}{梯度消失}\footnote{梯度消失：是指在深度神经网络中，由于输出随输入的变化过于小，导致信息无法有效地从输出传回输入，从而使得网络难以优化学习的现象。关于梯度的进一步介绍会在后文给出，此处可以简单理解为信息回传受阻。}的问题，后来逐渐被 ReLU 函数取代，仅在特定层要将输出限制在给定范围内时才使用。虽然近期有\uhref{https://arxiv.org/pdf/2503.10622}{研究}指出现在的优化器实际上有能力克服这个问题，即使使用 tanh 仍然可以正常地优化，不过这也仅是一个理论上的结果，实际应用中通常认为它们仍然不如 ReLU 函数好用。从此也能看见人工智能的发展并非一帆风顺，仿生不是唯一的出路，人工的神经网络的发展和对其规律的认识必然要走过曲折的探索，才能形成一套独特而成熟的方法论。
 
 实际上 ReLU 在 $x<0$ 的区域也存在斜率为 $0$ 导致梯度消失的问题，为此人们还提出了一些变体，例如 Leaky ReLU 函数，它在 $x<0$ 的区域也有一个小的斜率，定义为
 \[
@@ -330,9 +330,262 @@ tanh 函数是双曲正切函数，其定义为
 
 上式中 $\alpha$ 是一个小的常数，通常取 $0.01$，它同样简单易于计算。还有一些较为复杂的变体，包括\textoverset{Gaussian Error Linear Unit}{高斯误差线性单元}(GELU)，\textoverset{Exponential Linear Unit}{指数线性单元}(ELU) 等，都在一定程度上克服了 ReLU 导数为 $0$ 导致信息传播不畅的问题。不过这些都属于工程上的细节问题，读者可以在需要的时候再去了解。
 
-由此我们更加具体化地认识到了神经网络的工作原理：它是一个由线性函数和激活函数交替组成的网络结构。每一层都可以看作是对输入进行线性组合，然后通过激活函数进行非线性变换以实现更复杂的表达能力。从而以一种统一的方式来处理输入数据，并有能力通过调整参数给出复杂的输出。
+由此我们更加具体化地认识到了神经网络的工作原理：它的基本单元由线性函数与激活函数交替组成。每一层都可以看作是对输入进行线性组合，然后通过激活函数进行非线性变换以实现更复杂的表达能力。这让网络以一种统一的方式来处理输入数据，并有能力通过调整参数拟合复杂的输出。
 
 \newpage
 
 \subsection{神经网络的训练}
+
+有了前面的模块，我们已经可以搭建起简单的神经网络了，理论上通过“合适的”参数就可以拟合任意的函数了，但是“合适的”参数从何而来呢？回顾第一章中，我们可以完全解析地对线性拟合问题求解，得到最优的参数，然而我们的神经网络却是一个复杂的非线性函数，根本不可能对各种情况分段讨论给出解析解。那么我们是否就无能为力了呢？当然不是。通过一些手段可以让信息从数据定向地“流向”模型的参数，通过一套优化算法来调整参数，使得模型的输出尽可能地接近目标，这一过程就叫做\textoverset{Training}{训练}，这一调整的过程使用的各种优化方法大多是基于\textoverset{Gradient Descent}{梯度下降法}\footnote{Gradient 词源说明：gradi 是一个拉丁语词根，意为行走，与 “步行”相关。与 progress, regress 等词中的 “gress” 是同一词根。因此从词根来看其实可以理解为在步行中下降。}的。
+
+正如第一章中所见，我们把拟合的好不好量化为了损失的大小如何。而在机器学习上，我们就是借助这一可量化的评判标准——利用梯度下降算法给出了往更好的方向前进的一步。以\uhref{https://www.bilibili.com/video/BV1Ux411j7ri}{3Blue1Brown的视频}为代表的一系列科普教程中都有对这一算法的良好讲解。不过此处我仍然通过下山这个最经典的比喻来试图说明这一算法的原理。
+
+前面我提到过，我们需要让函数是可导的，这一点就在此处显得尤为重要。虽然我们并不知道函数总体上是怎么样，但是我们仍然可以通过导数对当前位置附近的情况形成大致的感知。就像在山上行走时，如果想下山，我们并不需要知道整座山的形状，只要知道当前的坡度，并沿着向下的方向走就可以。不过一步不能走太大，走太大了可能会走到山的另一边去，导数仅为我们提供了局部的信息。
+
+在一元函数中，导数的正负可以直接告诉我们当前的坡度是向上还是向下，局部的近似意味着对于很小的 $\Delta x$ 可以写出
+\[
+    \Delta y \approx f'(x_0)\Delta x
+\]
+
+看起来像是这样：
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[>=Stealth, xscale=2]
+    \draw [thin, ->] (-1, 0) -- (2, 0) node [below] {$x$};
+    % \draw [thin, ->] (0, -0.5) -- (0, 3.5) node [left] {$f(x)$};
+    \draw [domain=-0.7:1.5, smooth, variable=\x, blue, thick] plot ({\x}, {\x*\x+1}) node [above] {$f(x)$};
+    \draw [domain=-0.3:1.3, smooth, variable=\x, red, thick] plot ({\x}, {\x-0.25+1});
+    \draw [fill=lightgray] (0.5, 1.25) -- node [below] {$\Delta x$} (1.0, 1.25) -- node [right] {$f'(x_0) \Delta x$} (1.0, 1.75) -- cycle;
+    \draw [dashed, thin] (0.5, 1.25) -- (0.5, 0) node [below] {$x_0$};
+    \end{tikzpicture}
+\caption{一元函数的导数近似}
+\end{figure}
+
+导数反映的是切线的斜率，也就是函数在局部的变化率信息。为了让 $f(x)$ 变小，我们只需要让 $\Delta x$ 的方向与 $f'(x)$ 相反就可以了。也就是说，可以令
+\[
+    \Delta x = -\eta f'(x)
+\]
+
+这里的 $\eta$ 决定了一步要走多大，称为\textoverset{Learning Rate}{学习率}。如果 $\eta$ 太小，可能会走得很慢；如果 $\eta$ 太大，可能会走过头。一步步地往下走，我们的位置就像是一个小球，从斜坡上滚下去，最终停留在一个极小值\footnote{极小值：不过这个极小值可能只是山谷中的一个盆地，而非全局的最低点。}。
+
+不过我们的神经网络毕竟有很多的参数要在同时调整，你或许想问，我们能不能固定其它的参数，只调整一个参数，把它变成一元函数来处理呢？可以是确实可以，它确实变为了一元函数的情况，但是这种方法太低效了，实际上完全可以联合优化它们，同时调整所有的参数。听起来很合理，但是这初听起来似乎有点玄学，毕竟我们并不知道所有的参数之间如何作用的，庞大的网络让它们之间的关系变得复杂而难以捉摸。因此我认为需要在此处引入一些多元微积分的知识，来把求导操作推广到多维，得到所谓的梯度与\textoverset{Backpropagation}{反向传播}算法。
+
+在一元情况下，导数是这样定义的
+\[
+    f'(x_0) = \lim_{\Delta x\to 0} \frac{f(x_0 + \Delta x) - f(x_0)}{\Delta x}
+\]
+
+但是在输入 $x$ 是向量的情况下，数学运算并不允许除以一个向量，那么应该如何求导呢？应回看一下最初的动机：求出导数的目的是为了让它在局部能用简单的线性函数来近似。如果使用 $\mathrm{d}x$ 表示一个输入的变化量，用 $\mathrm{d}y$ 表示我们对输出结果变化量的估计，那么在一元的情况下这个式子可以简单地写成
+\[
+    \mathrm{d}y = f'(x_0) \mathrm{d}x
+\]
+
+而在多元情况下，应当估计每个分量的变化量如何影响输出，再把这些线性的分量叠起来，从而有线性近似
+\[
+    \mathrm{d}y = a_1 \mathrm{d}x_1 + a_2 \mathrm{d}x_2 + \cdots + a_n \mathrm{d}x_n
+\]
+
+而线性近似意味着在 $\mathrm{d}x$ 足够小的情况下，这一近似给出的估计 $\mathrm{d}y$ 与真实的变化量 $\Delta y$ 之间的差距是可以忽略的，也就是说
+\[
+    \lim_{\mathrm{d}x\to 0} \frac{\Delta y - \mathrm{d}y}{\|\mathrm{d}x\|} = 0
+\]
+
+不过上面的极限在实际应用中可以假设成立，在足够好的可导的假设下，需要关心的只是如何算出这些系数 $a_i$。对于标量函数 $f$ 和向量输入 $x$，这样的一些系数所构成的向量就叫做\textoverset{Gradient}{梯度}，$f$ 对 $x$ 的梯度在 $x_0$ 处的值常记作 $\nabla_x f(x_0)$，而从根本上，它最主要的作用就是提供了线性近似 $\mathrm{d}y = \nabla_x f(x_0) \cdot \mathrm{d}x$ 的系数\footnote{说明：这里的 $\cdot$ 是向量点积，表明逐分量相乘并求和}。为了沿着网络层层回溯求出梯度，需要再引入链式法则。
+
+设想如果 $y$ 本身并不是 $x$ 的函数，而是经过两步得到的 $x^{(1)} = f_1(x)$ 和 $y = f_2(x^{(1)})$，那么应该怎么求导呢？这一过程需要分步进行。如果从一个逐元素的视角看来，实际上是先使用 $\mathrm{d}x^{(1)}$ 来估计 $y$ 的变化量，然后再借助 $\mathrm{d}y$ 与 $\mathrm{d}x^{(1)}$ 之间的关系来估计 $\mathrm{d}x$ 对 $y$ 的影响。更为具体地说：如果能写出
+\[
+    \mathrm{d}y = a_1 \mathrm{d}x^{(1)}_1 + a_2 \mathrm{d}x^{(1)}_2 + \cdots + a_m \mathrm{d}x^{(1)}_m
+\]
+
+而 $\mathrm{d}x$ 对 $\mathrm{d}x^{(1)}$ 各项的影响分别是
+\[
+\begin{aligned}
+    \mathrm{d}x^{(1)}_1 &= b_{11} \mathrm{d}x_1 + b_{12} \mathrm{d}x_2 + \cdots + b_{1n} \mathrm{d}x_n \\
+    \mathrm{d}x^{(1)}_2 &= b_{21} \mathrm{d}x_1 + b_{22} \mathrm{d}x_2 + \cdots + b_{2n} \mathrm{d}x_n \\
+    &\vdots \\
+    \mathrm{d}x^{(1)}_m &= b_{m1} \mathrm{d}x_1 + b_{m2} \mathrm{d}x_2 + \cdots + b_{mn} \mathrm{d}x_n
+\end{aligned}
+\]
+
+那么怎么把 $\mathrm{d}y$ 写成 $c_1 \mathrm{d}x_1 + c_2 \mathrm{d}x_2 + \cdots + c_n \mathrm{d}x_n$ 的形式呢？答案非常简单粗暴：把每个 $\mathrm{d}x^{(1)}_i$ 代入到 $\mathrm{d}y$ 的表达式中，就有了
+\[
+\begin{aligned}
+    \mathrm{d}y =\, & a_1 (b_{11} \mathrm{d}x_1 + b_{12} \mathrm{d}x_2 + \cdots + b_{1n} \mathrm{d}x_n) \, + \\
+    & a_2 (b_{21} \mathrm{d}x_1 + b_{22} \mathrm{d}x_2 + \cdots + b_{2n} \mathrm{d}x_n) \, + \\
+    & \cdots \, +\\
+    & a_n (b_{m1} \mathrm{d}x_1 + b_{m2} \mathrm{d}x_2 + \cdots + b_{mn} \mathrm{d}x_n)\\
+    =\, & (a_1 b_{11} + a_2 b_{21} + \cdots + a_n b_{m1}) \mathrm{d}x_1 \,+ \\
+    & (a_1 b_{12} + a_2 b_{22} + \cdots + a_n b_{m2}) \mathrm{d}x_2 \,+ \\
+    & \cdots \, \,+\\
+    & (a_1 b_{1n} + a_2 b_{2n} + \cdots + a_m b_{mn}) \mathrm{d}x_n
+\end{aligned}
+\]
+
+由此可见，可以写出表达式
+\[
+\begin{aligned}
+    c_j &= a_1 b_{1j} + a_2 b_{2j} + \cdots, a_m b_{mj}\\
+    \mathrm{d}y &= c_1 \mathrm{d}x_1 + c_2 \mathrm{d}x_2 + \cdots + c_n \mathrm{d}x_n
+\end{aligned}
+\]
+
+这表明，只要我们知道下一层计算出来的梯度 $a_i$ 和联系起两层的 $b_{ij}$，就可以将下一层的梯度“回溯”到上一层，计算出上一层的梯度 $c_j$，这种方法被称作反向传播。于是问题被进一步拆解，变成了更为细化的小问题：如何求出这里每层之间梯度传播的关系？
+
+这里选取最简单的一层 $x^{(k)} = \text{ReLU}(w x^{(k-1)} + b)$ 来说明，其中 $w$ 是权重矩阵，$b$ 是偏置。我们需要理解 $\mathrm{d}x^{(k)}_i$ 应当如何表示。不过这里需要注意一点，在求导时不但要考虑 $x^{(k)}$ 的变化量，还要考虑 $w$ 和 $b$ 的变化量，因为 $w$ 和 $b$ 作为参数也会影响到 $x^{(k)}$ 的值，更是我们希望调整的对象。
+
+首先写出 $x^{(k)}_i$ 的表达式
+\[
+    x^{(k)}_i = \text{ReLU}(w_{i1} x^{(k-1)}_1 + w_{i2} x^{(k-1)}_2 + \cdots + w_{in} x^{(k-1)}_n + b_i)
+\]
+
+接下来分类讨论，在 $\text{ReLU}$ 内部小于等于 0 的情况下，因为输入有微小变化时输出仍然为 0，所以
+\[
+    \mathrm{d}x^{(k)}_i = 0
+\]
+
+而当其输入大于 0 时，ReLU 可以去除掉，即变为
+\[
+\begin{aligned}
+    \mathrm{d}x^{(k)}_i &= \mathrm{d}(w_{i1} x^{(k-1)}_1 + w_{i2} x^{(k-1)}_2 + \cdots + w_{in} x^{(k-1)}_n + b_i) \\
+    &= w_{i1} \mathrm{d}x^{(k-1)}_1 + w_{i2} \mathrm{d}x^{(k-1)}_2 + \cdots + w_{in} \mathrm{d}x^{(k-1)}_n \\
+    &\qquad +x^{(k-1)}_1 \mathrm{d}w_{i1} + x^{(k-1)}_2 \mathrm{d}w_{i2} + \cdots + x^{(k-1)}_n \mathrm{d}w_{in} + \mathrm{d}b_i \\
+    &= w_{i:} \cdot \mathrm{d}x^{(k-1)} + x^{(k-1)} \cdot \mathrm{d}w_{i:} + \mathrm{d}b_i
+\end{aligned}
+\]
+
+这里仍然沿用了向量的点积表示法，$w_{i:}$ 表示 $w$ 的第 $i$ 行。由此也可以看出 ReLU 的好处：使用它作为激活函数的梯度回溯非常方便。
+
+这里我们会发现梯度信息发生了一个“分岔”，一部分信息传递给了 $x^{(k-1)}$，另一部分则传递给了 $w$ 和 $b$。传递给 $w$ 和 $b$ 的信息将在后续用于更新参数，而传递给 $x^{(k-1)}$ 的信息则会继续向后传递求出离结果更远、离输入更近的层的参数梯度。直到传递到输入层，最终得到所有参数的梯度，关于原始输入 $x$ 的输入则会被丢弃\footnote{丢弃：因为我们并不需要对输入进行调整，只需要对参数进行调整。不过一些研究表明，观察输入的梯度信息可以帮助我们理解模型认为哪些特征更加重要。}。这个过程看起来像是这样，如果说前向计算是把参数信息参与到计算中，一步步计算得到最终的结果（实际上我们希望最小化损失，所以在模型的最终输出之后还有一个箭头表示损失函数）：
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[>=Stealth, scale=1.2]
+    \node (x) at (0, 0) {$x$};
+    \node (x1) at (2, 0) {$x^{(1)}$};
+    \node (x2) at (4, 0) {$\cdots$};
+    \node (x3) at (6, 0) {$x^{(k-1)}$};
+    \node (x4) at (8, 0) {$x^{(k)}$};
+    \node (x5) at (10, 0) {$\cdots$};
+    \node (y) at (12, 0) {$y$};
+    \node (w1) at (1, -1) {$w^{(1)},b^{(1)}$};
+    \node (w3) at (5, -1) {$w^{(k-1)},b^{(k-1)}$};
+    \node (w4) at (7, -1) {$w^{(k)},b^{(k)}$};
+    \node (w5) at (11, -1) {$w^{(\text{out})}, b^{(\text{out})}$};
+    \node (loss) at (13, 0) {$l$};
+    \draw [->] (x) -- (x1);
+    \draw [->] (x1) -- (x2);
+    \draw [->] (x2) -- (x3);
+    \draw [->] (x3) -- (x4);
+    \draw [->] (x4) -- (x5);
+    \draw [->] (x5) -- (y);
+    \draw [->] (w1) -- (x1);
+    \draw [->] (w3) -- (x3);
+    \draw [->] (w4) -- (x4);
+    \draw [->] (w5) -- (y);
+    \draw [->] (y) -- (loss);
+\end{tikzpicture}
+\caption{前向计算}
+\end{figure}
+
+那么反向传播就是考虑损失变化的估计量 $\mathrm{d}l$，并将它的梯度信息经由 $\mathrm{d}y$ 和各个中间计算结果 $\mathrm{d}x^{(k)}$ 逐层传递回去，直到输入层。
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[>=Stealth, scale=1.2]
+    \node (x) at (0, 0) {$\mathrm{d}x$};
+    \node (x1) at (2, 0) {$\mathrm{d}x^{(1)}$};
+    \node (x2) at (4, 0) {$\cdots$};
+    \node (x3) at (6, 0) {$\mathrm{d}x^{(k-1)}$};
+    \node (x4) at (8, 0) {$\mathrm{d}x^{(k)}$};
+    \node (x5) at (10, 0) {$\cdots$};
+    \node (y) at (12, 0) {$\mathrm{d}y$};
+    \node (w1) at (1, -1) {$\mathrm{d}w^{(1)},\mathrm{d}b^{(1)}$};
+    \node (w3) at (5, -1) {$\mathrm{d}w^{(k-1)},\mathrm{d}b^{(k-1)}$};
+    \node (w4) at (7, -1) {$\mathrm{d}w^{(k)},\mathrm{d}b^{(k)}$};
+    \node (w5) at (11, -1) {$\mathrm{d}w^{(\text{out})}, \mathrm{d}b^{(\text{out})}$};
+    \node (loss) at (13, 0) {$\mathrm{d}l$};
+    \draw [<-] (x) -- (x1);
+    \draw [<-] (x1) -- (x2);
+    \draw [<-] (x2) -- (x3);
+    \draw [<-] (x3) -- (x4);
+    \draw [<-] (x4) -- (x5);
+    \draw [<-] (x5) -- (y);
+    \draw [<-] (w1) -- (x1);
+    \draw [<-] (w3) -- (x3);
+    \draw [<-] (w4) -- (x4);
+    \draw [<-] (w5) -- (y);
+    \draw [<-] (y) -- (loss);
+\end{tikzpicture}
+\caption{反向传播}
+\end{figure}
+
+在图中看到从 $\mathrm{d}x^{(k)}$ 指向 $\mathrm{d}x^{(k-1)}$ 或者 $\mathrm{d}w^{(k)}, \mathrm{d}b^{(k)}$ 的箭头时，它实际上指的是关于 $x^{(k)}$ 的梯度信息被传递到了 $x^{(k-1)}$ 和 $w^{(k)}, b^{(k)}$ 上。上面的图只是下面表达式的一个形象说明（这里用 $g_x^{(k)}$ 表示对 $x^{(k)}$ 的梯度，同理定义对 $w$ 和 $b$ 的梯度符号）
+\[
+\begin{aligned}
+    \mathrm{d}l &= g_y \cdot \mathrm{d}y \\
+    &= g_x^{(\text{out})} \cdot \mathrm{d}x^{(\text{out})} + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})} \\
+    &= (\text{向前展开这一部分}) + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})} \\
+    &= g_x^{(k)} \cdot \mathrm{d}x^{(k)} + g_w^{(k)} \cdot \mathrm{d}w^{(k)} + g_b^{(k)} \cdot \mathrm{d}b^{(k)} \\
+    & \qquad+ \cdots + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})}\\
+    &= g_x^{(k-1)} \cdot \mathrm{d}x^{(k-1)} + g_w^{(k-1)} \cdot \mathrm{d}w^{(k-1)} + g_b^{(k-1)} \cdot \mathrm{d}b^{(k-1)} \\
+    & \qquad+ g_w^{(k)} \cdot \mathrm{d}w^{(k)} + g_b^{(k)} \cdot \mathrm{d}b^{(k)} + \cdots \\
+    &\qquad + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})}\\
+    & = \cdots \\
+    & = g_x \cdot \mathrm{d}x \\
+    & \qquad + g_w^{(1)} \cdot \mathrm{d}w^{(1)} + g_b^{(1)} \cdot \mathrm{d}b^{(1)} \\
+    & \qquad + g_w^{(2)} \cdot \mathrm{d}w^{(2)} + g_b^{(2)} \cdot \mathrm{d}b^{(2)} \\
+    & \qquad + \cdots \\
+    & \qquad + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})}\\
+\end{aligned}
+\]
+
+随着式子每次将第一项不断地展开，树状的计算图也从计算结果的终点不断向前回溯，最终在每个终止节点处得到对每个分量的梯度信息。理论上只需要手动维护这个图的状态就能完成反向传播的计算，不过实际应用中已经有了非常方便的自动求导工具，现代的机器学习库 PyTorch 和 TensorFlow 都有类似的功能，它们都会在内部维护一个计算图，自动地完成反向传播的计算。以 PyTorch 为例，用户不需要关心如何维护这个图，只需要设置 \texttt{requires\_grad} 属性为 \texttt{True}，在计算后对损失调用 \texttt{backward} 方法，就能自动地完成反向传播的计算。
+
+在训练时数据点通常是固定的，所以可以直接令 $\mathrm{d}x = 0$，这样前面的梯度信息就仅留下与待优化的参数相关的部分
+\[
+\begin{aligned}
+    \mathrm{d}l &= g_w^{(1)} \cdot \mathrm{d}w^{(1)} + g_b^{(1)} \cdot \mathrm{d}b^{(1)} \\
+    &\qquad + g_w^{(2)} \cdot \mathrm{d}w^{(2)} + g_b^{(2)} \cdot \mathrm{d}b^{(2)} \\
+    &\qquad + \cdots \\
+    &\qquad + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})}\\
+\end{aligned}
+\]
+
+而如果我们再做一层抽象，把这一堆参数塞到一个叫做 $\theta$ 的向量中，那么就可以把上面的式子写成
+\[
+    \mathrm{d}l = \nabla_\theta l \cdot \mathrm{d}\theta
+\]
+
+其中 $\nabla_\theta l$ 就是损失函数 $l$ 对参数 $\theta$ 的梯度，其各个分量表明了损失函数对每个参数的敏感程度。而仿照一元函数下山的做法，同样可以按照如下的方式沿着“下山最快的方向”来更新参数
+\[
+    \mathrm{d}\theta^* = -\eta \nabla_\theta l
+\]
+
+从图形上看，这个过程是垂直于等高线的方向在向下走，最终停留在一个极小值处。或许初看会觉得这一优化方法和等高线并不相关，但是如果仔细想想就会发现，实际上等高线的形状就是损失函数的等值线，而沿着等值线的切线方向意味着
+\[
+    \mathrm{d}l = \nabla_\theta l \cdot \mathrm{d}\theta = 0
+\]
+
+前一个部分是梯度的方向，而令上式等于 $0$ 成立的方向 $\mathrm{d}\theta$ 就是等高线的切线方向。两个向量的内积为 $0$ 意味着它们是垂直的，用心观察的读者或许会发现，地图上的水系与等高线交汇之处，两条线往往是垂直的，水往低处走是一种自然的梯度下降。
+
+在实际的神经网络中通常有数万乃至数亿个参数，在这样庞大的参数空间中梯度下降虽然有着下降最快的方向的理论支持，但是显然不太好想象。想象一个高维空间已经足够困难，再去想它里面的等高线是什么样子就更难了，所以为了便于理解，还是看一个低维空间中非常简单的样例来帮助理解。
+
+以一个简单的函数 $f(\theta) = 2\theta_1^2 + \theta_2^2$ 为例，假设从 $(1, 1)$ 处开始迭代，取每次更新的 $\eta = 0.1$，因为 $\mathrm{d}f(\theta) = 4\theta_1 \mathrm{d}\theta_1 + 2\theta_2 \mathrm{d}\theta_2$，所以在第一步梯度为 $(2\theta_1, \theta_2) = (4, 2)$，取 $\mathrm{d}\theta^* = -\eta \nabla_\theta f$ 可以得到下一步的 $\theta$。进行 10 次迭代后，得到的点在等值线图上会按照如下图所示的方式移动，可以看到每次更新的 $\theta$ 都是垂直于等高线线的方向向下走的，逐渐逼近最优解 $(0, 0)$
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{img/gradient_descent.png}
+\caption{梯度下降}
+\end{figure}
+
+不过同时我想也要给出一个错误样例说明学习率 $\eta$ 调太大会发生什么，假设刚才的例子中我们把 $\eta$ 调到 0.5, 就会发现它直接跳过极小值，跳到了空间中的对边，之后就在 $(-1, 0)$ 和 $(1, 0)$ 之间来回震荡了起来，无法收敛。
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{img/gradient_descent_0.5.png}
+\caption{学习率设置不当的梯度下降}
+\end{figure}
+
+这个现象在高维空间中也会发生，如果学习率 $\eta$ 过大，常常会观察到 loss 在某个值附近反复震荡，无法收敛。
+
+在实际有各种不同的梯度下降方法，最简单的是\textoverset{Stochastic Gradient Descent}{随机梯度下降法}(SGD)，它的基本思想是每次只随机抽取部分数据来计算梯度，来更新参数。这样做的好处是每次只需要计算一小部分数据，速度快；坏处是每次计算的梯度并不准确，可能会导致参数在最优解附近震荡。有的为了加速收敛速度，使用\textoverset{Momentum}{动量法}，将梯度信息不作为速度，而作为加速度来更新参数，让它能快速冲下坡。还有的使用\textoverset{Adaptive Momentum Method}{自适应动量法}(Adam)，在每次更新时考虑了历史梯度信息的影响，来调整学习率。这些方法都以各自的方式帮我们找到了更好的参数更新方式，来加速收敛速度。不过动量也不是越大越好，正如学习率不是越大越好一样，过大的动量会导致参数在最优解附近震荡，甚至无法收敛。
+
+\newpage
+
 \subsection{如果目标并不明确呢？}
