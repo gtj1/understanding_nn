@@ -6,7 +6,10 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from tqdm import tqdm
+from matplotlib import cm
+from matplotlib.colors import Normalize
 import matplotlib.pyplot as plt
+
 
 class SimpleModel(nn.Module):
     def __init__(self):
@@ -28,7 +31,7 @@ y = np.sin(x * 2)
 x = torch.from_numpy(x).float().reshape(-1, 1)
 y = torch.from_numpy(y).float().reshape(-1, 1)
     
-criterion = nn.MSELoss()
+criterion: nn.Module = nn.MSELoss()
 model = SimpleModel()
 optimizer = optim.AdamW(model.parameters(), lr=1e-3)
 
@@ -58,11 +61,16 @@ outputs.append(output.detach().numpy())
 
 # 将所有输出绘制在同一张图上，由浅到深
 size_output = len(outputs)
+normalize = Normalize(vmin=-1, vmax=size_output-1)
+cmap = cm.coolwarm
+
 for i, output in enumerate(outputs):
-    plt.plot(x.detach().numpy(), output, color="black", alpha=0.9 ** (size_output - 1 - i))
+    t = normalize(i) ** 0.7
+    color = cmap(t)
+    plt.plot(x.detach().numpy(), output, color=color, alpha=t)
     
 plt.plot(
-    x.detach().numpy(), y.detach().numpy(), label='True Output'
+    x.detach().numpy(), y.detach().numpy(), color="#5a5", linestyle="--", label='True Output'
 )
 plt.title('Model Output vs True Output')
 
