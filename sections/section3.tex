@@ -10,16 +10,16 @@
 
 不过我想可以对解决的方法做一个简单的分类。按照参数的数量，从参数复杂到参数简单可以画出一条轴。按照模型获取经验的方式，从模型完全编码了先验经验，到通过一些例子得到经验，再到持续在与环境的互动中获取经验，可以画出另一条轴。在这里我也试图并不严谨地画出了这样一个表格。
 \begin{table}[H]
-\centering
-\begin{tabular}{c|cccc}
-\toprule
-\textbf{监督方式 $\backslash$ 参数量} & \textbf{超大参数量} & \textbf{大参数量} & \textbf{小参数量} & \textbf{经典模型} \\
-\midrule
-\textbf{持续互动} & PPO, A3C & DQN & Q-Learning & 经典控制\\
-\textbf{输入/输出对} & ResNet, Transformer & 浅层CNN & 浅层MLP & SVM \\
-\textbf{无监督} & GAN, SimCLR & -------- & K-Means, KNN & PCA, t-SNE \\
-\bottomrule
-\end{tabular}
+    \centering
+    \begin{tabular}{c|cccc}
+        \toprule
+        \textbf{监督方式 $\backslash$ 参数量} & \textbf{超大参数量}      & \textbf{大参数量} & \textbf{小参数量} & \textbf{经典模型} \\
+        \midrule
+        \textbf{持续互动}                  & PPO, A3C            & DQN           & Q-Learning    & 经典控制          \\
+        \textbf{输入/输出对}                & ResNet, Transformer & 浅层CNN         & 浅层MLP         & SVM           \\
+        \textbf{无监督}                   & GAN, SimCLR         & --------      & K-Means, KNN  & PCA, t-SNE    \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 读者看到的第一反应大抵是感到看不懂。不过我也并非想让读者先学完再来看这个表格，而是希望读者看到：解决问题的方法虽然多样，但仍可根据若干指标大致分类。表中的术语有的是模型结构，有的是算法，有的是思想，而右侧的一列甚至根本就不是机器学习，对机器学习有基本了解的读者或许会认为它们可比性存疑。诚然，模型之间并没有一个实际上的绝对界限，表中划分的位置也仅是凭借我的经验评价一个模型大多数时候处于什么位置，而非绝对的准则，但我认为这样的划分是有意义的，用一种更为建设性的话来说：意义就是在混乱的世界中建构起规律，用于解决问题。
 
@@ -29,34 +29,34 @@
 
 因此我会把模型抽象成五个要素：\textoverset{Input}{输入}、\textoverset{Output}{输出}、\textoverset{Architecture}{模型结构}、\textoverset{Loss Function}{损失函数}和\textoverset{Optimizer}{优化算法}。输入、模型架构和具体参数决定了输出如何计算，按照损失函数计算得到的损失指导模型调整具体参数，优化算法则决定了参数如何调整。当然这样的划分只是我自己的理解，而非理解神经网络的唯一方式。这里我不打算在概念之间玩文字游戏，把机器学习中的概念倒来倒去，变成一篇又臭又长，令人看完莫名其妙、不知所云、又对实践毫无益处的文章。因此我认为画一个图串起来是最直观的方式。
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[>=Stealth]
-    \fill [cyan, opacity=0.5] (0, 0) rectangle (1, 1);
-    \node at (0.5, 0.5) {$x'$};
-    \node [below] at (0.5, 0) {向量输入};
-    \fill [green, opacity=0.5] (4, 0) rectangle (5, 1);
-    \node at (4.5, 0.5) {$y'$};
-    \node [below] at (4.5, 0) {向量输出};
-    \draw [->] (1.2, 0.5) -- node [above] {模型} (3.8, 0.5);
-    \fill [lightgray, opacity=0.5] (8, 0) rectangle (9, 1);
-    \node at (8.5, 0.5) {$l$};
-    \node [below] at (8.5, 0) {损失};
-    \draw [->] (5.2, 0.5) -- node [above] {损失函数} (7.8, 0.5);
-    \fill [yellow, opacity=0.5] (4, 2) rectangle (5, 3);
-    \node at (4.5, 2.5) {$o$};
-    \node [below] at (4.5, 2) {优化器};
-    \draw [->] (8.5, 1.2) -- (8.5, 2.5) -- node [above] {优化信息} (5.2, 2.5);
-    \draw [->] (3.8, 2.5) -- (2.5, 2.5) -- node [left] {参数更新} (2.5, 1.2);
-    \draw [dashed] (-0.6, -0.8) rectangle (9.6, 3.4);
-    \fill [cyan, opacity=0.5] (-4, 0) rectangle (-3, 1);
-    \node at (-3.5, 0.5) {$x$};
-    \node [below] at (-3.5, 0) {输入};
-    \draw [->] (-2.8, 0.5) -- node [above] {编码器} (-0.2, 0.5);
-    \fill [green, opacity=0.5] (4, -3) rectangle (5, -2);
-    \node at (4.5, -2.5) {$y$};
-    \node [below] at (4.5, -3) {输出};
-    \draw [->] (4.5, -0.6) -- node [right] {解码器} (4.5, -1.8);
-\end{tikzpicture}
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \fill [cyan, opacity=0.5] (0, 0) rectangle (1, 1);
+        \node at (0.5, 0.5) {$x'$};
+        \node [below] at (0.5, 0) {向量输入};
+        \fill [green, opacity=0.5] (4, 0) rectangle (5, 1);
+        \node at (4.5, 0.5) {$y'$};
+        \node [below] at (4.5, 0) {向量输出};
+        \draw [->] (1.2, 0.5) -- node [above] {模型} (3.8, 0.5);
+        \fill [lightgray, opacity=0.5] (8, 0) rectangle (9, 1);
+        \node at (8.5, 0.5) {$l$};
+        \node [below] at (8.5, 0) {损失};
+        \draw [->] (5.2, 0.5) -- node [above] {损失函数} (7.8, 0.5);
+        \fill [yellow, opacity=0.5] (4, 2) rectangle (5, 3);
+        \node at (4.5, 2.5) {$o$};
+        \node [below] at (4.5, 2) {优化器};
+        \draw [->] (8.5, 1.2) -- (8.5, 2.5) -- node [above] {优化信息} (5.2, 2.5);
+        \draw [->] (3.8, 2.5) -- (2.5, 2.5) -- node [left] {参数更新} (2.5, 1.2);
+        \draw [dashed] (-0.6, -0.8) rectangle (9.6, 3.4);
+        \fill [cyan, opacity=0.5] (-4, 0) rectangle (-3, 1);
+        \node at (-3.5, 0.5) {$x$};
+        \node [below] at (-3.5, 0) {输入};
+        \draw [->] (-2.8, 0.5) -- node [above] {编码器} (-0.2, 0.5);
+        \fill [green, opacity=0.5] (4, -3) rectangle (5, -2);
+        \node at (4.5, -2.5) {$y$};
+        \node [below] at (4.5, -3) {输出};
+        \draw [->] (4.5, -0.6) -- node [right] {解码器} (4.5, -1.8);
+    \end{tikzpicture}
 \end{figure}
 
 从输入到输出再到损失的过程通常称为\textoverset{Forward Propagation}{正向传播}，而从损失到参数的更新过程则称为\textoverset{Backward Propagation}{反向传播}。而这中间的模型结构常常由矩阵运算与一些\textoverset{Activation Function}{激活函数}构成的层组成。几乎可以说众多的神经网络中，只有这种传播的方式和网络的基本组成元素是相同的，如何从这些基本元素构建出好的模型则像是搭积木一样，各有各的搭法。
@@ -66,6 +66,21 @@
 下一节中我们会引入激活函数，暂且不论它们的具体形式如何，它们也是一些非常简单的运算。或许读者会有疑问，这样一些简单的运算，真的有能力让神经网络胜任复杂的任务吗？\uhref{https://www.zhihu.com/question/594296903/answer/2979485641}{万能逼近定理}\footnote{万能逼近定理：指出足够大的神经网络可以以任意精度在给定范围内拟合任意的复杂函数。}虽然在理论上告诉我们它可以，却需要假定足够多的神经元，并不令人安心。所幸无数的实验表明：可以，在人类能实现的范围内，量变也可以引起质变，将一系列简单的单元堆叠起来，便可以形成复杂的行为。Philip W. Anderson\footnote{Philip W. Anderson：美国物理学家，1977 年诺贝尔物理学奖获得者。}曾说过：“More is different”，他的原意指的是物理学中，微观的规律并不能简单地推导出宏观的规律，整个系统可以表现的与单个元素完全不同，因此微观和宏观需要不同的理论来描述。但这里我们不妨借用一下，同样地认识到大量简单的数学函数也可以产生复杂的行为。在神经网络的\textoverset{Emergent}{涌现}\footnote{涌现：即增大参数量带来性能突然提升的现象。}现象中，这一事实不断地被验证。就像婴儿可以通过教育称为适应社会的成年人一样，适当的算法和足够的训练数据的确可以让神经网络学会知识。
 
 需要说明的是，现代的机器学习库 PyTorch 与 TensorFlow 都提供了完善的参数更新机制，使得用户不必自己实现优化算法。这可以说是非常简单易用，让用户可以聚焦模型的设计。不过我仍然会解读其中的原理，并试图说明设计网络结构与优化算法的人为什么要这么做。\footnote{其中的原理：实际上人类理解的神经网络工作原理与计算机实际运行的原理或许有很大的区别，人类对现在大部分网络的理解本质上都是经过实验后进行的归纳甚至是猜测，而非从数学上严格证明。神经网络的\textoverset{Interpretability}{可解释性}仍然是很大的问题，因此很多时候人们只知道怎么样做效果好，而不“真正地”理解为什么这么做效果好，有时也被人调侃为“新时代的炼金术”。虽然有许多相关的\uhref{https://www.zhihu.com/question/320688440}{解释}来帮助人们了解神经网络中发生什么，但学界内仍然没有形成一套系统的理论。}
+
+
+\begin{tcolorbox}[myrecommendbox, title=推荐阅读, breakable=false]
+    \begin{itemize}
+        \item 这篇文章讲述了神经网络的起源：\\
+              \textit{如何简单形象又有趣地讲解神经网络是什么？ - 佳人李大花的回答 - 知乎}\\
+              \url{https://www.zhihu.com/question/22553761/answer/3359939138}
+        \item 读者或许会好奇所谓的万能逼近定理需要是如何能逼近给定函数的，这篇回答的解释不错：\\
+              \textit{神经网络的万能逼近定理已经发展到什么地步了？ - 牛油果博士的回答 - 知乎}\\
+              \url{https://www.zhihu.com/question/347654789/answer/1534866932}
+        \item 这一问题下有关于神经网络“涌现”出新的现象的讨论，对其机理感兴趣的读者也可以想想背后的原因：\\
+              \textit{如果神经网络规模足够大，会产生智能吗？ - 知乎}\\
+              \url{https://www.zhihu.com/question/408690594}
+    \end{itemize}
+\end{tcolorbox}
 
 \newpage
 
@@ -80,20 +95,20 @@
 \[
     \text{ReLU}(x) = \max\{0, x\} = \begin{cases}
         x, & x \geq 0 \\
-        0, & x < 0 
+        0, & x < 0
     \end{cases}
 \]
 
 图像是这样的：
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[>=Stealth]
-    \draw [->] (-2, 0) -- (2, 0) node [below] {$x$};
-    \draw [->] (0, -1) -- (0, 2) node [left] {$y$};
-    \draw [domain=-2:0, smooth, variable=\x, blue, thick] plot ({\x}, 0);
-    \draw [domain=0:2, smooth, variable=\x, blue, thick] plot ({\x}, {\x});
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \draw [->] (-2, 0) -- (2, 0) node [below] {$x$};
+        \draw [->] (0, -1) -- (0, 2) node [left] {$y$};
+        \draw [domain=-2:0, smooth, variable=\x, blue, thick] plot ({\x}, 0);
+        \draw [domain=0:2, smooth, variable=\x, blue, thick] plot ({\x}, {\x});
     \end{tikzpicture}
-\caption{ReLU 函数图像}
+    \caption{ReLU 函数图像}
 \end{figure}
 
 举一个例子就可以看出逐元素作用的含义。例如有输入向量 $x = [1, -2, 3]$，那么它经过 ReLU 激活函数的输出为 $y = [1, 0, 3]$。正的部分被保留了，而负的部分被置为 0。正如电路中的半波\textoverset{Rectifier}{整流器}一样，把负值截断了。
@@ -102,7 +117,7 @@
 \[
     \frac{\mathrm{d}}{\mathrm{d} x}\text{ReLU}(x) = \begin{cases}
         1, & x > 0 \\
-        0, & x < 0 
+        0, & x < 0
     \end{cases}
 \]
 
@@ -117,36 +132,36 @@
 
 写成矩阵的形式就有
 \[
-w_1 = \begin{bmatrix}
-    1 \\ -1
-\end{bmatrix}, b_1 = \begin{bmatrix}
-    0 \\ 0
-\end{bmatrix}, w_2 = \begin{bmatrix}
-    1 & 1
-\end{bmatrix}, b_2 = 0
+    w_1 = \begin{bmatrix}
+        1 \\ -1
+    \end{bmatrix}, b_1 = \begin{bmatrix}
+        0 \\ 0
+    \end{bmatrix}, w_2 = \begin{bmatrix}
+        1 & 1
+    \end{bmatrix}, b_2 = 0
 \]
 
 遂可以写成 $y = w_2 \,\text{ReLU}(w_1x + b_1) + b_2$。我认为，把这件事作为一个 toy case\footnote{toy case：玩具案例，指的是一个简单的例子，用于说明某个概念或方法。}想明白多少可以帮助理解神经网络。把矩阵的每个权重都画出来就是这样了：
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[>=Stealth, scale=1.5]
-    \node [circle, fill=white, draw, minimum size=1.2cm] (x0) at (0, 0) {$x$};
-    \node [circle, fill=white, draw, minimum size=1.2cm] (x11) at (2, 1) {$x_1^{(1)}$};
-    \node [circle, fill=white, draw, minimum size=1.2cm] (x12) at (2, -1) {$x_2^{(1)}$};
-    \node [circle, fill=white, draw, minimum size=1.2cm] (y) at (4, 0) {$|x|$};
-    \draw [->, red] (x0) -- node [above left] {$1$} (x11);
-    \draw [->, blue] (x0) -- node [below left] {$-1$} (x12);
-    \draw [->, red] (x11) -- node [above right] {$1$} (y);
-    \draw [->, red] (x12) -- node [below right] {$1$} (y);
-    \draw [dashed, thin] (1.4, -1.8) rectangle (2.6, 1.8);
-    \node [above] at (2, 1.8) {中间层};
-    \node at (2, 0.4) {ReLU};
-    \node[lightgray] at (2, 1.6) {$+0$};
-    \node[lightgray] at (2, -0.4) {$+0$};
-    \node[lightgray] at (4, 0.6) {$+0$};
-    \node at (2, -1.6) {ReLU};
+    \centering
+    \begin{tikzpicture}[>=Stealth, scale=1.5]
+        \node [circle, fill=white, draw, minimum size=1.2cm] (x0) at (0, 0) {$x$};
+        \node [circle, fill=white, draw, minimum size=1.2cm] (x11) at (2, 1) {$x_1^{(1)}$};
+        \node [circle, fill=white, draw, minimum size=1.2cm] (x12) at (2, -1) {$x_2^{(1)}$};
+        \node [circle, fill=white, draw, minimum size=1.2cm] (y) at (4, 0) {$|x|$};
+        \draw [->, red] (x0) -- node [above left] {$1$} (x11);
+        \draw [->, blue] (x0) -- node [below left] {$-1$} (x12);
+        \draw [->, red] (x11) -- node [above right] {$1$} (y);
+        \draw [->, red] (x12) -- node [below right] {$1$} (y);
+        \draw [dashed, thin] (1.4, -1.8) rectangle (2.6, 1.8);
+        \node [above] at (2, 1.8) {中间层};
+        \node at (2, 0.4) {ReLU};
+        \node[lightgray] at (2, 1.6) {$+0$};
+        \node[lightgray] at (2, -0.4) {$+0$};
+        \node[lightgray] at (4, 0.6) {$+0$};
+        \node at (2, -1.6) {ReLU};
     \end{tikzpicture}
-\caption{神经网络表示 $|x|$}
+    \caption{神经网络表示 $|x|$}
 \end{figure}
 
 这看起来很简单，读者可能想问：还能不能再给力一点，看看更复杂的情况呢？当然可以。不过在看之前先抛出两个思考题：
@@ -157,26 +172,26 @@ w_1 = \begin{bmatrix}
 
 在思考这个问题时，读者可以先回顾 ReLU 的性质：它的作用是将负数截断为 0，而正数保持不变。那么，能否通过适当的线性变换和 ReLU 来分辨两个数的大小呢？实际上我们可以很容易地发现
 \[
-    \max\{x_1, x_2\} = x_1 + \text{ReLU}(x_2 - x_1) 
+    \max\{x_1, x_2\} = x_1 + \text{ReLU}(x_2 - x_1)
 \]
 
 但是这个答案并不够好，如果直接把它画成神经网络结构图，就会发现它的结构看起来像是这样：
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[>=Stealth, scale=1.5]
-    \node [circle, fill=white, draw, minimum size=1.2cm] (x01) at (0, 1) {$x_1$};
-    \node [circle, fill=white, draw, minimum size=1.2cm] (x02) at (0, -1) {$x_2$};
-    \node [circle, fill=white, draw, minimum size=1.2cm] (x11) at (2, -1) {$?$};
-    \node [circle, fill=white, draw, minimum size=1.2cm] (y) at (4, 0) {$y$};
-    \draw [->, blue] (x01) -- node [above right] {$-1$} (x11);
-    \draw [->, red] (x02) -- node [below] {$1$} (x11);
-    \draw [->, red] (x11) -- node [below right] {$1$} (y);
-    \draw [->, red] (x01) -- node [above right] {$1$} (y);
-    \node at (2, -1.6) {ReLU};
-    \node[lightgray] at (2, -0.4) {$+0$};
-    \node[lightgray] at (4, 0.6) {$+0$};
+    \centering
+    \begin{tikzpicture}[>=Stealth, scale=1.5]
+        \node [circle, fill=white, draw, minimum size=1.2cm] (x01) at (0, 1) {$x_1$};
+        \node [circle, fill=white, draw, minimum size=1.2cm] (x02) at (0, -1) {$x_2$};
+        \node [circle, fill=white, draw, minimum size=1.2cm] (x11) at (2, -1) {$?$};
+        \node [circle, fill=white, draw, minimum size=1.2cm] (y) at (4, 0) {$y$};
+        \draw [->, blue] (x01) -- node [above right] {$-1$} (x11);
+        \draw [->, red] (x02) -- node [below] {$1$} (x11);
+        \draw [->, red] (x11) -- node [below right] {$1$} (y);
+        \draw [->, red] (x01) -- node [above right] {$1$} (y);
+        \node at (2, -1.6) {ReLU};
+        \node[lightgray] at (2, -0.4) {$+0$};
+        \node[lightgray] at (4, 0.6) {$+0$};
     \end{tikzpicture}
-\caption{神经网络表示 $\max\{x_1, x_2\}$ 的一种方法}
+    \caption{神经网络表示 $\max\{x_1, x_2\}$ 的一种方法}
 \end{figure}
 
 变量 $x_1$ 没有经过统一的隐藏层，而是跳过中间，直接连接到了输出层。显然就不能用一致的 $\text{ReLU}(wx+b)$ 的形式来表示了，而是要单独开一个通道来处理。而我们使用神经网络的目的本来就是用一致的方式来处理所有的输入，所以这样的表示方式并不优雅\footnote{并不优雅：与之对比，在深层神经网络网络中通常会引入看起来有些像这里的\textoverset{Shortcut Connection}{跳连接}结构，由此引出\textoverset{Residual Network}{残差网络}的概念。它看起来有些像这里的跳过中间层的结构，但那里是系统性地引入这样的连接，而不是这样对某个分量单独处理。}。
@@ -188,54 +203,54 @@ w_1 = \begin{bmatrix}
 
 这一式子中的三个分量提出来，便可以得到
 \[
-\begin{aligned}
-    x_1^{(1)} &= \text{ReLU}(x_1\,{\color{lightgray}+\,0x_2}) \\
-    x_2^{(1)} &= \text{ReLU}(-x_1\,{\color{lightgray}+\,0x_2}) \\
-    x_3^{(1)} &= \text{ReLU}(- x_1 + x_2) \\
-    y &= x_1^{(1)} - x_2^{(1)} + x_3^{(1)} 
-\end{aligned}
+    \begin{aligned}
+        x_1^{(1)} & = \text{ReLU}(x_1\,{\color{lightgray}+\,0x_2})  \\
+        x_2^{(1)} & = \text{ReLU}(-x_1\,{\color{lightgray}+\,0x_2}) \\
+        x_3^{(1)} & = \text{ReLU}(- x_1 + x_2)                      \\
+        y         & = x_1^{(1)} - x_2^{(1)} + x_3^{(1)}
+    \end{aligned}
 \]
 
 偏置 $b$ 仍然为 $0$，读者可以自行试着写出对应的权重矩阵 $w$ ，按照新的写法重新绘制，这时结构图就会变成这样：
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[>=Stealth, scale=1.5]
-    \node [circle, fill=white, draw, minimum size=1.2cm] (x01) at (-1, 1.2) {$x_1$};
-    \node [circle, fill=white, draw, minimum size=1.2cm] (x02) at (-1, -1.2) {$x_2$};
-    \node [circle, fill=white, draw, minimum size=1.2cm] (x11) at (2, 2) {$x_1^{(1)}$};
-    \node [circle, fill=white, draw, minimum size=1.2cm] (x12) at (2, 0) {$x_2^{(1)}$};
-    \node [circle, fill=white, draw, minimum size=1.2cm] (x13) at (2, -2) {$x_3^{(1)}$};
-    \node [circle, fill=white, draw, minimum size=1.2cm] (y) at (5, 0) {$y$};
-    \draw [->, lightgray] (x02) -- node [below right] {$0$} (x11);
-    \draw [->, lightgray] (x02) -- node [below right] {$0$} (x12); 
-    \draw [->, red] (x01) -- node [above left] {$1$} (x11);
-    \draw [->, blue] (x01) -- node [above right] {$-1$} (x12);
-    \draw [->, blue] (x01) -- node [above right] {$-1$} (x13);
-    \draw [->, red] (x02) -- node [below left] {$1$} (x13);
-    \draw [->, red] (x11) -- node [above right] {$1$} (y);
-    \draw [->, blue] (x12) -- node [above] {$-1$} (y);
-    \draw [->, red] (x13) -- node [below right] {$1$} (y);
-    \node [lightgray] at (2, 2.6) {$+0$};
-    \node [lightgray] at (2, 0.6) {$+0$};
-    \node [lightgray] at (2, -1.4) {$+0$};
-    \node [below] at (2, 1.6) {ReLU};
-    \node [below] at (2, -0.4) {ReLU};
-    \node [below] at (2, -2.4) {ReLU};
-    \draw [dashed, thin] (1.4, -2.8) rectangle (2.6, 2.8);
-    \node [above] at (2, 2.8) {中间层};
+    \centering
+    \begin{tikzpicture}[>=Stealth, scale=1.5]
+        \node [circle, fill=white, draw, minimum size=1.2cm] (x01) at (-1, 1.2) {$x_1$};
+        \node [circle, fill=white, draw, minimum size=1.2cm] (x02) at (-1, -1.2) {$x_2$};
+        \node [circle, fill=white, draw, minimum size=1.2cm] (x11) at (2, 2) {$x_1^{(1)}$};
+        \node [circle, fill=white, draw, minimum size=1.2cm] (x12) at (2, 0) {$x_2^{(1)}$};
+        \node [circle, fill=white, draw, minimum size=1.2cm] (x13) at (2, -2) {$x_3^{(1)}$};
+        \node [circle, fill=white, draw, minimum size=1.2cm] (y) at (5, 0) {$y$};
+        \draw [->, lightgray] (x02) -- node [below right] {$0$} (x11);
+        \draw [->, lightgray] (x02) -- node [below right] {$0$} (x12);
+        \draw [->, red] (x01) -- node [above left] {$1$} (x11);
+        \draw [->, blue] (x01) -- node [above right] {$-1$} (x12);
+        \draw [->, blue] (x01) -- node [above right] {$-1$} (x13);
+        \draw [->, red] (x02) -- node [below left] {$1$} (x13);
+        \draw [->, red] (x11) -- node [above right] {$1$} (y);
+        \draw [->, blue] (x12) -- node [above] {$-1$} (y);
+        \draw [->, red] (x13) -- node [below right] {$1$} (y);
+        \node [lightgray] at (2, 2.6) {$+0$};
+        \node [lightgray] at (2, 0.6) {$+0$};
+        \node [lightgray] at (2, -1.4) {$+0$};
+        \node [below] at (2, 1.6) {ReLU};
+        \node [below] at (2, -0.4) {ReLU};
+        \node [below] at (2, -2.4) {ReLU};
+        \draw [dashed, thin] (1.4, -2.8) rectangle (2.6, 2.8);
+        \node [above] at (2, 2.8) {中间层};
     \end{tikzpicture}
-\caption{神经网络表示 $\max\{x_1, x_2\}$ 的另一种方法}
+    \caption{神经网络表示 $\max\{x_1, x_2\}$ 的另一种方法}
 \end{figure}
 
 虽然中间的神经元多了一些，但是它的结构看起来就统一而且整齐得多了。或许有人会有疑问，这里连的线变多了，不是把事情复杂化了吗？实际上并没有，恰恰相反，把它整齐地写出来才有利于算法的数值优化。
 
-一个有趣的事实是，如果把 True 和 False 分别视作 1 和 0，那么最多两层的网络就可以表示任意的逻辑函数。例如 
+一个有趣的事实是，如果把 True 和 False 分别视作 1 和 0，那么最多两层的网络就可以表示任意的逻辑函数。例如
 \[
-\begin{aligned}
-    x_1 \; \text{and} \; x_2 &= \text{ReLU}(x_1 + x_2 - 1) \\
-    x_1 \; \text{or} \; x_2 &= \text{ReLU}(x_1) + \text{ReLU}(x_2 - x_1) \\
-    x_1 \; \text{xor} \; x_2 &= \text{ReLU}(x_1 - x_2) + \text{ReLU}(x_2 - x_1) 
-\end{aligned}
+    \begin{aligned}
+        x_1 \; \text{and} \; x_2 & = \text{ReLU}(x_1 + x_2 - 1)                      \\
+        x_1 \; \text{or} \; x_2  & = \text{ReLU}(x_1) + \text{ReLU}(x_2 - x_1)       \\
+        x_1 \; \text{xor} \; x_2 & = \text{ReLU}(x_1 - x_2) + \text{ReLU}(x_2 - x_1)
+    \end{aligned}
 \]
 
 这至少表明逻辑可以在一定程度上编码进神经网络中，用一些可调的权重来模拟逻辑门\footnote{用权重模拟逻辑门：这里仅说明它可以，不过这么做太奢侈了，很浪费储存和计算资源。}，因此从这一特例来看，求特征的交集、并集的操作确实可以自然地以权重的方式编码到网络的运算中。
@@ -246,28 +261,28 @@ w_1 = \begin{bmatrix}
 
 这确实体现出了它的局限性，但这必然是它的弱点吗？并不一定。一方面，虽然它本身无法\textbf{精准地表示}光滑的函数，但是只要给定一个自变量的区间，在这样的函数堆叠多层之后总是可以调整参数，做到\textbf{良好地近似}给定的函数。事实上，只需四段就可以在区间 $[-1, 1]$ 上用如下的分段线性函数来相当好地近似 $x^2$ 了，例如下面的分段线性函数 $f(x)$：
 \[
-    f(x) = 2\text{ReLU}(x-1) + 2\text{ReLU}(x) + 2\text{ReLU}(-x) + 2\text{ReLU}(-x-1) - 0.04 
+    f(x) = 2\text{ReLU}(x-1) + 2\text{ReLU}(x) + 2\text{ReLU}(-x) + 2\text{ReLU}(-x-1) - 0.04
 \]
 
 图像是这样的：
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[>=Stealth]
-    \begin{axis}[
-        axis lines=middle,
-        axis equal,
-        xlabel={$x$}, ylabel={$y$},
-        grid=major,
-        legend pos=north west
-    ]
-    \addplot[blue, thick, domain=-1:1, smooth] {x^2};
-    \addlegendentry{$x^2$}
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \begin{axis}[
+                axis lines=middle,
+                axis equal,
+                xlabel={$x$}, ylabel={$y$},
+                grid=major,
+                legend pos=north west
+            ]
+            \addplot[blue, thick, domain=-1:1, smooth] {x^2};
+            \addlegendentry{$x^2$}
 
-    \addplot[red, thick] coordinates {(-1, 0.96) (-0.5, 0.21) (0, -0.04) (0.5, 0.21) (1, 0.96)};
-    \addlegendentry{$f(x)$}
-    \end{axis}
-\end{tikzpicture}
-\caption{分段线性函数近似光滑函数}
+            \addplot[red, thick] coordinates {(-1, 0.96) (-0.5, 0.21) (0, -0.04) (0.5, 0.21) (1, 0.96)};
+            \addlegendentry{$f(x)$}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{分段线性函数近似光滑函数}
 \end{figure}
 
 另一方面，虽然它的输出会被输入大小的一个常数倍所控制，但在很大程度上，这也避免了在第一章中多项式拟合的数值爆炸问题。此外，这提醒我们应当将模型的输入输出控制在一个范围之内。遵循这些原则，ReLU 网络的表达能力已经足够强大，能解决大多数实际问题。尽管仍有一些细节需要注意，但这并不影响我们对其整体能力的理解。
@@ -279,20 +294,20 @@ w_1 = \begin{bmatrix}
 
 输出随输入变化的图像是这样的，可见它把输入压缩到了 $[0, 1]$ 的范围内：
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[>=Stealth]
-    \begin{axis}[
-        axis lines=middle,
-        axis equal,
-        xlabel={$x$}, ylabel={$y$},
-        grid=major,
-        legend pos=north west
-    ]
-    \addplot[blue, thick, domain=-2:2, samples=100] {1/(1+exp(-x))};
-    \addlegendentry{Sigmoid($x$)}
-    \end{axis}
-\end{tikzpicture}
-\caption{Sigmoid 函数图像}
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \begin{axis}[
+                axis lines=middle,
+                axis equal,
+                xlabel={$x$}, ylabel={$y$},
+                grid=major,
+                legend pos=north west
+            ]
+            \addplot[blue, thick, domain=-2:2, samples=100] {1/(1+exp(-x))};
+            \addlegendentry{Sigmoid($x$)}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Sigmoid 函数图像}
 \end{figure}
 
 tanh 函数是双曲正切函数，其定义为
@@ -302,20 +317,20 @@ tanh 函数是双曲正切函数，其定义为
 
 它的图像和 Sigmoid 函数很类似，只是经过了一个伸缩和平移，输出范围是 $[-1, 1]$：
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[>=Stealth]
-    \begin{axis}[
-        axis lines=middle,
-        axis equal,
-        xlabel={$x$}, ylabel={$y$},
-        grid=major,
-        legend pos=north west
-    ]
-    \addplot[blue, thick, domain=-2:2, samples=100] {tanh(x)};
-    \addlegendentry{tanh($x$)}
-    \end{axis}
-\end{tikzpicture}
-\caption{tanh 函数图像}
+    \centering
+    \begin{tikzpicture}[>=Stealth]
+        \begin{axis}[
+                axis lines=middle,
+                axis equal,
+                xlabel={$x$}, ylabel={$y$},
+                grid=major,
+                legend pos=north west
+            ]
+            \addplot[blue, thick, domain=-2:2, samples=100] {tanh(x)};
+            \addlegendentry{tanh($x$)}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{tanh 函数图像}
 \end{figure}
 
 早期的研究中，它们出现在许多生物学的研究中，可以描述生物神经元的激活或者极化程度，于是人工神经网络出于仿生的考虑也使用了它们。然而它们在两端很小的导数也为优化带来了许多麻烦，导致了\textoverset{Vanishing Gradient}{梯度消失}\footnote{梯度消失：是指在深度神经网络中，由于输出随输入的变化过于小，导致信息无法有效地从输出传回输入，从而使得网络难以优化学习的现象。关于梯度的进一步介绍会在后文给出，此处可以简单理解为信息回传受阻。}的问题，后来逐渐被 ReLU 函数取代，仅在特定层要将输出限制在给定范围内时才使用。虽然近期有\uhref{https://arxiv.org/pdf/2503.10622}{研究}指出现在的优化器有能力克服这个问题，即使使用 tanh 仍然可以正常地优化，不过这也仅是一个理论上的结果，实际应用中通常认为它们仍然不如 ReLU 函数好用。从此也能看见人工智能的发展并非一帆风顺，仿生不是唯一的出路，人工的神经网络的发展和对其规律的认识必然要走过曲折的探索，才能形成一套独特而成熟的方法论。
@@ -323,14 +338,25 @@ tanh 函数是双曲正切函数，其定义为
 不过 ReLU 在 $x<0$ 的区域也存在斜率为 $0$ 导致梯度消失的问题，为此人们还提出了一些变体，例如 Leaky ReLU 函数，它在 $x<0$ 的区域也有一个小的斜率，定义为
 \[
     \text{Leaky ReLU}(x) = \begin{cases}
-        x, & x \geq 0 \\
-        \alpha x, & x < 0 
+        x,        & x \geq 0 \\
+        \alpha x, & x < 0
     \end{cases}
 \]
 
 上式中 $\alpha$ 是一个小的常数，通常取 $0.01$，它同样简单易于计算。还有一些较为复杂的变体，包括\textoverset{Gaussian Error Linear Unit}{高斯误差线性单元}(GELU)，\textoverset{Exponential Linear Unit}{指数线性单元}(ELU) 等，都在一定程度上克服了 ReLU 导数为 $0$ 导致信息传播不畅的问题。不过这些都属于工程上的细节问题，读者可以在需要的时候再去了解。
 
 由此我们更加具体化地认识到了神经网络的工作原理：它的基本单元由线性函数与激活函数交替组成。每一层都可以看作是对输入进行线性组合，然后通过激活函数进行非线性变换以实现更复杂的表达能力。这让网络以一种统一的方式来处理输入数据，并有能力通过调整参数拟合复杂的输出。
+
+\begin{tcolorbox}[myrecommendbox, title=推荐阅读, breakable=false]
+    \begin{itemize}
+        \item 文中为了简单起见，只是简单介绍了 ReLU 激活函数，关于更多激活函数的定义与性质可以看这篇笔记：\\
+              \textit{深度学习随笔——激活函数(Sigmoid、Tanh、ReLU、Leaky ReLU、PReLU、RReLU、ELU、SELU、Maxout、Softmax、Swish、Softplus) - Lu1zero9的文章 - 知乎}\\
+              \url{https://zhuanlan.zhihu.com/p/585276457}
+        \item 形成图形化的直觉许多时候相当重要，这篇文章就给出了一个图形解释：\\
+              \textit{形象的解释神经网络激活函数的作用是什么？ - 忆臻的文章 - 知乎}\\
+              \url{https://zhuanlan.zhihu.com/p/25279356}
+    \end{itemize}
+\end{tcolorbox}
 
 \newpage
 
@@ -349,16 +375,16 @@ tanh 函数是双曲正切函数，其定义为
 
 看起来像是这样：
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[>=Stealth, xscale=2]
-    \draw [thin, ->] (-1, 0) -- (2, 0) node [below] {$x$};
-    % \draw [thin, ->] (0, -0.5) -- (0, 3.5) node [left] {$f(x)$};
-    \draw [domain=-0.7:1.5, smooth, variable=\x, blue, thick] plot ({\x}, {\x*\x+1}) node [above] {$f(x)$};
-    \draw [domain=-0.3:1.3, smooth, variable=\x, red, thick] plot ({\x}, {\x-0.25+1});
-    \draw [fill=lightgray] (0.5, 1.25) -- node [below] {$\Delta x$} (1.0, 1.25) -- node [right] {$f'(x_0) \Delta x$} (1.0, 1.75) -- cycle;
-    \draw [dashed, thin] (0.5, 1.25) -- (0.5, 0) node [below] {$x_0$};
+    \centering
+    \begin{tikzpicture}[>=Stealth, xscale=2]
+        \draw [thin, ->] (-1, 0) -- (2, 0) node [below] {$x$};
+        % \draw [thin, ->] (0, -0.5) -- (0, 3.5) node [left] {$f(x)$};
+        \draw [domain=-0.7:1.5, smooth, variable=\x, blue, thick] plot ({\x}, {\x*\x+1}) node [above] {$f(x)$};
+        \draw [domain=-0.3:1.3, smooth, variable=\x, red, thick] plot ({\x}, {\x-0.25+1});
+        \draw [fill=lightgray] (0.5, 1.25) -- node [below] {$\Delta x$} (1.0, 1.25) -- node [right] {$f'(x_0) \Delta x$} (1.0, 1.75) -- cycle;
+        \draw [dashed, thin] (0.5, 1.25) -- (0.5, 0) node [below] {$x_0$};
     \end{tikzpicture}
-\caption{一元函数的导数近似}
+    \caption{一元函数的导数近似}
 \end{figure}
 
 导数反映的是切线的斜率，也就是函数在局部的变化率信息。为了让 $f(x)$ 变小，令 $\Delta x$ 的方向与 $f'(x)$ 相反就可以了。也就是说，可以令
@@ -399,34 +425,34 @@ tanh 函数是双曲正切函数，其定义为
 
 而 $\mathrm{d}x$ 对 $\mathrm{d}x^{(1)}$ 各项的影响分别是
 \[
-\begin{aligned}
-    \mathrm{d}x^{(1)}_1 &= b_{11} \mathrm{d}x_1 + b_{12} \mathrm{d}x_2 + \cdots + b_{1n} \mathrm{d}x_n \\
-    \mathrm{d}x^{(1)}_2 &= b_{21} \mathrm{d}x_1 + b_{22} \mathrm{d}x_2 + \cdots + b_{2n} \mathrm{d}x_n \\
-    &\vdots \\
-    \mathrm{d}x^{(1)}_m &= b_{m1} \mathrm{d}x_1 + b_{m2} \mathrm{d}x_2 + \cdots + b_{mn} \mathrm{d}x_n
-\end{aligned}
+    \begin{aligned}
+        \mathrm{d}x^{(1)}_1 & = b_{11} \mathrm{d}x_1 + b_{12} \mathrm{d}x_2 + \cdots + b_{1n} \mathrm{d}x_n \\
+        \mathrm{d}x^{(1)}_2 & = b_{21} \mathrm{d}x_1 + b_{22} \mathrm{d}x_2 + \cdots + b_{2n} \mathrm{d}x_n \\
+                            & \vdots                                                                        \\
+        \mathrm{d}x^{(1)}_m & = b_{m1} \mathrm{d}x_1 + b_{m2} \mathrm{d}x_2 + \cdots + b_{mn} \mathrm{d}x_n
+    \end{aligned}
 \]
 
 接下来，怎么把 $\mathrm{d}y$ 写成 $c_1 \mathrm{d}x_1 + c_2 \mathrm{d}x_2 + \cdots + c_n \mathrm{d}x_n$ 的形式呢？答案非常简单粗暴：把每个 $\mathrm{d}x^{(1)}_i$ 代入到 $\mathrm{d}y$ 的表达式中，就有了
 \[
-\begin{aligned}
-    \mathrm{d}y =\, & a_1 (b_{11} \mathrm{d}x_1 + b_{12} \mathrm{d}x_2 + \cdots + b_{1n} \mathrm{d}x_n) \, + \\
-    & a_2 (b_{21} \mathrm{d}x_1 + b_{22} \mathrm{d}x_2 + \cdots + b_{2n} \mathrm{d}x_n) \, + \\
-    & \cdots \, +\\
-    & a_n (b_{m1} \mathrm{d}x_1 + b_{m2} \mathrm{d}x_2 + \cdots + b_{mn} \mathrm{d}x_n)\\
-    =\, & (a_1 b_{11} + a_2 b_{21} + \cdots + a_n b_{m1}) \mathrm{d}x_1 \,+ \\
-    & (a_1 b_{12} + a_2 b_{22} + \cdots + a_n b_{m2}) \mathrm{d}x_2 \,+ \\
-    & \cdots \, \,+\\
-    & (a_1 b_{1n} + a_2 b_{2n} + \cdots + a_m b_{mn}) \mathrm{d}x_n
-\end{aligned}
+    \begin{aligned}
+        \mathrm{d}y =\, & a_1 (b_{11} \mathrm{d}x_1 + b_{12} \mathrm{d}x_2 + \cdots + b_{1n} \mathrm{d}x_n) \, + \\
+                        & a_2 (b_{21} \mathrm{d}x_1 + b_{22} \mathrm{d}x_2 + \cdots + b_{2n} \mathrm{d}x_n) \, + \\
+                        & \cdots \, +                                                                            \\
+                        & a_n (b_{m1} \mathrm{d}x_1 + b_{m2} \mathrm{d}x_2 + \cdots + b_{mn} \mathrm{d}x_n)      \\
+        =\,             & (a_1 b_{11} + a_2 b_{21} + \cdots + a_n b_{m1}) \mathrm{d}x_1 \,+                      \\
+                        & (a_1 b_{12} + a_2 b_{22} + \cdots + a_n b_{m2}) \mathrm{d}x_2 \,+                      \\
+                        & \cdots \, \,+                                                                          \\
+                        & (a_1 b_{1n} + a_2 b_{2n} + \cdots + a_m b_{mn}) \mathrm{d}x_n
+    \end{aligned}
 \]
 
 由此可见，可以写出表达式
 \[
-\begin{aligned}
-    c_j &= a_1 b_{1j} + a_2 b_{2j} + \cdots, a_m b_{mj}\\
-    \mathrm{d}y &= c_1 \mathrm{d}x_1 + c_2 \mathrm{d}x_2 + \cdots + c_n \mathrm{d}x_n
-\end{aligned}
+    \begin{aligned}
+        c_j         & = a_1 b_{1j} + a_2 b_{2j} + \cdots, a_m b_{mj}                       \\
+        \mathrm{d}y & = c_1 \mathrm{d}x_1 + c_2 \mathrm{d}x_2 + \cdots + c_n \mathrm{d}x_n
+    \end{aligned}
 \]
 
 这表明，只要我们知道下一层计算出来的梯度 $a_i$ 和联系起两层的 $b_{ij}$，就可以将下一层的梯度“回溯”到上一层，计算出上一层的梯度 $c_j$，这种方法被称作反向传播。于是问题被进一步拆解，变成了更为细化的小问题：如何求出这里每层之间梯度传播的关系？
@@ -445,108 +471,108 @@ tanh 函数是双曲正切函数，其定义为
 
 而当其输入大于 0 时，ReLU 可以去除掉，即变为
 \[
-\begin{aligned}
-    \mathrm{d}x^{(k)}_i &= \mathrm{d}(w_{i1} x^{(k-1)}_1 + w_{i2} x^{(k-1)}_2 + \cdots + w_{in} x^{(k-1)}_n + b_i) \\
-    &= w_{i1} \mathrm{d}x^{(k-1)}_1 + w_{i2} \mathrm{d}x^{(k-1)}_2 + \cdots + w_{in} \mathrm{d}x^{(k-1)}_n \\
-    &\qquad +x^{(k-1)}_1 \mathrm{d}w_{i1} + x^{(k-1)}_2 \mathrm{d}w_{i2} + \cdots + x^{(k-1)}_n \mathrm{d}w_{in} + \mathrm{d}b_i \\
-    &= w_{i:} \cdot \mathrm{d}x^{(k-1)} + x^{(k-1)} \cdot \mathrm{d}w_{i:} + \mathrm{d}b_i
-\end{aligned}
+    \begin{aligned}
+        \mathrm{d}x^{(k)}_i & = \mathrm{d}(w_{i1} x^{(k-1)}_1 + w_{i2} x^{(k-1)}_2 + \cdots + w_{in} x^{(k-1)}_n + b_i)                                   \\
+                            & = w_{i1} \mathrm{d}x^{(k-1)}_1 + w_{i2} \mathrm{d}x^{(k-1)}_2 + \cdots + w_{in} \mathrm{d}x^{(k-1)}_n                       \\
+                            & \qquad +x^{(k-1)}_1 \mathrm{d}w_{i1} + x^{(k-1)}_2 \mathrm{d}w_{i2} + \cdots + x^{(k-1)}_n \mathrm{d}w_{in} + \mathrm{d}b_i \\
+                            & = w_{i:} \cdot \mathrm{d}x^{(k-1)} + x^{(k-1)} \cdot \mathrm{d}w_{i:} + \mathrm{d}b_i
+    \end{aligned}
 \]
 
 这里仍然沿用了向量的点积表示法，$w_{i:}$ 表示 $w$ 的第 $i$ 行。由此也可以看出 ReLU 的好处：使用它作为激活函数的梯度回溯非常方便。
 
 这里我们会发现梯度信息发生了一个“分岔”，一部分信息传递给了 $x^{(k-1)}$，另一部分则传递给了 $w$ 和 $b$。传递给 $w$ 和 $b$ 的信息将在后续用于更新参数，而传递给 $x^{(k-1)}$ 的信息则会继续向后传递求出离结果更远、离输入更近的层的参数梯度。直到传递到输入层，最终得到所有参数的梯度，关于原始输入 $x$ 的输入则会被丢弃\footnote{丢弃：因为我们并不需要对输入进行调整，只需要对参数进行调整。不过一些研究表明，观察输入的梯度信息可以帮助我们理解模型认为哪些特征更加重要。}。这个过程看起来像是这样，如果说正向计算是把参数信息参与到计算中，一步步计算得到最终的结果（由于我们希望最小化损失，所以在模型的最终输出之后还有一个箭头表示损失函数）：
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[>=Stealth, scale=1.2]
-    \node (x) at (0, 0) {$x$};
-    \node (x1) at (2, 0) {$x^{(1)}$};
-    \node (x2) at (4, 0) {$\cdots$};
-    \node (x3) at (6, 0) {$x^{(k-1)}$};
-    \node (x4) at (8, 0) {$x^{(k)}$};
-    \node (x5) at (10, 0) {$\cdots$};
-    \node (y) at (12, 0) {$y$};
-    \node (w1) at (1, -1) {$w^{(1)},b^{(1)}$};
-    \node (w3) at (5, -1) {$w^{(k-1)},b^{(k-1)}$};
-    \node (w4) at (7, -1) {$w^{(k)},b^{(k)}$};
-    \node (w5) at (11, -1) {$w^{(\text{out})}, b^{(\text{out})}$};
-    \node (loss) at (13, 0) {$l$};
-    \draw [->] (x) -- (x1);
-    \draw [->] (x1) -- (x2);
-    \draw [->] (x2) -- (x3);
-    \draw [->] (x3) -- (x4);
-    \draw [->] (x4) -- (x5);
-    \draw [->] (x5) -- (y);
-    \draw [->] (w1) -- (x1);
-    \draw [->] (w3) -- (x3);
-    \draw [->] (w4) -- (x4);
-    \draw [->] (w5) -- (y);
-    \draw [->] (y) -- (loss);
-\end{tikzpicture}
-\caption{正向计算}
+    \centering
+    \begin{tikzpicture}[>=Stealth, scale=1.2]
+        \node (x) at (0, 0) {$x$};
+        \node (x1) at (2, 0) {$x^{(1)}$};
+        \node (x2) at (4, 0) {$\cdots$};
+        \node (x3) at (6, 0) {$x^{(k-1)}$};
+        \node (x4) at (8, 0) {$x^{(k)}$};
+        \node (x5) at (10, 0) {$\cdots$};
+        \node (y) at (12, 0) {$y$};
+        \node (w1) at (1, -1) {$w^{(1)},b^{(1)}$};
+        \node (w3) at (5, -1) {$w^{(k-1)},b^{(k-1)}$};
+        \node (w4) at (7, -1) {$w^{(k)},b^{(k)}$};
+        \node (w5) at (11, -1) {$w^{(\text{out})}, b^{(\text{out})}$};
+        \node (loss) at (13, 0) {$l$};
+        \draw [->] (x) -- (x1);
+        \draw [->] (x1) -- (x2);
+        \draw [->] (x2) -- (x3);
+        \draw [->] (x3) -- (x4);
+        \draw [->] (x4) -- (x5);
+        \draw [->] (x5) -- (y);
+        \draw [->] (w1) -- (x1);
+        \draw [->] (w3) -- (x3);
+        \draw [->] (w4) -- (x4);
+        \draw [->] (w5) -- (y);
+        \draw [->] (y) -- (loss);
+    \end{tikzpicture}
+    \caption{正向计算}
 \end{figure}
 
 那么反向传播就是考虑损失变化的估计量 $\mathrm{d}l$，并将它的梯度信息经由 $\mathrm{d}y$ 和各个中间计算结果 $\mathrm{d}x^{(k)}$ 逐层传递回去，直到输入层。
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[>=Stealth, scale=1.2]
-    \node (x) at (0, 0) {$\mathrm{d}x$};
-    \node (x1) at (2, 0) {$\mathrm{d}x^{(1)}$};
-    \node (x2) at (4, 0) {$\cdots$};
-    \node (x3) at (6, 0) {$\mathrm{d}x^{(k-1)}$};
-    \node (x4) at (8, 0) {$\mathrm{d}x^{(k)}$};
-    \node (x5) at (10, 0) {$\cdots$};
-    \node (y) at (12, 0) {$\mathrm{d}y$};
-    \node (w1) at (1, -1) {$\mathrm{d}w^{(1)},\mathrm{d}b^{(1)}$};
-    \node (w3) at (5, -1) {$\mathrm{d}w^{(k-1)},\mathrm{d}b^{(k-1)}$};
-    \node (w4) at (7, -1) {$\mathrm{d}w^{(k)},\mathrm{d}b^{(k)}$};
-    \node (w5) at (11, -1) {$\mathrm{d}w^{(\text{out})}, \mathrm{d}b^{(\text{out})}$};
-    \node (loss) at (13, 0) {$\mathrm{d}l$};
-    \draw [<-] (x) -- (x1);
-    \draw [<-] (x1) -- (x2);
-    \draw [<-] (x2) -- (x3);
-    \draw [<-] (x3) -- (x4);
-    \draw [<-] (x4) -- (x5);
-    \draw [<-] (x5) -- (y);
-    \draw [<-] (w1) -- (x1);
-    \draw [<-] (w3) -- (x3);
-    \draw [<-] (w4) -- (x4);
-    \draw [<-] (w5) -- (y);
-    \draw [<-] (y) -- (loss);
-\end{tikzpicture}
-\caption{反向传播}
+    \centering
+    \begin{tikzpicture}[>=Stealth, scale=1.2]
+        \node (x) at (0, 0) {$\mathrm{d}x$};
+        \node (x1) at (2, 0) {$\mathrm{d}x^{(1)}$};
+        \node (x2) at (4, 0) {$\cdots$};
+        \node (x3) at (6, 0) {$\mathrm{d}x^{(k-1)}$};
+        \node (x4) at (8, 0) {$\mathrm{d}x^{(k)}$};
+        \node (x5) at (10, 0) {$\cdots$};
+        \node (y) at (12, 0) {$\mathrm{d}y$};
+        \node (w1) at (1, -1) {$\mathrm{d}w^{(1)},\mathrm{d}b^{(1)}$};
+        \node (w3) at (5, -1) {$\mathrm{d}w^{(k-1)},\mathrm{d}b^{(k-1)}$};
+        \node (w4) at (7, -1) {$\mathrm{d}w^{(k)},\mathrm{d}b^{(k)}$};
+        \node (w5) at (11, -1) {$\mathrm{d}w^{(\text{out})}, \mathrm{d}b^{(\text{out})}$};
+        \node (loss) at (13, 0) {$\mathrm{d}l$};
+        \draw [<-] (x) -- (x1);
+        \draw [<-] (x1) -- (x2);
+        \draw [<-] (x2) -- (x3);
+        \draw [<-] (x3) -- (x4);
+        \draw [<-] (x4) -- (x5);
+        \draw [<-] (x5) -- (y);
+        \draw [<-] (w1) -- (x1);
+        \draw [<-] (w3) -- (x3);
+        \draw [<-] (w4) -- (x4);
+        \draw [<-] (w5) -- (y);
+        \draw [<-] (y) -- (loss);
+    \end{tikzpicture}
+    \caption{反向传播}
 \end{figure}
 
 在图中看到从 $\mathrm{d}x^{(k)}$ 指向 $\mathrm{d}x^{(k-1)}$ 或者 $\mathrm{d}w^{(k)}, \mathrm{d}b^{(k)}$ 的箭头时，它指的是关于 $x^{(k)}$ 的梯度信息被传递到了 $x^{(k-1)}$ 和 $w^{(k)}, b^{(k)}$ 上。上面的图只是下面表达式的一个形象说明（这里用 $g_x^{(k)}$ 表示对 $x^{(k)}$ 的梯度，同理定义对 $w$ 和 $b$ 的梯度符号）
 \[
-\begin{aligned}
-    \mathrm{d}l &= g_y \cdot \mathrm{d}y \\
-    &= g_x^{(\text{out})} \cdot \mathrm{d}x^{(\text{out})} + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})} \\
-    &= (\text{向前展开这一部分}) + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})} \\
-    &= g_x^{(k)} \cdot \mathrm{d}x^{(k)} + g_w^{(k)} \cdot \mathrm{d}w^{(k)} + g_b^{(k)} \cdot \mathrm{d}b^{(k)} \\
-    & \qquad+ \cdots + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})}\\
-    &= g_x^{(k-1)} \cdot \mathrm{d}x^{(k-1)} + g_w^{(k-1)} \cdot \mathrm{d}w^{(k-1)} + g_b^{(k-1)} \cdot \mathrm{d}b^{(k-1)} \\
-    & \qquad+ g_w^{(k)} \cdot \mathrm{d}w^{(k)} + g_b^{(k)} \cdot \mathrm{d}b^{(k)} + \cdots \\
-    &\qquad + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})}\\
-    & = \cdots \\
-    & = g_x \cdot \mathrm{d}x \\
-    & \qquad + g_w^{(1)} \cdot \mathrm{d}w^{(1)} + g_b^{(1)} \cdot \mathrm{d}b^{(1)} \\
-    & \qquad + g_w^{(2)} \cdot \mathrm{d}w^{(2)} + g_b^{(2)} \cdot \mathrm{d}b^{(2)} \\
-    & \qquad + \cdots \\
-    & \qquad + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})}\\
-\end{aligned}
+    \begin{aligned}
+        \mathrm{d}l & = g_y \cdot \mathrm{d}y                                                                                                                                           \\
+                    & = g_x^{(\text{out})} \cdot \mathrm{d}x^{(\text{out})} + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})} \\
+                    & = (\text{向前展开这一部分}) + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})}                                   \\
+                    & = g_x^{(k)} \cdot \mathrm{d}x^{(k)} + g_w^{(k)} \cdot \mathrm{d}w^{(k)} + g_b^{(k)} \cdot \mathrm{d}b^{(k)}                                                       \\
+                    & \qquad+ \cdots + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})}                                        \\
+                    & = g_x^{(k-1)} \cdot \mathrm{d}x^{(k-1)} + g_w^{(k-1)} \cdot \mathrm{d}w^{(k-1)} + g_b^{(k-1)} \cdot \mathrm{d}b^{(k-1)}                                           \\
+                    & \qquad+ g_w^{(k)} \cdot \mathrm{d}w^{(k)} + g_b^{(k)} \cdot \mathrm{d}b^{(k)} + \cdots                                                                            \\
+                    & \qquad + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})}                                                \\
+                    & = \cdots                                                                                                                                                          \\
+                    & = g_x \cdot \mathrm{d}x                                                                                                                                           \\
+                    & \qquad + g_w^{(1)} \cdot \mathrm{d}w^{(1)} + g_b^{(1)} \cdot \mathrm{d}b^{(1)}                                                                                    \\
+                    & \qquad + g_w^{(2)} \cdot \mathrm{d}w^{(2)} + g_b^{(2)} \cdot \mathrm{d}b^{(2)}                                                                                    \\
+                    & \qquad + \cdots                                                                                                                                                   \\
+                    & \qquad + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})}                                                \\
+    \end{aligned}
 \]
 
 随着式子每次将第一项不断地展开，树状的计算图也从计算结果的终点不断向前回溯，最终在每个终止节点处得到对每个分量的梯度信息。理论上只需要手动维护这个图的状态就能完成反向传播的计算，不过实际应用中已经有了非常方便的自动求导工具，现代的机器学习库 PyTorch 和 TensorFlow 都有类似的功能，它们都会在内部维护一个计算图，自动地完成反向传播的计算。以 PyTorch 为例，用户不需要关心如何维护这个图，只需要设置 \texttt{requires\_grad} 属性为 \texttt{True}，在计算后对损失调用 \texttt{backward} 方法，就能自动地完成反向传播的计算。
 
 在训练时数据点通常是固定的，所以可以直接令 $\mathrm{d}x = 0$，这样前面的梯度信息就仅留下与待优化的参数相关的部分
 \[
-\begin{aligned}
-    \mathrm{d}l &= g_w^{(1)} \cdot \mathrm{d}w^{(1)} + g_b^{(1)} \cdot \mathrm{d}b^{(1)} \\
-    &\qquad + g_w^{(2)} \cdot \mathrm{d}w^{(2)} + g_b^{(2)} \cdot \mathrm{d}b^{(2)} \\
-    &\qquad + \cdots \\
-    &\qquad + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})}\\
-\end{aligned}
+    \begin{aligned}
+        \mathrm{d}l & = g_w^{(1)} \cdot \mathrm{d}w^{(1)} + g_b^{(1)} \cdot \mathrm{d}b^{(1)}                                            \\
+                    & \qquad + g_w^{(2)} \cdot \mathrm{d}w^{(2)} + g_b^{(2)} \cdot \mathrm{d}b^{(2)}                                     \\
+                    & \qquad + \cdots                                                                                                    \\
+                    & \qquad + g_w^{(\text{out})} \cdot \mathrm{d}w^{(\text{out})} + g_b^{(\text{out})} \cdot \mathrm{d}b^{(\text{out})} \\
+    \end{aligned}
 \]
 
 而如果我们再做一层抽象，把这一堆参数塞到一个叫做 $\theta$ 的向量中，那么就可以把上面的式子写成
@@ -570,21 +596,41 @@ tanh 函数是双曲正切函数，其定义为
 
 以一个简单的函数 $f(\theta) = 2\theta_1^2 + \theta_2^2$ 为例，假设从 $(1, 1)$ 处开始迭代，取每次更新的 $\eta = 0.1$，因为 $\mathrm{d}f(\theta) = 4\theta_1 \mathrm{d}\theta_1 + 2\theta_2 \mathrm{d}\theta_2$，所以在第一步梯度为 $(2\theta_1, \theta_2) = (4, 2)$，取 $\mathrm{d}\theta^* = -\eta \nabla_\theta f$ 可以得到下一步的 $\theta$。进行 10 次迭代后，得到的点在等值线图上会按照如下图所示的方式移动，可以看到每次更新的 $\theta$ 都是垂直于等高线线的方向向下走的，逐渐逼近最优解 $(0, 0)$
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{img/gradient_descent.png}
-\caption{梯度下降}
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/gradient_descent.png}
+    \caption{梯度下降}
 \end{figure}
 
 不过同时我想也要给出一个错误样例说明学习率 $\eta$ 调太大会发生什么，假设刚才的例子中我们把 $\eta$ 调到 0.5, 就会发现它直接跳过极小值，跳到了空间中的对边，之后就在 $(-1, 0)$ 和 $(1, 0)$ 之间来回震荡了起来，无法收敛。
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.7\textwidth]{img/gradient_descent_0.5.png}
-\caption{学习率设置不当的梯度下降}
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/gradient_descent_0.5.png}
+    \caption{学习率设置不当的梯度下降}
 \end{figure}
 
 这个现象在高维空间中也会发生，如果学习率 $\eta$ 过大，常常会观察到 loss 在某个值附近反复震荡，无法收敛。
 
 在实际有各种不同的梯度下降方法，最简单的是\textoverset{Stochastic Gradient Descent}{随机梯度下降法}(SGD)，它的基本思想是每次只随机抽取部分数据来计算梯度，来更新参数。这样做的好处是每次只需要计算一小部分数据，速度快；坏处是每次计算的梯度并不准确，可能会导致参数在最优解附近震荡。有的为了加速收敛速度，使用\textoverset{Momentum}{动量法}，将梯度信息不作为速度，而作为加速度来更新参数，让它能快速冲下坡。还有的使用\textoverset{Adaptive Momentum Method}{自适应动量法}(Adam)，在每次更新时考虑了历史梯度信息的影响，来调整学习率。这些方法都以各自的方式帮我们找到了更好的参数更新方式，来加速收敛速度。不过动量也不是越大越好，正如学习率不是越大越好一样，过大的动量会导致参数在最优解附近震荡，甚至无法收敛。
+
+\begin{tcolorbox}[myrecommendbox, title=推荐阅读, breakable=false]
+    \begin{itemize}
+        \item 至此我们已经基本理解了深度学习的核心思想，它是如何拟合的，又是如何优化的，我想看看 3Blue1Brown 的视频系列很有启发性：\\
+              \textit{深度学习 Deep Learning - 3Blue1Brown - Bilibili}\\
+              \url{https://space.bilibili.com/88461692/lists/1528929?type=series}
+        \item 可以说是梯度下降非常通俗的解释：\\
+              \textit{用随机梯度下降来优化人生 - 李沐的文章 - 知乎}\\
+              \url{https://zhuanlan.zhihu.com/p/414009313}
+        \item 文中没细讲反向传播的过程是如何发生的，如果想详细地理解其中的细节可以阅读：\\
+              \textit{反向传播算法详解(手算详解传播过程) - 望舒同学的文章 - 知乎}\\
+              \url{https://zhuanlan.zhihu.com/p/464268270}
+        \item 关于不同优化方法的选择与优劣比较，这篇文章有很好的总结：\\
+              \textit{梯度下降法的神经网络容易收敛到局部最优，为什么应用广泛？ - Summer Clover的回答 - 知乎}\\
+              \url{https://www.zhihu.com/question/68109802/answer/1677007564}
+        \item 虽然本书中关于具体网络结构的介绍在后面，但是读者如果感兴趣也可以先了解一些很经典的网络架构，笔者觉得这一回答总结的很好：\\
+              \textit{2024年，深度学习，你心目中的top10算法是什么？ - Russ的回答 - 知乎}\\
+              \url{https://www.zhihu.com/question/638660013/answer/3401213045}
+    \end{itemize}
+\end{tcolorbox}
 
 \newpage
 
@@ -669,14 +715,14 @@ pip install numpy torch matplotlib tqdm
 
 在运行代码后，训练过程中的模型输出会逐渐接近真实值，一次运行的结果如图所示。图中，由蓝到红的线表明从训练前期到后期的模型输出，虚线表示真值。
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.6\textwidth]{img/simple_model_output.pdf}
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/simple_model_output.pdf}
 \end{figure}
 
 反映输出和预期 $f(x) = \sin 2x$ 差异的 loss 变化趋势则如下图所示
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.6\textwidth]{img/simple_model_loss.pdf}
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/simple_model_loss.pdf}
 \end{figure}
 
 \newpage
@@ -715,7 +761,7 @@ pip install numpy torch matplotlib tqdm
 
 至此建模所需的五个要素已经概括完毕，表示为一个五元组：
 \[
-    M = (S, A, P, R, \gamma) 
+    M = (S, A, P, R, \gamma)
 \]
 
 其中
@@ -750,11 +796,11 @@ pip install numpy torch matplotlib tqdm
 
 读者或许想剥洋葱式地继续追问，动作的质量 $Q(s, a)$ 又是如何计算的呢？这就需要对下一步的状态 $s'$ 进行评估了。第一项是这一个动作带来的即时奖励，第二项是下一个状态的值函数 $V(s')$ 的期望，不过考虑到以后的奖励不如现在的奖励重要，这一步要乘上一个折扣因子 $\gamma$。也就是说：
 \[
-\begin{aligned}
-    Q^\pi (s, a) &= 
-    \sum_{s'} P(s' | s, a) \left[ R(s, a, s') + \gamma V^\pi (s') \right] \\
-    &= \underset{\text{即时回报期望}}{\underbrace{R(s, a)}} + \gamma \underset{\text{下一个状态的值期望}}{\underbrace{\sum_{s'} P(s' | s, a) V^\pi (s')}}
-\end{aligned}
+    \begin{aligned}
+        Q^\pi (s, a) & =
+        \sum_{s'} P(s' | s, a) \left[ R(s, a, s') + \gamma V^\pi (s') \right]                                                                                \\
+                     & = \underset{\text{即时回报期望}}{\underbrace{R(s, a)}} + \gamma \underset{\text{下一个状态的值期望}}{\underbrace{\sum_{s'} P(s' | s, a) V^\pi (s')}}
+    \end{aligned}
 \]
 
 当然我们可以把一个式子带入另一个式子中得到仅关于 $V^\pi (s)$ 或者仅包含 $Q^\pi (s, a)$ 的表达式。例如将 $V^\pi (s)$ 带入 $Q^\pi (s, a)$ 的表达式从而得到
@@ -792,11 +838,11 @@ Q-Learning 做的第一个假设就是：空间是有限的。也就是说，状
 
 在贪心策略下，很容易由 $Q$ 的估计 $\hat Q$ 导出对值函数的估计 $\hat V$\footnote{记号说明：严格来讲应当写作 $V^{\pi^*_{\hat Q}}$，但从视觉上这样上标与下标的嵌套书写会有些混乱。美观起见，此处省略了 $\pi$ 并将其上下标直接标注在 $V$ 上。}：
 \[
-\begin{aligned}
-    \hat V^*_{\hat Q} (s) &= \sum_{a \in A(s)} \pi^*_{\hat Q} (a | s) \hat Q(s, a) \\
-    &= \hat Q(s, a^*), \quad \text{where } a^* = \argmax_{a' \in A(s)} \hat Q(s, a') \\
-    &= \max_{a' \in A(s)} \hat Q(s, a')
-\end{aligned}
+    \begin{aligned}
+        \hat V^*_{\hat Q} (s) & = \sum_{a \in A(s)} \pi^*_{\hat Q} (a | s) \hat Q(s, a)                         \\
+                              & = \hat Q(s, a^*), \quad \text{where } a^* = \argmax_{a' \in A(s)} \hat Q(s, a') \\
+                              & = \max_{a' \in A(s)} \hat Q(s, a')
+    \end{aligned}
 \]
 
 也就是说，在当前状态 $s$ 下，我们评估其价值时，重要的只是当前估计下最有价值的那个动作所带来的期望收益，这与策略的贪心性质保持一致。在理想状态下，对于贪心策略下真正的 $Q$ 值，对于每个 $(s, a)$ 对，它都应当满足前文导出的 Bellman 方程（这里将相同的式子重复写一遍）：
@@ -806,13 +852,13 @@ Q-Learning 做的第一个假设就是：空间是有限的。也就是说，状
 
 在贪心的策略下，作适当的化简便可以得到\footnote{说明：这一方程通常称为 Bellman 最优性方程。}：
 \[
-\begin{aligned}
-    Q^* (s, a) &= R(s, a) + \gamma \sum_{s'} P(s' | s, a) \left[
-        \sum_{a' \in A(s')} \pi^* (a' | s') Q^* (s', a')
-    \right] \\
-    &= R(s, a) + \gamma \sum_{s'} P(s' | s, a) Q^* (s', a^*) \quad \text{where} \; a \in A(s)\\
-    &= R(s, a) + \gamma \sum_{s'} P(s' | s, a) \max_{a' \in A(s')} Q^* (s', a')
-\end{aligned}
+    \begin{aligned}
+        Q^* (s, a) & = R(s, a) + \gamma \sum_{s'} P(s' | s, a) \left[
+            \sum_{a' \in A(s')} \pi^* (a' | s') Q^* (s', a')
+        \right]                                                                                               \\
+                   & = R(s, a) + \gamma \sum_{s'} P(s' | s, a) Q^* (s', a^*) \quad \text{where} \; a \in A(s) \\
+                   & = R(s, a) + \gamma \sum_{s'} P(s' | s, a) \max_{a' \in A(s')} Q^* (s', a')
+    \end{aligned}
 \]
 
 然而对于估计值 $\hat Q$，上述等式通常并不成立，因为它尚未收敛于真正的 $Q^*$，存在一定误差。即实践中
@@ -822,10 +868,10 @@ Q-Learning 做的第一个假设就是：空间是有限的。也就是说，状
 
 总是会有一个误差\footnote{误差：通常称作 Bellman 误差、Q 误差、或者\textoverset{Temporal Difference Error}{时序差分误差}(TD Error)。}，记作 $\delta_{\hat Q} (s, a)$，即\footnote{记号说明：$\text{LHS}$ 表示\textoverset{Left-Hand Side}{等式左侧}，$\text{RHS}$ 表示\textoverset{Right-Hand Side}{等式右侧}。}：
 \[
-\begin{aligned}
-    \delta_{\hat Q} (s, a) &= \text{RHS} - \text{LHS} \\
-    &= \underset{\text{经过单步奖励修正的 $Q$ 值估计}}{\underbrace{R(s, a) + \gamma \sum_{s'} P(s' | s, a) \max_{a' \in A(s')} \hat Q (s', a')}} - \underset{\text{$Q$ 值的直接估计}}{\underbrace{\hat Q (s, a)}}
-\end{aligned}
+    \begin{aligned}
+        \delta_{\hat Q} (s, a) & = \text{RHS} - \text{LHS}                                                                                                                                                                  \\
+                               & = \underset{\text{经过单步奖励修正的 $Q$ 值估计}}{\underbrace{R(s, a) + \gamma \sum_{s'} P(s' | s, a) \max_{a' \in A(s')} \hat Q (s', a')}} - \underset{\text{$Q$ 值的直接估计}}{\underbrace{\hat Q (s, a)}}
+    \end{aligned}
 \]
 
 而我们期待的是让 $\hat Q$ 逐渐收敛到 $Q^*$，因此这个不等号左右两侧的差值 $\delta_{\hat Q} (s, a)$ 也应该逐渐减小。强化学习的核心就是用这一误差 $\delta_{\hat Q} (s, a)$ 作为更新的信号，来修正对 $Q$ 值的估计。很显然地，下标的 $\hat Q$ 表明这一误差依赖于当前的 $Q$ 值估计，因此在估计量 $\hat Q$ 变化时，$\delta_{\hat Q} (s, a)$ 也会随之变化。
@@ -854,17 +900,17 @@ Q-Learning 做的第一个假设就是：空间是有限的。也就是说，状
 
 这个过程可以说充满了随机因素：在每次更新时，$\hat Q$ 的估计会依赖于当前的 $Q$ 值估计，这本身就带有一定的误差；而在每次更新时，$\delta_{\hat Q} (s, a, s', r)$ 不仅依赖于 $(s, a)$ 对，还依赖于采样探索时的下一个状态 $s'$ 和即时奖励 $r$，如果状态转移本身就带有随机性，因而 $s'$ 与 $r$ 本身也会有随机性，$V(s')$ 与 $r$ 本身就有可能波动，而非随着 $(s, a)$ 而唯一确定，这种波动称为\textoverset{Sampling Error}{采样误差}。因此 $\alpha$ 的选择非常重要，如果简单粗暴地令 $\alpha = 1$，那么把式子展开就会得到\footnote{说明：读者不难将 $\alpha$ 带入自行推导出这个式子。不过这么更新是一个错误示范。}
 \[
-    \hat Q^{\text{new}} (s, a) = r + \gamma \max_{a' \in A(s')} \hat Q^{\text{old}} (s', a') 
+    \hat Q^{\text{new}} (s, a) = r + \gamma \max_{a' \in A(s')} \hat Q^{\text{old}} (s', a')
 \]
 
 也就是直接拿修正的 $Q$ 值估计来替换原来的 $Q$ 值估计，但是一旦 $r$ 存在随机性或者探索的路径发生了一些变化，这样的做法就会导致 $Q$ 值的估计在每次更新时都发生剧烈的震荡，而无法收敛。反之如果 $\alpha$ 过小，更新的幅度就会过小，虽然不会发生剧烈的震荡，但是收敛速度会变得很慢。一般来讲，$\alpha$ 的值在 $0.1$ 到 $0.5$ 之间比较合适。这样它既能较快地保证收敛，又能起到一定的滤波作用，避免过大的震荡。这种做法的历史根源向上追溯到经典控制中的\textoverset{Kalman Filter}{卡尔曼滤波器}，通过对当前的估计值和新的观测值进行加权平均来修正对状态的估计，基于增益\footnote{增益：在卡尔曼滤波器中，增益是一个权重因子，用于平衡当前估计和新观测值之间的影响。}来控制更新的幅度。
 
 如果要处理井字棋或者走迷宫这样的简单场景，需要的元素 $(S, A, P, R, \gamma)$ 都很容易定义出来，而 $S$ 与每个状态下的 $A(s)$ 都有限，参数更新的规则又有了，看起来已经可以直接上手了。不过如果真正试一下就会发现一个问题：一旦探索到某条路径上的 $\hat Q > 0$，它可能直接导致在后续的探索中，智能体总是选择这条路径，而忽略了其它可能更好的路径。就像是一个挖矿者，在走了一段路后发现了一个闪亮的宝箱，便急于停止挖掘，错过了藏在更深处的真正的钻石。就像下面这张经典的图一样：
 \begin{figure}[H]
-\centering
-\includegraphics[width=0.6\textwidth]{img/digging_for_diamonds.png}
-\caption{挖掘钻石的人错过了更好的机会}
-{图源：\uhref{https://www.kapwing.com/explore/digging-for-diamonds-never-give-up-meme-template}{Kapwing}}
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/digging_for_diamonds.png}
+    \caption{挖掘钻石的人错过了更好的机会}
+    {图源：\uhref{https://www.kapwing.com/explore/digging-for-diamonds-never-give-up-meme-template}{Kapwing}}
 \end{figure}
 
 这意味着守成不变的贪心策略并不适合于探索未知的环境，路径依赖带来的可能是不思进取。一味地效仿已经被验证过的路径，可能会陷入局部最优解而无法跳出，如果仅仅因为可能的风险而反对变革，便会堵死更好的道路，最终掉进局部最优解里打转的周期之中。为了避免这种情况，需要在探索与利用之间取得平衡，既要利用当前的知识来选择更好的行动，又要适时地探索新的路径。
@@ -896,10 +942,10 @@ Q-Learning 做的第一个假设就是：空间是有限的。也就是说，状
 
 因此对于对 $V$ 的估计 $\hat V$，我们仍然可以定义一个误差 $\delta_{\hat V} (s)$，即
 \[
-\begin{aligned}
-    \delta_{\hat V} (s) &= \text{RHS} - \text{LHS} \\
-    &= \int_{a \in A(s)} \pi(a | s) \left[ R(s, a) + \gamma \int_{s'} P(s' | s, a) V^\pi (s')\mathrm{d}s'\right] \mathrm{d}a - \hat V (s) \\
-\end{aligned}
+    \begin{aligned}
+        \delta_{\hat V} (s) & = \text{RHS} - \text{LHS}                                                                                                            \\
+                            & = \int_{a \in A(s)} \pi(a | s) \left[ R(s, a) + \gamma \int_{s'} P(s' | s, a) V^\pi (s')\mathrm{d}s'\right] \mathrm{d}a - \hat V (s) \\
+    \end{aligned}
 \]
 
 与之前相同的是，我们并不知道 $P$ 和 $R$ 的真实值，因此真实的 $\delta_{\hat V} (s)$ 也无从计算，只能粗糙地用样本上的采样来近似真值，假设有样本 $(s, a, s', r)$，将 $a$ 与 $s'$ 都用单点分布代替，并在样本上化简为：
@@ -931,5 +977,43 @@ Q-Learning 做的第一个假设就是：空间是有限的。也就是说，状
 与通常的深度学习不同的是，这一过程中两个部分的的 loss 函数都并不是单向的信息接受器，而是“有进有出”的。策略引来的新探索将新计算出的偏差注入值的 loss，评论者的更新则从其中“取出”新的信息，并将计算出来的策略改善信息注入策略的 loss。这一过程中 loss 就像一个外卖柜，信息的传入和传出在训练过程中不断发生。loss 大时，可能表明无法收敛，但是有时又表明信息流正在快速运行；而 loss 小的时候，可能表明模型已经收敛，但是有时又表明信息流动缓慢。
 
 放眼如今的强化学习研究界，除了 Q-Learning 之外，基于问题的各种条件与假设强化学习算法也有了各种各样的变种与改进。这一节之内无法一一列举，仅从理念上阐释了最基础的强化学习算法 Q-Learning 的基本思想。在此过程中，一些基础的概念已经基本上介绍完毕，其它的变种只是在某种对环境的假设下做文章，无非是优化方式或目标设置不同。真正掌握核心机制后，面对新方法就无需害怕，而能通过把握环境特征、面向的问题与信息流的方向快速理解其本质。不过我一向认为良好的直觉与理解是学习强化学习的基础，各个方法的细节反倒是可以在需要时再临时查阅的，只是希望读者在阅读完这一节后，能够理解核心概念，清晰地认识强化学习的基本思想。
+
+回顾在本章中讲过的内容，信息非常多，涵盖了深度学习与强化学习中的关键思想与方法。那么在这一章的最后，我们照例来小结如下：
+
+\begin{itemize}
+    \item 最开始，我们从函数拟合引入。学习神经网络基本上需要牢牢记住一个点，它的本质就是为了拟合，从而找到数据的规律。
+    \item 神经网络的基本模型可以概括为一个从输入到输出计算，再通过偏差矫正的循环，不过输入和输出还需要做一些编码与解码处理。
+    \item 神经网络的基本模块是一些矩阵运算与非线性激活函数的组合，一层层叠加起来就可以做到简单的函数无法拟合的复杂函数。
+    \item 激活函数通过引入非线性，给了神经网络强大的表达能力，基本的逻辑函数都能借助激活函数来表示就表明它至少能够完成逻辑运算能够解决的问题。
+    \item 神经网络的训练过程就是通过反向传播算法来计算梯度，进而更新参数，来最小化损失函数，梯度下降算法是常用的优化方法。就像下山一样，梯度帮助函数找到极小值，不过也可能陷入局部极小，学习率与优化器的选取也很重要。
+    \item 梯度下降中反向传播的计算和正向的计算刚好反过来，信息流原本是从输入与参数“汇聚”到输出，反向传播则是从输出“分散”到输入与每一个参数之中，描述了它们的贡献。
+    \item 最后一节中，我们介绍了强化学习的基本思想，虽然强化学习不一定依赖于网络，但是也是机器学习的一个重要组成部分。与神经网络相比，它更注重从环境中获取样本从而得到信息的过程。
+    \item 通常会通过五个要素来建模环境。“我是谁、从哪来、到哪去”可以解释动作空间、状态空间与转移函数，奖励函数是环境的反馈，折扣因子则是对未来奖励的折现，表明未来的奖励更不重要。
+    \item 在环境的基础上，通过 $V$ 或者 $Q$ 可以列出状态或者动作的价值函数，来评估当前的状态或者动作的好坏。并通过 Bellman 方程来递归给出表达式。
+    \item 总的来说强化学习会分为认识环境与策略优化两个部分，前者是通过奖励来学习环境的规律，后者则是通过对环境的认识来优化策略。
+    \item 我们以 Q-Learning 为一个简单的例子，体会了强化学习的基本思想，它的策略非常简单直接，认识环境直接通过记录在 Q 表中，更新时通过对 Q 表的更新来优化策略。Bellman 误差 $\delta$ 描述了 $Q$ 表和预期的差异，并作为指导信息修正 Q 表。
+    \item 除此之外，还需要探索机制与经验回放机制来平衡探索与利用，避免陷入局部最优解，并增加样本的利用率。
+    \item 如果状态空间无限但是动作空间有限，仍然可以使用 Q-Learning 的思想，只不过需要用神经网络来近似 $Q$ 表，更新时通过对 $\delta$ 的平方和进行梯度下降来修正。
+    \item 如果连动作空间也是无限的，那么价值和策略都需要用神经网络来近似，评论者与行动者分别负责对值函数与策略函数的估计与优化。评论者通过对值函数的误差来修正对值函数的估计，行动者则通过对值函数的估计来优化策略。
+    \item 这种二元结构的运作方式是一个循环，获取到的信息会增加对环境的认识（即改进值函数的估计），而对环境的认识又会影响到策略的优化（即改进策略函数的估计），策略的优化进一步引发新的探索，带来新的信息，最终在理想状况下会越学越好。
+    \item 强化学习的研究发展到今天，已经有了许多不同的变种与改进，只需要理解环境特征、它面向的问题和信息流的情况，就可以对比不同的算法来理解它们的本质。
+\end{itemize}
+
+\begin{tcolorbox}[myrecommendbox, title=推荐阅读, breakable=false]
+    \begin{itemize}
+        \item 强化学习其实就是一种控制：\\
+              \textit{为什么自动化所很多做强化学习的课题组？ - 消融ball的回答 - 知乎}\\
+              \url{https://www.zhihu.com/question/647238131/answer/3424550835}
+        \item 于是你或许会有这样的疑问，感觉强化学习好像许多时候不如传统方法？这种想法是对的，但是强化学习本质上是在很弱的前提下（许多时候只能记录状态，行动和奖励）求解问题，详细解释可以看：\\
+              \textit{为什么我总感觉强化学习不是真的人工智能？ - Lemon的回答 - 知乎}\\
+              \url{https://www.zhihu.com/question/542991276/answer/2580779607}
+        \item 不过强化学习很多时候看起来有用的方法实际上很难落地，因此许多时候还应用受限，一些关于它的吐槽可以看回答：\\
+              \textit{为什么说强化学习在近年不会被广泛应用？ - 王源的回答 - 知乎}\\
+              \url{https://www.zhihu.com/question/404471029/answer/1590652261}
+        \item 前面讲了很多直觉上的理解，不过想要深入研究强化学习的读者仅仅从直觉上理解是不够的，更细的探讨可以看《强化学习的数学原理》这份教程：\\
+              \textit{强化学习的数学原理】课程：从零开始到透彻理解（完结） - 西湖大学WindyLab - Bilibili}\\
+              \url{https://www.bilibili.com/video/BV1sd4y167NS}
+    \end{itemize}
+\end{tcolorbox}
 
 \newpage
