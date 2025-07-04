@@ -6,20 +6,19 @@
 == 最简单的规律——简单线性回归
 
 #figure(
-  image("../../img/linear_regression.png", width: 50%),
-  caption: ("简单线性回归\n图源："
-  +underline(link("https://en.wikipedia.org/wiki/Linear_regression")[#text("Wikipedia", fill: blue)]))
+  image("../../img/linear_regression.png", width: 60%),
+  caption: [线性回归示意图 #linebreak() 图源：#link("https://en.wikipedia.org/wiki/Linear_regression")[Wikipedia]]
 )
 
-虽然#textOverSet("线性回归", "Linear Regression")的名字叫做#textOverSet("回归", "Regression")，但是事实上我更喜欢叫做#textOverSet("线性拟合", "Linear Fitting")。它的目的是找到一条直线尽可能“贴近”数据点。在这一基础上，我们可以发现数据之间的规律，从而做出一些预测。不过这里有几个问题：
+虽然#textOverSet("线性回归", "Linear Regression")的名字叫做"#textOverSet("回归", "Regression")"，但是事实上我更喜欢叫做#textOverSet("线性拟合", "Linear Fitting")。它的目的是找到一条直线尽可能"贴近"数据点。在这一基础上，我们可以发现数据之间的规律，从而做出一些预测。不过这里有几个问题：
 
 
 - 为什么要用直线？为什么不用曲线？
 - 为什么要用直线拟合数据点？这有什么用？
-- “贴近”数据点的标准是什么？为什么要选择这个标准？
+- "贴近"数据点的标准是什么？为什么要选择这个标准？
 
 
-我认为用直线的原因无非两点：一是直线 $y = k x+b$ 简单且意义明确，又能处理不少的问题。几何上直线作为基本对象，尺子就能画出；代数上只需要加减乘除，一次函数我们也很早就学过了。而它的思想一路贯穿到了微积分的导数并延申到了线性代数。二是许多曲线的回归可以转为线性回归（见后文）。
+我认为用直线的原因无非两点：一是直线 $y = k x + b$ 简单且意义明确，又能处理不少的问题。几何上直线作为基本对象，尺子就能画出；代数上只需要加减乘除，一次函数我们也很早就学过了。而它的思想一路贯穿到了微积分的导数并延申到了线性代数。二是许多曲线的回归可以转为线性回归（见后文）。
 
 例如指数型的 $y = k upright(e)^(alpha x)$ 取对数变为 $z = alpha x + ln k$，又如分式型的 $y = (alpha x + beta)^(-1)$ 取倒数转化为 $z = alpha x + beta$，从而归结为线性拟合。因此带着线性拟合经验再去考虑曲线会更轻松。
 
@@ -27,5 +26,45 @@
 
 
 #recommend(
-  "推荐阅读", "如果你想"
+  "推荐阅读",
+  [如果你想了解"回归"与"#textOverSet("最小二乘", "Least Squares")"的含义：
+  #link("https://zhuanlan.zhihu.com/p/72513104")[_用人话讲明白线性回归Linear Regression - 化简可得的文章 - 知乎_]
+
+  如果你想阅读从求导法到线性代数方法的详尽公式推理：
+  #link("https://zhuanlan.zhihu.com/p/488128941")[_非常详细的线性回归原理讲解 - 小白Horace的文章 - 知乎_]
+
+  如果你想详细了解了线性回归中的术语、求解过程与几何诠释：
+  #link("https://zhuanlan.zhihu.com/p/139445419")[_机器学习| 算法笔记-线性回归（Linear Regression） - iamwhatiwant的文章 - 知乎_]]
 )
+
+#pagebreak()
+
+== 多项式拟合
+
+#figure(
+  image("../../img/polynomial_fitting.png", width: 60%),
+  caption: [多项式拟合示意图（图为 3 次拟合） #linebreak() 图源：#link("https://www.geeksforgeeks.org/numpys-polyfit-function-a-comprehensive-guide/")[GeeksforGeeks]]
+)
+
+线性拟合虽然很好，但是如果拿到了明显不线性的一堆数据，那么线性拟合就显得有些力不从心了。不过既然都是拟合，能做一次的那按理来讲也能做多次。#textOverSet("多项式拟合", "Polynomial Fitting")就是这样一种思路，只是预测 $hat(y)$ 从 $k x + b$ 变成了 $a_0 + a_1 x + ... + a_m x^m$#footnote[记号说明：虽然习惯上幂次从大到小排列，但是为了下标和幂次的统一性，所以这里选择从常数项到最高次项排列]，其中 $m$ 是多项式的次数。而均方误差的表达式甚至几乎不用变，仍然是
+$ "MSE" = 1/n sum_(i=1)^n (y_i - hat(y))^2 $
+
+只不过展开后是一系列的多项式项，待拟合的参数从两个变成了 $m+1$ 个。但是如果观察一下，这个式子仍然是一个（多变量的）二次函数，所以最小化的方法也是一样的。多项式自有多项式的好，能加的项多了，拟合的灵活性也就大了，误差显然会更小。然而与线性拟合相比，它虽然有#textOverSet("解析解", "Analytical Solution")，但不再像线性拟合一样可以逐项明确说出意义，而是只剩下一堆矩阵运算把这些参数算出来。因此相比于记下公式，形成一个整体上的印象显得尤为重要。
+
+上一小节中，我们从图像看到了这种拟合的几何解释，而多项式拟合也是相似的，还是从 $bold(r)$ 的表达式入手
+$ bold(r) = bold(y) - (a_0 bold(x)^0 + a_1 bold(x)^1 + ... + a_m bold(x)^m) $
+
+对比之前的表达式，当 $a_0, a_1, ..., a_m$ 变化时，预测得到的结果 $hat(bold(y)) = a_0 bold(x)^0 + a_1 bold(x)^1 + ... + a_m bold(x)^m$ 也会在一个 $m + 1$ 维的空间中变化，正如之前的平面，这个空间也是一个 $m + 1$ 维的子空间。求最小模的 $bold(r)$ 又回到了从点到子空间的垂线问题。虽然不得不承认：想象从一个高维的 $n$ 维空间中向 $m+1$ 维的子空间做垂线确实有些困难，但是这多少离我们的几何直觉更近了一些。
+
+系数的意义不那么明确了，但是误差下来了，这是好事吗？也不一定，灵活性的另一面是潜在的#textOverSet("过拟合", "Overfitting")。前文中做线性拟合的时候有一个重要的假设是测量得到数据带有一定的误差。拟合的直线滤去了大部分的误差，留下了重要的趋势。但是如果灵活性太高，拟合的多项式会过于贴合数据，甚至把误差也拟合进去了。即使在给定的数据上做到了很小的误差，预测新数据的能力却可能会大打折扣。
+
+拿做题打个比方：使用直线拟合明显不线性的数据是方法错了，只能说是没完全学会。但是用接近数据量的参数来拟合数据，留给它的空间都够把结果"背下来"了，捕捉到了数据的细节，却忽略了数据背后的规律，化成了一种只知道背答案的自我感动。在几道例题上能做到滴水不漏，但是一遇到新题就束手无策。
+
+举个例子，在下面这个数据集上试图拟合，我们在二次函数 $y = 0.25 x^2 - x + 1$ 上添加了标准正态分布的噪声，即实际上 $y = 0.25 x^2 - x + 1 + cal(N)(0, 1)$ #footnote[$cal(N)(0, 1)$：表示一个服从#link("https://baike.baidu.com/item/%E6%A0%87%E5%87%86%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83")[标准正态分布]的变量，均值为 0，方差为 1]。
+
+#figure(
+  image("../../img/polynomial_fitting.png", width: 60%),
+  caption: [多项式拟合示意图（图为 3 次拟合） #linebreak() 图源：#link("https://www.geeksforgeeks.org/numpys-polyfit-function-a-comprehensive-guide/")[GeeksforGeeks]]
+)
+
+那么现在我们来试试用不同次数的多项式拟合这个数据集。不难看出线性拟合的线与数据点还是相差不少，因为它没能提供可以制造数据"弯曲"形状的项，它没能捕捉到数据更加复杂的趋势，这种现象称为#textOverSet("欠拟合", "Underfitting")。2 次曲线的效果几乎和真实曲线一样，即使提升到 3 次也没有太明显的改变，它们拟合的效果都还算好。
