@@ -7,16 +7,18 @@
 
 #figure(
   image("../../img/linear_regression.png", width: 60%),
-  caption: [线性回归示意图 #linebreak() 图源：#link("https://en.wikipedia.org/wiki/Linear_regression")[Wikipedia]]
+  caption: [线性回归示意图 #linebreak() 图源：#link("https://en.wikipedia.org/wiki/Linear_regression", [Wikipedia])]
 )
 
+#h(2em)
 虽然#textOverSet("线性回归", "Linear Regression")的名字叫做"#textOverSet("回归", "Regression")"，但是事实上我更喜欢叫做#textOverSet("线性拟合", "Linear Fitting")。它的目的是找到一条直线尽可能"贴近"数据点。在这一基础上，我们可以发现数据之间的规律，从而做出一些预测。不过这里有几个问题：
 
-
+#v(1em)
 - 为什么要用直线？为什么不用曲线？
 - 为什么要用直线拟合数据点？这有什么用？
 - "贴近"数据点的标准是什么？为什么要选择这个标准？
 
+#h(2em)
 
 我认为用直线的原因无非两点：一是直线 $y = k x + b$ 简单且意义明确，又能处理不少的问题。几何上直线作为基本对象，尺子就能画出；代数上只需要加减乘除，一次函数我们也很早就学过了。而它的思想一路贯穿到了微积分的导数并延申到了线性代数。二是许多曲线的回归可以转为线性回归（见后文）。
 
@@ -27,14 +29,18 @@
 
 #recommend(
   "推荐阅读",
-  [如果你想了解"回归"与"#textOverSet("最小二乘", "Least Squares")"的含义：
-  #link("https://zhuanlan.zhihu.com/p/72513104")[_用人话讲明白线性回归Linear Regression - 化简可得的文章 - 知乎_]
+  [
+    如果你想了解"回归"与"#textOverSet("最小二乘", "Least Squares")"的含义：
+    #link(
+      "https://zhuanlan.zhihu.com/p/72513104",
+      [用人话讲明白线性回归Linear Regression - 化简可得的文章 - 知乎]
+    )
 
-  如果你想阅读从求导法到线性代数方法的详尽公式推理：
-  #link("https://zhuanlan.zhihu.com/p/488128941")[_非常详细的线性回归原理讲解 - 小白Horace的文章 - 知乎_]
+    如果你想阅读从求导法到线性代数方法的详尽公式推理：
+    #link("https://zhuanlan.zhihu.com/p/488128941", [非常详细的线性回归原理讲解 - 小白Horace的文章 - 知乎])
 
-  如果你想详细了解了线性回归中的术语、求解过程与几何诠释：
-  #link("https://zhuanlan.zhihu.com/p/139445419")[_机器学习| 算法笔记-线性回归（Linear Regression） - iamwhatiwant的文章 - 知乎_]]
+    如果你想详细了解了线性回归中的术语、求解过程与几何诠释：
+    #link("https://zhuanlan.zhihu.com/p/139445419", [机器学习| 算法笔记-线性回归（Linear Regression） - iamwhatiwant的文章 - 知乎])]
 )
 
 #pagebreak()
@@ -43,7 +49,7 @@
 
 #figure(
   image("../../img/polynomial_fitting.png", width: 60%),
-  caption: [多项式拟合示意图（图为 3 次拟合） #linebreak() 图源：#link("https://www.geeksforgeeks.org/numpys-polyfit-function-a-comprehensive-guide/")[GeeksforGeeks]]
+  caption: [多项式拟合示意图（图为 3 次拟合） #linebreak() 图源：#link("https://www.geeksforgeeks.org/numpys-polyfit-function-a-comprehensive-guide/", [GeeksforGeeks])]
 )
 
 线性拟合虽然很好，但是如果拿到了明显不线性的一堆数据，那么线性拟合就显得有些力不从心了。不过既然都是拟合，能做一次的那按理来讲也能做多次。#textOverSet("多项式拟合", "Polynomial Fitting")就是这样一种思路，只是预测 $hat(y)$ 从 $k x + b$ 变成了 $a_0 + a_1 x + ... + a_m x^m$#footnote[记号说明：虽然习惯上幂次从大到小排列，但是为了下标和幂次的统一性，所以这里选择从常数项到最高次项排列]，其中 $m$ 是多项式的次数。而均方误差的表达式甚至几乎不用变，仍然是
@@ -60,11 +66,11 @@ $ bold(r) = bold(y) - (a_0 bold(x)^0 + a_1 bold(x)^1 + ... + a_m bold(x)^m) $
 
 拿做题打个比方：使用直线拟合明显不线性的数据是方法错了，只能说是没完全学会。但是用接近数据量的参数来拟合数据，留给它的空间都够把结果"背下来"了，捕捉到了数据的细节，却忽略了数据背后的规律，化成了一种只知道背答案的自我感动。在几道例题上能做到滴水不漏，但是一遇到新题就束手无策。
 
-举个例子，在下面这个数据集上试图拟合，我们在二次函数 $y = 0.25 x^2 - x + 1$ 上添加了标准正态分布的噪声，即实际上 $y = 0.25 x^2 - x + 1 + cal(N)(0, 1)$ #footnote[$cal(N)(0, 1)$：表示一个服从#link("https://baike.baidu.com/item/%E6%A0%87%E5%87%86%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83")[标准正态分布]的变量，均值为 0，方差为 1]。
+举个例子，在下面这个数据集上试图拟合，我们在二次函数 $y = 0.25 x^2 - x + 1$ 上添加了标准正态分布的噪声，即实际上 $y = 0.25 x^2 - x + 1 + cal(N)(0, 1)$ #footnote[$cal(N)(0, 1)$：表示一个服从#link("https://baike.baidu.com/item/%E6%A0%87%E5%87%86%E6%AD%A3%E6%80%81%E5%88%86%E5%B8%83", [标准正态分布])的变量，均值为 0，方差为 1]。
 
 #figure(
   image("../../img/polynomial_fitting.png", width: 60%),
-  caption: [多项式拟合示意图（图为 3 次拟合） #linebreak() 图源：#link("https://www.geeksforgeeks.org/numpys-polyfit-function-a-comprehensive-guide/")[GeeksforGeeks]]
+  caption: [多项式拟合示意图（图为 3 次拟合） #linebreak() 图源：#link("https://www.geeksforgeeks.org/numpys-polyfit-function-a-comprehensive-guide/", [GeeksforGeeks])]
 )
 
-那么现在我们来试试用不同次数的多项式拟合这个数据集。不难看出线性拟合的线与数据点还是相差不少，因为它没能提供可以制造数据"弯曲"形状的项，它没能捕捉到数据更加复杂的趋势，这种现象称为#textOverSet("欠拟合", "Underfitting")。2 次曲线的效果几乎和真实曲线一样，即使提升到 3 次也没有太明显的改变，它们拟合的效果都还算好。
+#h(2em)那么现在我们来试试用不同次数的多项式拟合这个数据集。不难看出线性拟合的线与数据点还是相差不少，因为它没能提供可以制造数据"弯曲"形状的项，它没能捕捉到数据更加复杂的趋势，这种现象称为#textOverSet("欠拟合", "Underfitting")。2 次曲线的效果几乎和真实曲线一样，即使提升到 3 次也没有太明显的改变，它们拟合的效果都还算好。
