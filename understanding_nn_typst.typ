@@ -23,3 +23,5 @@
 #include "typst/sections/section8.typ"
 #include "typst/sections/section9.typ"
 #include "typst/sections/section10.typ"
+
+// TODO: 许多段首没有缩进。它们紧跟在标题/图片之后。
