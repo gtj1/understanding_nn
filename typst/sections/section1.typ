@@ -13,7 +13,6 @@
 #h(2em)
 虽然#textOverSet("线性回归", "Linear Regression")的名字叫做"#textOverSet("回归", "Regression")"，但是事实上我更喜欢叫做#textOverSet("线性拟合", "Linear Fitting")。它的目的是找到一条直线尽可能"贴近"数据点。在这一基础上，我们可以发现数据之间的规律，从而做出一些预测。不过这里有几个问题：
 
-#v(1em)
 - 为什么要用直线？为什么不用曲线？
 - 为什么要用直线拟合数据点？这有什么用？
 - "贴近"数据点的标准是什么？为什么要选择这个标准？
@@ -28,19 +27,27 @@
 
 
 #recommend(
-  "推荐阅读",
-  [
-    如果你想了解"回归"与"#textOverSet("最小二乘", "Least Squares")"的含义：
-    #link(
-      "https://zhuanlan.zhihu.com/p/72513104",
-      [用人话讲明白线性回归Linear Regression - 化简可得的文章 - 知乎]
-    )
+"推荐阅读",
+[
+如果你想了解"回归"与"#textOverSet("最小二乘", "Least Squares")"的含义：
 
-    如果你想阅读从求导法到线性代数方法的详尽公式推理：
-    #link("https://zhuanlan.zhihu.com/p/488128941", [非常详细的线性回归原理讲解 - 小白Horace的文章 - 知乎])
+#h2 `用人话讲明白线性回归Linear Regression - 化简可得的文章 - 知乎`
 
-    如果你想详细了解了线性回归中的术语、求解过程与几何诠释：
-    #link("https://zhuanlan.zhihu.com/p/139445419", [机器学习| 算法笔记-线性回归（Linear Regression） - iamwhatiwant的文章 - 知乎])]
+#h2 #link("https://zhuanlan.zhihu.com/p/72513104")
+
+
+如果你想阅读从求导法到线性代数方法的详尽公式推理：
+
+#h2 `非常详细的线性回归原理讲解 - 小白Horace的文章 - 知乎`
+
+#h2 #link("https://zhuanlan.zhihu.com/p/488128941")
+
+如果你想详细了解了线性回归中的术语、求解过程与几何诠释：
+
+#h2 `机器学习| 算法笔记-线性回归（Linear Regression） - iamwhatiwant的文章 - 知乎`
+
+#h2 #link("https://zhuanlan.zhihu.com/p/139445419")
+]
 )
 
 #pagebreak()
@@ -52,7 +59,7 @@
   caption: [多项式拟合示意图（图为 3 次拟合） #linebreak() 图源：#link("https://www.geeksforgeeks.org/numpys-polyfit-function-a-comprehensive-guide/", [GeeksforGeeks])]
 )
 
-线性拟合虽然很好，但是如果拿到了明显不线性的一堆数据，那么线性拟合就显得有些力不从心了。不过既然都是拟合，能做一次的那按理来讲也能做多次。#textOverSet("多项式拟合", "Polynomial Fitting")就是这样一种思路，只是预测 $hat(y)$ 从 $k x + b$ 变成了 $a_0 + a_1 x + ... + a_m x^m$#footnote[记号说明：虽然习惯上幂次从大到小排列，但是为了下标和幂次的统一性，所以这里选择从常数项到最高次项排列]，其中 $m$ 是多项式的次数。而均方误差的表达式甚至几乎不用变，仍然是
+#h(2em)线性拟合虽然很好，但是如果拿到了明显不线性的一堆数据，那么线性拟合就显得有些力不从心了。不过既然都是拟合，能做一次的那按理来讲也能做多次。#textOverSet("多项式拟合", "Polynomial Fitting")就是这样一种思路，只是预测 $hat(y)$ 从 $k x + b$ 变成了 $a_0 + a_1 x + ... + a_m x^m$#footnote[记号说明：虽然习惯上幂次从大到小排列，但是为了下标和幂次的统一性，所以这里选择从常数项到最高次项排列]，其中 $m$ 是多项式的次数。而均方误差的表达式甚至几乎不用变，仍然是
 $ "MSE" = 1/n sum_(i=1)^n (y_i - hat(y))^2 $
 
 只不过展开后是一系列的多项式项，待拟合的参数从两个变成了 $m+1$ 个。但是如果观察一下，这个式子仍然是一个（多变量的）二次函数，所以最小化的方法也是一样的。多项式自有多项式的好，能加的项多了，拟合的灵活性也就大了，误差显然会更小。然而与线性拟合相比，它虽然有#textOverSet("解析解", "Analytical Solution")，但不再像线性拟合一样可以逐项明确说出意义，而是只剩下一堆矩阵运算把这些参数算出来。因此相比于记下公式，形成一个整体上的印象显得尤为重要。
