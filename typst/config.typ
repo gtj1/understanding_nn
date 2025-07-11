@@ -6,15 +6,19 @@
     date: auto,
   )
 
+  // 标题：编号
   set heading(numbering: "1.1.1")
 
+  // 段落：两端对齐，段首缩进2em，行间距1.2em
   set par(justify: true, first-line-indent: 2em, leading: 1.2em)  // 段首缩进2em, 行间距1.2em
 
+  // 正文：Times New Roman，NSimSun
   set text(font: (
     "Times New Roman",  // 西文字体
     "NSimSun" // 中文字体
   ), lang: "zh", size: 12pt)  // 字体设置
 
+  // 代码：Consolas，SimHei
   show raw: set text(font: ("Consolas", "SimHei"))
   
   show raw.where(block: true): block.with(
@@ -25,13 +29,17 @@
     stroke: luma(200),  // 边框颜色
   )
 
+  // 链接：下划线，蓝色
   show link: underline
-  show link: set text(fill: blue)  // 所有链接设置为蓝色
+  show link: set text(fill: blue) 
 
-  show figure: set block(inset: (top: 0.5em, bottom: 0.5em))  // figure上下间距
+  // 引用：蓝色
+  show ref: set text(fill: blue)
 
+  // 列表：缩进2em
   set list(indent: 2em)
 
+  // 枚举：缩进2em
   set enum(indent: 2em)
 
 
