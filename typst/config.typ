@@ -25,6 +25,7 @@
     stroke: luma(200),  // 边框颜色
   )
 
+  show link: underline
   show link: set text(fill: blue)  // 所有链接设置为蓝色
 
   show figure: set block(inset: (top: 0.5em, bottom: 0.5em))  // figure上下间距
@@ -48,7 +49,7 @@
   let Title = text(font:("SimHei"), weight: "bold", size: 1.2em, fill: blue)[#Title]
   let Text = text(font:("Times New Roman", "SimSun"))[#Text]
   
-  show raw: set text(font:("SimKai", "Times New Roman"), style: "italic", size: 10pt)
+  show raw: set text(font:("SimHei", "Times New Roman"), style: "italic", size: 10pt)
   show link: set text(size: 10pt)
   
   block(
@@ -60,7 +61,8 @@
     
     par(first-line-indent: 0em, {
       Title
-      v(1em)
+      // v(1em)
+      " "
       // line(length: 100%)  //TODO: 怎么分割？
       Text
     })

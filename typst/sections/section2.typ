@@ -95,18 +95,13 @@ $ c_n = (x times y) + (c times (x plus.circle y)) $
 
 #recommend(
   "推荐阅读",
-[
-如果你是 Minecraft 玩家或许见过使用红石电路制作的计算机，背后的原理可阅读：
-
-#h2 `计算器计算出「1+1=2」的整个计算过程是怎样的？为什么能秒算？ - WonderL的回答 - 知乎`
-
-#h2 #link("https://www.zhihu.com/question/29432827/answer/150408732")
-
-如果你有一些数字电路的基础，并想了解逻辑门是如何组合的，可以阅读：
-
-#h2 `计算器计算出「1+1=2」的整个计算过程是怎样的？为什么能秒算？ - Pulsar的回答 - 知乎`
-
-#h2 #link("https://www.zhihu.com/question/29432827/answer/150337041")
+[\
+如果你是 Minecraft 玩家或许见过使用红石电路制作的计算机，背后的原理可阅读：\
+#h2 `计算器计算出「1+1=2」的整个计算过程是怎样的？为什么能秒算？ - WonderL的回答 - 知乎`\
+#h2 #link("https://www.zhihu.com/question/29432827/answer/150408732")\
+如果你有一些数字电路的基础，并想了解逻辑门是如何组合的，可以阅读：\
+#h2 `计算器计算出「1+1=2」的整个计算过程是怎样的？为什么能秒算？ - Pulsar的回答 - 知乎`\
+#h2 #link("https://www.zhihu.com/question/29432827/answer/150337041")\
 ]
 )
 
@@ -225,12 +220,10 @@ mov 10, r0  ; 将 0 号寄存器的值存入 10 号内存
 
 #recommend(
   "推荐阅读",
-  [
-如果你想了解更多关于计算机如何执行程序的细节，推荐阅读：
-
-#h2 `CSAPP 视频合集`
-
-#h2 #link("https://www.bilibili.com/video/BV1Lp4y167im")
+  [\
+如果你想了解更多关于计算机如何执行程序的细节，推荐阅读：\
+#h2 `CSAPP 视频合集`\
+#h2 #link("https://www.bilibili.com/video/BV1Lp4y167im")\
 ]
 )
 
@@ -296,17 +289,12 @@ mov 10, r0  ; 将 0 号寄存器的值存入 10 号内存
 
 #recommend(
   "推荐阅读",
-  [
-如果你想深入了解计算机中的数据表示：
-
-  #h2 `IEEE 754 浮点数标准详解`
-  
-  #h2 #link("https://www.ruanyifeng.com/blog/2010/06/ieee_floating-point_representation.html")
-
-如果你想了解更多关于字符编码：
-
-  #h2 `字符编码必知必会`
-
+  [\
+如果你想深入了解计算机中的数据表示：\
+  #h2 `IEEE 754 浮点数标准详解`\
+  #h2 #link("https://www.ruanyifeng.com/blog/2010/06/ieee_floating-point_representation.html")\
+如果你想了解更多关于字符编码：\
+  #h2 `字符编码必知必会`\
   #h2 #link("https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/")
 ]
 )

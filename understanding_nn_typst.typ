@@ -10,7 +10,7 @@
 
 #outline(
   title: "目录",
-  indent: true
+  indent: auto
 )
 
 #include "typst/sections/section1.typ"
