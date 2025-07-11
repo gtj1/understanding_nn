@@ -50,7 +50,12 @@
   // 表格：居中
   show table: set align(center)
 
-  // #show figure.where(kind: "table"): figure.with(supplement: [表])  // TODO:自动将表格的补充信息设置为表
+  // 公式：矩阵分隔符默认为中括号
+  set math.mat(delim: "[")
+
+  // TODO: figure离后续文段太近了。如何调整？
+  // // 块：间距2em
+  // set block(spacing: 2em)
 
   // Then return the document
   doc

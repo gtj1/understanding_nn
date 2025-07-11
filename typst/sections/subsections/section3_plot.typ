@@ -1,7 +1,8 @@
 #import "@preview/cetz:0.4.0"
 
 #let nn_elements = {
-  figure(placement: auto, caption: "神经网络的五个要素及其关系", gap: 1.5em,
+
+    figure(placement: none, caption: "神经网络的五个要素及其关系", gap: 1.5em,
     cetz.canvas({
         import cetz.draw: *;
         // 设置默认样式
@@ -59,6 +60,65 @@
         // bigbox
 
         rect((2.5, -1.25), (13.5, 3.5), stroke: (dash: "dashed"))
+      })
+      )
+}
+
+#let relu_plot = {
+  figure(placement: none, caption: "ReLU 函数图像", gap: 1.5em,
+    cetz.canvas({
+        import cetz.draw: *;
+
+        line((-2, 0), (2, 0), name: "x-axis", mark: (end: "straight"));
+        line((0, -1), (0, 2), name: "y-axis", mark: (end: "straight"));
+
+        content((rel: (0, -.25), to:"x-axis.end") , $x$)
+        content((rel: (-.25, 0), to:"y-axis.end") , $y$)
+
+        line((-2, 0), (0, 0), stroke: (paint: blue, thickness: 2pt));
+        line((0, 0), (2, 2), stroke: (paint: blue, thickness: 2pt));
+
+      })
+    )
+}
+
+#let nn_abs = {
+  figure(placement: none, caption: $"神经网络表示" |x| "的结构"$, gap: 1.5em,
+    cetz.canvas({
+        import cetz.draw: *;
+
+        set-style(circle: (radius: 0.55, fill: white));
+        circle((-3, 0), name: "c1", );
+        circle((0, 1.5), name: "c2");
+        circle((0, -1.5), name: "c3");
+        circle((3, 0), name: "c4");
+
+        content("c1", $x$);
+        content("c2", $x_1^((1))$);
+        content("c3", $x_2^((1))$);
+        content("c4", $|x|$);
+
+        set-style(line: (mark: (end: "straight")));
+        line(("c1"), ("c2"), stroke: (paint: red), name: "l1");
+        line(("c1"), ("c3"), stroke: (paint: blue), name: "l2");
+        line(("c2"), ("c4"), stroke: (paint: red), name: "l3");
+        line(("c3"), ("c4"), stroke: (paint: red), name: "l4");
+
+        content((rel: (-0.25, 0.25), to: "l1"), text(red)[$1$], fill: red, color: red);
+        content((rel: (-0.25, -0.25), to: "l2"), text(blue)[$-1$], fill: blue, color: blue);
+        content((rel: (0.25, 0.25), to: "l3"), text(red)[$1$], fill: red, color: red);
+        content((rel: (0.25, -0.25), to: "l4"), text(red)[$1$], fill: red, color: red);
+
+        content((rel: (0, 1), to: "c2"), text(silver)[$+0$]);
+        content((rel: (0, 1), to: "c3"), text(silver)[$+0$]);
+        content((rel: (0, 1), to: "c4"), text(silver)[$+0$]);
+
+        content((rel: (0, -1), to: "c2"), "ReLU");
+        content((rel: (0, -1), to: "c3"), "ReLU");
+
+        rect((-1, -3), (1, 3), stroke: (dash: "dashed"), name: "box");
+        content((rel: (0, 0.5), to: "box.north"), "中间层");
+
       })
     )
 }
