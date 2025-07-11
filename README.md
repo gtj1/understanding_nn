@@ -12,4 +12,4 @@
 
 这个系列的风格大致如下：
 
-![](img\pdf_example_preview.png)
+![](img/pdf_example_preview.png)
