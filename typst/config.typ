@@ -50,6 +50,7 @@
   // 表格：居中
   show table: set align(center)
 
+  // #show figure.where(kind: "table"): figure.with(supplement: [表])  // TODO:自动将表格的补充信息设置为表
 
   // Then return the document
   doc
@@ -85,5 +86,6 @@
   )
 }
 
+// 快速调整空间，用于排版
 #let v1 = v(1em)
 #let h2 = h(2em)
