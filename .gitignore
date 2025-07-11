@@ -8,3 +8,5 @@
 *(busy)
 _minted-*
 .vscode
+
+typst/test.typ

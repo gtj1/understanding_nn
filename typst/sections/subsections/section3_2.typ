@@ -127,7 +127,7 @@ $ "Leaky ReLU"(x) = cases(
 
 #recommend(
   "相关阅读",
-  [\
+  [
     文中为了简单起见，只是简单介绍了 ReLU 激活函数，关于更多激活函数的定义与性质可以看这篇笔记：\
     #h2 `深度学习随笔——激活函数(Sigmoid、Tanh、ReLU、Leaky ReLU、PReLU、RReLU、ELU、SELU、Maxout、Softmax、Swish、Softplus) - Lu1zero9的文章 - 知乎`\
     #h2 #link("https://zhuanlan.zhihu.com/p/585276457")\

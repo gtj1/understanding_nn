@@ -28,7 +28,7 @@
 
 #recommend(
 "推荐阅读",
-[\
+[
 如果你想了解"回归"与"#textOverSet("最小二乘", "Least Squares")"的含义：\
 #h2 `用人话讲明白线性回归Linear Regression - 化简可得的文章 - 知乎`\
 #h2 #link("https://zhuanlan.zhihu.com/p/72513104")\

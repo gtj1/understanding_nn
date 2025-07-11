@@ -18,6 +18,8 @@
     "NSimSun" // 中文字体
   ), lang: "zh", size: 12pt)  // 字体设置
 
+  show strong: set text(font: ("SimHei"), weight: "bold")
+
   // 代码：Consolas，SimHei
   show raw: set text(font: ("Consolas", "SimHei"))
   
@@ -36,11 +38,17 @@
   // 引用：蓝色
   show ref: set text(fill: blue)
 
+  // 脚注：红色
+  show footnote: set text(fill: red)
+
   // 列表：缩进2em
   set list(indent: 2em)
 
   // 枚举：缩进2em
   set enum(indent: 2em)
+
+  // 表格：居中
+  show table: set align(center)
 
 
   // Then return the document
@@ -65,13 +73,12 @@
     inset: 8pt,
     radius: 4pt,
     width: 100%,
+    stroke: luma(200),
 
     
     par(first-line-indent: 0em, {
       Title
-      // v(1em)
-      " "
-      // line(length: 100%)  //TODO: 怎么分割？
+      linebreak()
       Text
     })
     
