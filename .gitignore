@@ -10,3 +10,4 @@ _minted-*
 .vscode
 
 typst/test.typ
+CLAUDE.md
