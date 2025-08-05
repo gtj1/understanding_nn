@@ -198,10 +198,398 @@
   )
 }
 
+#let matrix_interpretations = {
+  figure(placement: none, caption: "矩阵运算的直观理解", gap: 1.5em,
+    canvas({
+      import draw: *;
+      
+      let element_size = 0.35
+      
+      // 绘制坐标轴
+      line((-5, 0), (5, 0), mark: (symbol: "straight"), name: "x-axis")
+      line((0, -5), (0, 5), mark: (symbol: "straight"), name: "y-axis")
+      
+      // 坐标轴标签
+      content((5, 0.5), "把行视作整体")
+      content((-5, 0.5), "纵向切开")
+      content((0, 5.5), "把列视作整体")
+      content((0, -5.5), "横向切开")
+      
+      // 绘制黄色的原始矩阵区域（左下角）
+      for x in range(-4, 0) {
+        for y in range(-4, 0) {
+          rect((x - element_size, y - element_size), 
+               (x + element_size, y + element_size), 
+               fill: yellow, stroke: none)
+        }
+      }
+      
+      // 绘制绿色的行区域（右上角）
+      for x in range(-4, 0) {
+        rect((x - element_size, 1 - element_size), 
+             (x + element_size, 4 + element_size), 
+             fill: rgb(0, 255, 0, 127), stroke: none)  // 半透明绿色
+      }
+      
+      // 绘制红色的列区域（右下角）
+      for y in range(-4, 0) {
+        rect((1 - element_size, y - element_size), 
+             (4 + element_size, y + element_size), 
+             fill: rgb(255, 0, 0, 102), stroke: none)  // 半透明红色
+      }
+      
+      // 绘制灰色的结果区域（右上角）
+      rect((1 - element_size, 1 - element_size), 
+           (4 + element_size, 4 + element_size), 
+           fill: rgb(128, 128, 128, 127), stroke: none)  // 半透明灰色
+      
+      // 添加文本标签
+      content((2.5, 2.5), text(size: 14pt, $f: bb(R)^n -> bb(R)^m$))
+      content((2.5, -2.5), text(size: 12pt, align(center)[用点积探测\ 输入的特征]))
+      content((-2.5, 2.5), text(size: 12pt, align(center)[线性组合\ 得到输出]))
+      content((-2.5, -2.5), text(size: 12pt, align(center)[输入每一项对\ 输出每一项的权重]))
+    })
+  )
+}
+#matrix_interpretations
 
-// #data_and_noise
-// #fitting_3
-// #fitting_10
-// #fitting_10_large
-// #fitting_10_normalized
+#let matrix_row_view = {
+  figure(placement: none, caption: "矩阵的行视角", gap: 1.5em,
+    canvas({
+      import draw: *;
+      
+      let element_size = 0.7
+      
+      // 绘制红色的行矩形
+      for y in range(0, 4) {
+        rect((-1.5 - element_size/2, y - element_size/2), 
+             (1.5 + element_size/2, y + element_size/2), 
+             fill: rgb(255, 0, 0, 102), stroke: none)  // 半透明红色
+      }
+      
+      // 添加行标签
+      content((0, 3), $a_1$)
+      content((0, 2), $a_2$)
+      content((0, 1), $dots.v$)
+      content((0, 0), $a_m$)
+    })
+  )
+}
 
+#let matrix_column_view = {
+  figure(placement: none, caption: "矩阵的列视角", gap: 1.5em,
+    canvas({
+      import draw: *;
+      
+      let element_size = 0.7
+      
+      // 绘制绿色的列矩形
+      for x in range(0, 4) {
+        rect((x - element_size/2, -1.5 - element_size/2), 
+             (x + element_size/2, 1.5 + element_size/2), 
+             fill: rgb(0, 255, 0, 127), stroke: none)  // 半透明绿色
+      }
+      
+      // 添加列标签
+      content((0, 0), $a_(:1)$)
+      content((1, 0), $a_(:2)$)
+      content((2, 0), $dots$)
+      content((3, 0), $a_(:n)$)
+    })
+  )
+}
+
+#let matrix_element_view = {
+  figure(placement: none, caption: "矩阵的元素视角", gap: 1.5em,
+    canvas({
+      import draw: *;
+      
+      let element_size = 0.7
+      
+      // 绘制黄色的矩阵网格
+      for x in range(0, 4) {
+        for y in range(0, 4) {
+          rect((x - element_size/2, y - element_size/2), 
+               (x + element_size/2, y + element_size/2), 
+               fill: yellow, stroke: none)
+        }
+      }
+      
+      // 添加元素标签
+      content((0, 3), $a_(11)$)
+      content((1, 3), $a_(12)$)
+      content((2, 3), $dots$)
+      content((3, 3), $a_(1n)$)
+      content((0, 2), $a_(21)$)
+      content((1, 2), $a_(22)$)
+      content((2, 2), $dots$)
+      content((3, 2), $a_(2n)$)
+      content((0, 1), $dots.v$)
+      content((1, 1), $dots.v$)
+      content((2, 1), $dots.down$)
+      content((3, 1), $dots.v$)
+      content((0, 0), $a_(m 1)$)
+      content((1, 0), $a_(m 2)$)
+      content((2, 0), $dots$)
+      content((3, 0), $a_(m n)$)
+    })
+  )
+}
+
+#let matrix_address_line_view = {
+  figure(placement: none, caption: "矩阵乘法的地址线视角", gap: 1.5em,
+    canvas({
+      import draw: *;
+      
+      let element_size = 0.7
+      let spacing = 1.4  // 增加间距
+      
+      // 绘制黄色的矩阵网格
+      for x in range(0, 4) {
+        for y in range(0, 4) {
+          rect((x * spacing - element_size/2, y * spacing - element_size/2), 
+               (x * spacing + element_size/2, y * spacing + element_size/2), 
+               fill: yellow, stroke: none)
+        }
+      }
+      
+      // 绘制绿色的列地址线（从输入到矩阵的列）
+      for x in range(0, 4) {
+        line((x * spacing - 0.3, 4.5 * spacing), (x * spacing - 0.7, 4.5 * spacing), stroke: rgb(0, 128, 0))
+        line((x * spacing - 0.7, 4.5 * spacing), (x * spacing - 0.7, 0), stroke: rgb(0, 128, 0))
+        for y in range(0, 4) {
+          line((x * spacing - 0.7, y * spacing), (x * spacing - element_size/2, y * spacing), 
+               mark: (end: "straight"), stroke: rgb(0, 128, 0))
+        }
+      }
+      
+      // 绘制红色的行地址线（从矩阵行到输出）
+      for y in range(0, 4) {
+        line((0, y * spacing + 0.7), (4.5 * spacing, y * spacing + 0.7), stroke: rgb(255, 0, 0))
+        line((4.5 * spacing, y * spacing + 0.7), (4.5 * spacing, y * spacing + 0.3), 
+             mark: (end: "straight"), stroke: rgb(255, 0, 0))
+        for x in range(0, 4) {
+          line((x * spacing, y * spacing + element_size/2), (x * spacing, y * spacing + 0.7), 
+               mark: (end: "straight"), stroke: rgb(255, 0, 0))
+        }
+      }
+      
+      // 添加矩阵元素标签
+      content((0 * spacing, 3 * spacing), $a_(11)$)
+      content((1 * spacing, 3 * spacing), $a_(12)$)
+      content((2 * spacing, 3 * spacing), $dots$)
+      content((3 * spacing, 3 * spacing), $a_(1n)$)
+      content((0 * spacing, 2 * spacing), $a_(21)$)
+      content((1 * spacing, 2 * spacing), $a_(22)$)
+      content((2 * spacing, 2 * spacing), $dots$)
+      content((3 * spacing, 2 * spacing), $a_(2n)$)
+      content((0 * spacing, 1 * spacing), $dots.v$)
+      content((1 * spacing, 1 * spacing), $dots.v$)
+      content((2 * spacing, 1 * spacing), $dots.down$)
+      content((3 * spacing, 1 * spacing), $dots.v$)
+      content((0 * spacing, 0 * spacing), $a_(m 1)$)
+      content((1 * spacing, 0 * spacing), $a_(m 2)$)
+      content((2 * spacing, 0 * spacing), $dots$)
+      content((3 * spacing, 0 * spacing), $a_(m n)$)
+      
+      // 添加输入标签
+      content((0 * spacing, 4.5 * spacing), $x_1$)
+      content((1 * spacing, 4.5 * spacing), $x_2$)
+      content((2 * spacing, 4.5 * spacing), $dots$)
+      content((3 * spacing, 4.5 * spacing), $x_n$)
+      
+      // 添加输出标签
+      content((4.5 * spacing, 3 * spacing), $y_1$)
+      content((4.5 * spacing, 2 * spacing), $y_2$)
+      content((4.5 * spacing, 1 * spacing), $dots.v$)
+      content((4.5 * spacing, 0 * spacing), $y_m$)
+    })
+  )
+}
+
+#let linear_layer_view = {
+  figure(placement: none, caption: "线性层连接图", gap: 1.5em,
+    canvas({
+      import draw: *;
+      
+      let element_radius = 0.3
+      
+      // 绘制连接线（黄色）
+      for x in range(0, 4) {
+        for y in range(0, 4) {
+          line((0, x), (5, y), stroke: yellow)
+        }
+      }
+      
+      // 绘制输入节点（绿色）
+      for x in range(0, 4) {
+        circle((0, x), radius: element_radius, fill: rgb(0, 255, 0, 127), stroke: none)
+      }
+      
+      // 绘制输出节点（红色）
+      for y in range(0, 4) {
+        circle((5, y), radius: element_radius, fill: rgb(255, 0, 0, 127), stroke: none)
+      }
+      
+      // 添加输入标签
+      content((0, 3), $x_1$)
+      content((0, 2), $x_2$)
+      content((0, 1), $dots.v$)
+      content((0, 0), $x_n$)
+      
+      // 添加输出标签
+      content((5, 3), $y_1$)
+      content((5, 2), $y_2$)
+      content((5, 1), $dots.v$)
+      content((5, 0), $y_m$)
+      
+      // 添加权重标签
+      content((2.5, 3.2), text(size: 8pt, $a_(11)$))
+      content((2.5, 1.5), text(size: 8pt, $dots.v$))
+      content((2.5, -0.2), text(size: 8pt, $a_(m n)$))
+    })
+  )
+}
+
+#let multivariate_fitting_matrix_view = {
+  figure(placement: none, caption: "多元拟合的矩阵表示（行视角）", gap: 1.5em,
+    canvas({
+      import draw: *;
+      
+      let element_size = 0.7
+      
+      // 绘制输出向量 hat(y)（灰色）
+      rect((-2 - element_size/2, -element_size/2), (-2 + element_size/2, 3 + element_size/2), 
+           fill: rgb(128, 128, 128, 127), stroke: none)
+      content((-2, 1.5), $hat(bold(upright(y)))$)
+      
+      // 绘制向量边框
+      line((-2 - element_size/2, -0.5), (-2.5, -0.5))
+      line((-2.5, -0.5), (-2.5, 3.5))
+      line((-2.5, 3.5), (-2 - element_size/2, 3.5))
+      line((-2 + element_size/2, -0.5), (-1.5, -0.5))
+      line((-1.5, -0.5), (-1.5, 3.5))
+      line((-1.5, 3.5), (-2 + element_size/2, 3.5))
+      
+      // 等号
+      content((-1, 1.5), $=$)
+      
+      // 绘制数据矩阵 X（红色行）
+      for y in range(0, 4) {
+        rect((0 - element_size/2, y - element_size/2), (2 + element_size/2, y + element_size/2), 
+             fill: rgb(255, 0, 0, 102), stroke: none)
+      }
+      content((1, 3), $bold(upright(x))_1$)
+      content((1, 2), $bold(upright(x))_2$)
+      content((1, 1), $dots.v$)
+      content((1, 0), $bold(upright(x))_n$)
+      
+      // 绘制常数列（绿色）
+      rect((3 - element_size/2, -element_size/2), (3 + element_size/2, 3 + element_size/2), 
+           fill: rgb(0, 255, 0, 127), stroke: none)
+      content((3, 1.5), $1$)
+      
+      // 绘制矩阵边框
+      line((-element_size/2, -0.5), (-0.5, -0.5))
+      line((-0.5, -0.5), (-0.5, 3.5))
+      line((-0.5, 3.5), (-element_size/2, 3.5))
+      line((3 + element_size/2, -0.5), (3.5, -0.5))
+      line((3.5, -0.5), (3.5, 3.5))
+      line((3.5, 3.5), (3 + element_size/2, 3.5))
+      
+      // 绘制权重向量（红色和绿色）
+      rect((5 - element_size/2, 1 - element_size/2), (5 + element_size/2, 3 + element_size/2), 
+           fill: rgb(255, 0, 0, 102), stroke: none)
+      rect((5 - element_size/2, -element_size/2), (5 + element_size/2, 0 + element_size/2), 
+           fill: rgb(0, 255, 0, 127), stroke: none)
+      
+      content((5, 2), $w$)
+      content((5, 0), $b$)
+      
+      // 小圆点表示乘法
+      circle((4, 1.5), radius: 0.05, fill: black, stroke: none)
+      
+      // 绘制权重向量边框
+      line((5 - element_size/2, -0.5), (4.5, -0.5))
+      line((4.5, -0.5), (4.5, 3.5))
+      line((4.5, 3.5), (5 - element_size/2, 3.5))
+      line((5 + element_size/2, -0.5), (5.5, -0.5))
+      line((5.5, -0.5), (5.5, 3.5))
+      line((5.5, 3.5), (5 + element_size/2, 3.5))
+    })
+  )
+}
+
+#let multivariate_fitting_column_view = {
+  figure(placement: none, caption: "多元拟合的矩阵表示（列视角）", gap: 1.5em,
+    canvas({
+      import draw: *;
+      
+      let element_size = 0.7
+      
+      // 绘制输出向量 hat(y)（灰色）
+      rect((-2 - element_size/2, -element_size/2), (-2 + element_size/2, 3 + element_size/2), 
+           fill: rgb(128, 128, 128, 127), stroke: none)
+      content((-2, 1.5), $hat(bold(upright(y)))$)
+      
+      // 绘制向量边框
+      line((-2 - element_size/2, -0.5), (-2.5, -0.5))
+      line((-2.5, -0.5), (-2.5, 3.5))
+      line((-2.5, 3.5), (-2 - element_size/2, 3.5))
+      line((-2 + element_size/2, -0.5), (-1.5, -0.5))
+      line((-1.5, -0.5), (-1.5, 3.5))
+      line((-1.5, 3.5), (-2 + element_size/2, 3.5))
+      
+      // 等号
+      content((-1, 1.5), $=$)
+      
+      // 绘制特征列（绿色）
+      for x in range(0, 3) {
+        rect((x - element_size/2, 0 - element_size/2), (x + element_size/2, 3 + element_size/2), 
+             fill: rgb(0, 255, 0, 127), stroke: none)
+      }
+      content((0, 1.5), $bold(upright(x))_(:1)$)
+      content((1, 1.5), $dots$)
+      content((2, 1.5), $bold(upright(x))_(:d)$)
+      
+      // 绘制常数列（绿色）
+      rect((3 - element_size/2, -element_size/2), (3 + element_size/2, 3 + element_size/2), 
+           fill: rgb(0, 255, 0, 127), stroke: none)
+      content((3, 1.5), $1$)
+      
+      // 绘制矩阵边框
+      line((-element_size/2, -0.5), (-0.5, -0.5))
+      line((-0.5, -0.5), (-0.5, 3.5))
+      line((-0.5, 3.5), (-element_size/2, 3.5))
+      line((3 + element_size/2, -0.5), (3.5, -0.5))
+      line((3.5, -0.5), (3.5, 3.5))
+      line((3.5, 3.5), (3 + element_size/2, 3.5))
+      
+      // 绘制权重向量（黄色）
+      for y in range(0, 4) {
+        rect((5 - element_size/2, y - element_size/2), (5 + element_size/2, y + element_size/2), 
+             fill: yellow, stroke: none)
+      }
+      content((5, 3), $w_1$)
+      content((5, 2), $dots.v$)
+      content((5, 1), $w_d$)
+      content((5, 0), $b$)
+      
+      // 小圆点表示乘法
+      circle((4, 1.5), radius: 0.05, fill: black, stroke: none)
+      
+      // 绘制权重向量边框
+      line((5 - element_size/2, -0.5), (4.5, -0.5))
+      line((4.5, -0.5), (4.5, 3.5))
+      line((4.5, 3.5), (5 - element_size/2, 3.5))
+      line((5 + element_size/2, -0.5), (5.5, -0.5))
+      line((5.5, -0.5), (5.5, 3.5))
+      line((5.5, 3.5), (5 + element_size/2, 3.5))
+    })
+  )
+}
+
+// #matrix_address_line_view
+// #linear_layer_view
+#multivariate_fitting_matrix_view
+#multivariate_fitting_column_view
