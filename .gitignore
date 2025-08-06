@@ -8,6 +8,7 @@
 *(busy)
 _minted-*
 .vscode
+data/
 
 typst/test.typ
 CLAUDE.md
