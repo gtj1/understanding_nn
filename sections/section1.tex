@@ -639,7 +639,7 @@
     \end{tikzpicture}
 \end{figure}
 
-矩阵究竟是什么，我们的大学教了很多年，也没有完全搞清楚。从数学的角度看，可能\uhref{https://linear.axler.net/LADR4e.pdf}{Linear Algebra Done Right}的思路比较好，搞了个向量空间起手，全程以\textoverset{Map}{映射}的逻辑贯穿。但是在国内，大部分教材一上来前两章就是讲行列式的计算，教学内容逐渐搞僵化了。
+矩阵究竟是什么，我们的大学教了很多年，也没有完全搞清楚。从数学的角度看，可能\uhref{https://linear.axler.net/LADR4e.pdf}{Linear Algebra Done Right}的思路比较好，搞了个向量空间起手，全程以\textoverset{Map}{映射}的逻辑贯穿。但是在国内，大部分教材一上来前两章就是讲\textoverset{Determinant}{行列式}的计算，教学内容逐渐搞僵化了。
 
 既然是服务于机器学习，许多内容\footnote{许多内容：线性方程组的求解、行列式、\textoverset{Change of Basis}{基变换}、\textoverset{Eigen Decomposition}{特征分解}、\textoverset{Quadratic Form}{二次型}。}我们一概砍掉，只留下最为基础的内容。第一种视角就是作为 $\mathbb{R}^n \to \mathbb{R}^m$ 的线性映射。使用矩阵的第一个重要目的就是把一个线性映射“打包”成一个符号，毕竟只有这样才能方便地书写、推导和计算。从工科的视角看来，一个“向量”无非是一个数组，而一个“线性映射”实际上就是吃进去一个数组，吐出来另一个数组的机器\footnote{此注释写给编程基础较好的同学：这里的机器指的就是编程中的\textoverset{Function}{函数}。}。矩阵作为一个二维数组，忠实地记录了这个机器的所有参数。它的运算规则是这样的：
 \[
@@ -752,7 +752,7 @@
     \end{tikzpicture}
 \end{figure}
 
-一般来说，我们的教材都是这么引入的，但是就像我刚才提到的一样，这种理解有着一股解构的色彩。如果没有解构后重新的\textoverset{Construction}{建构}\footnote{建构：哲学术语，通常指的是对一个结构或概念进行重建、整合。}，这种理解很容易让人迷失在行列式、特征值、特征向量等等复杂计算的汪洋大海中，从而忘记了矩阵的本质。那么这种解释有什么意义呢？我认为它的作用就在于 $a_{ij}$ 体现了第 $j$ 个输入对第 $i$ 个输出的权重。
+一般来说，我们的教材都是这么引入的，但是就像我刚才提到的一样，这种理解有着一股解构的色彩。如果没有解构后重新的\textoverset{Construction}{建构}\footnote{建构：哲学术语，通常指的是对一个结构或概念进行重建、整合。}，这种理解很容易让人迷失在行列式、\textoverset{Eigenvalue}{特征值}、\textoverset{Eigenvector}{特征向量}等等复杂计算的汪洋大海中，从而忘记了矩阵的本质。那么这种解释有什么意义呢？我认为它的作用就在于 $a_{ij}$ 体现了第 $j$ 个输入对第 $i$ 个输出的权重。
 
 让我们看看下面这个示意图：
 \begin{figure}[H]
