@@ -288,17 +288,269 @@
   })
 }
 
-// 显示所有绘图函数
-#empty_stack()
-#v(1em)
-#stack_size_1()
-#v(1em)
-#stack_size_2()
-#v(1em)
-#stack_pop()
-#v(1em)
-#function_call_stack()
-#v(1em)
-#function_return_stack()
-#v(1em)
-#memory_layout()
+// 图层蒙版应用效果示意图
+#let mask_and() = {
+  canvas(length: 1cm, {
+    import draw: *
+
+    // 将原图组移动到左侧
+    translate((-3, 0))
+    group({
+      // 阴影效果
+      rect((-1.95, -1.55), (2.05, 1.45), fill: rgb("#a855f7").lighten(60%), stroke: none)
+      // 图像区域
+      rect((-2, -1.5), (2, 1.5), fill: white, stroke: (paint: rgb("#a855f7"), thickness: 2pt))
+      // 图像内容
+      content((0, 0), image("../../../img/img_no_mask.png", width: 4cm), anchor: "center")
+      // 标签
+      content((0, -1.8), text(10pt)[原图], anchor: "center")
+    })
+    
+    // 重置变换
+    translate((3, 0))
+    
+    // 中心乘号
+    content((0, 0), text(14pt)[$times$], anchor: "center")
+    
+    // 右侧蒙版部分 (向右偏移3个单位)
+    translate((3, 0))
+    group({
+      // 阴影效果
+      rect((-1.95, -1.55), (2.05, 1.45), fill: rgb("#a855f7").lighten(60%), stroke: none)
+      // 图像区域
+      rect((-2, -1.5), (2, 1.5), fill: white, stroke: (paint: rgb("#a855f7"), thickness: 2pt))
+      // 蒙版内容
+      content((0, 0), image("../../../img/layer_mask.png", width: 4cm), anchor: "center")
+      // 标签
+      content((0, -1.8), text(10pt)[蒙版], anchor: "center")
+    })
+    
+    // 重置变换
+    translate((-3, 0))
+    
+    // 向下箭头
+    line((0, -2), (0, -3), stroke: (paint: black, thickness: 2pt), mark: (end: ">"))
+    
+    // 底部结果部分 (向下偏移5个单位)
+    translate((0, -5))
+    group({
+      // 阴影效果
+      rect((-1.95, -1.55), (2.05, 1.45), fill: rgb("#a855f7").lighten(60%), stroke: none)
+      // 图像区域
+      rect((-2, -1.5), (2, 1.5), fill: white, stroke: (paint: rgb("#a855f7"), thickness: 2pt))
+      // 结果内容
+      content((0, 0), image("../../../img/img_with_mask.png", width: 4cm), anchor: "center")
+      // 标签
+      content((0, -1.8), text(10pt)[蒙版应用], anchor: "center")
+    })
+  })
+}
+
+// 蒙版反转示意图
+#let mask_not() = {
+  canvas(length: 1cm, {
+    import draw: *
+    
+    // 左侧原蒙版
+    translate((-4, 0))
+    group({
+      // 阴影效果
+      rect((-1.95, -1.55), (2.05, 1.45), fill: rgb("#a855f7").lighten(60%), stroke: none)
+      // 图像区域
+      rect((-2, -1.5), (2, 1.5), fill: white, stroke: (paint: rgb("#a855f7"), thickness: 2pt))
+      // 蒙版内容
+      content((0, 0), image("../../../img/layer_mask.png", width: 4cm), anchor: "center")
+      // 标签
+      content((0, -1.8), text(10pt)[原蒙版], anchor: "center")
+    })
+    
+    // 重置变换并移到中心
+    translate((4, 0))
+    
+    // 中心箭头和Not标签
+    line((-1.3, 0), (1.3, 0), stroke: (paint: black, thickness: 2pt), mark: (end: ">"))
+    content((0, 0.3), text(10pt)[Not], anchor: "center")
+    
+    // 右侧反色蒙版
+    translate((4, 0))
+    group({
+      // 阴影效果
+      rect((-1.95, -1.55), (2.05, 1.45), fill: rgb("#a855f7").lighten(60%), stroke: none)
+      // 图像区域
+      rect((-2, -1.5), (2, 1.5), fill: white, stroke: (paint: rgb("#a855f7"), thickness: 2pt))
+      // 反色蒙版内容
+      content((0, 0), image("../../../img/layer_mask_rev.png", width: 4cm), anchor: "center")
+      // 标签
+      content((0, -1.8), text(10pt)[反色蒙版], anchor: "center")
+    })
+  })
+}
+
+// 蒙版逻辑运算示意图
+#let mask_operations() = {
+  canvas(length: 1cm, {
+    import draw: *
+    
+    // 外层容器背景（灰色阴影）
+    rect((-4.45, -2.35), (4.55, 1.85), fill: gray.lighten(60%), stroke: none)
+    rect((-4.5, -2.4), (4.5, 1.8), fill: white, stroke: (paint: gray, thickness: 2pt))
+    
+    // 顶部两个蒙版
+    // 左侧蒙版1
+    translate((-2.2, 0))
+    group({
+      // 阴影效果
+      rect((-1.95, -1.45), (2.05, 1.55), fill: rgb("#a855f7").lighten(60%), stroke: none)
+      // 图像区域
+      rect((-2, -1.5), (2, 1.5), fill: white, stroke: (paint: rgb("#a855f7"), thickness: 2pt))
+      // 蒙版内容
+      content((0, 0), image("../../../img/layer_mask.png", width: 4cm), anchor: "center")
+      // 标签
+      content((0, -1.8), text(10pt)[蒙版 1], anchor: "center")
+    })
+    
+    // 重置变换
+    translate((2.2, 0))
+    
+    // 右侧蒙版2
+    translate((2.2, 0))
+    group({
+      // 阴影效果
+      rect((-1.95, -1.45), (2.05, 1.55), fill: rgb("#a855f7").lighten(60%), stroke: none)
+      // 图像区域
+      rect((-2, -1.5), (2, 1.5), fill: white, stroke: (paint: rgb("#a855f7"), thickness: 2pt))
+      // 蒙版内容
+      content((0, 0), image("../../../img/layer_mask_2.png", width: 4cm), anchor: "center")
+      // 标签
+      content((0, -1.8), text(10pt)[蒙版 2], anchor: "center")
+    })
+    
+    // 重置变换
+    translate((-2.2, 0))
+    
+    // 三个箭头和标签
+    // And箭头（左）
+    line((-2, -2.7), (-3.5, -4.2), stroke: (paint: black, thickness: 2pt), mark: (end: ">"))
+    rect((-3.8, -3.6), (-3.2, -3.2), fill: white, stroke: none)
+    content((-3.5, -3.4), text(10pt)[And], anchor: "center")
+    
+    // Or箭头（中）
+    line((0, -2.7), (0, -4.2), stroke: (paint: black, thickness: 2pt), mark: (end: ">"))
+    rect((-0.3, -3.6), (0.3, -3.2), fill: white, stroke: none)
+    content((0, -3.4), text(10pt)[Or], anchor: "center")
+    
+    // Xor箭头（右）
+    line((2, -2.7), (3.5, -4.2), stroke: (paint: black, thickness: 2pt), mark: (end: ">"))
+    rect((3.2, -3.6), (3.8, -3.2), fill: white, stroke: none)
+    content((3.5, -3.4), text(10pt)[Xor], anchor: "center")
+    
+    // 底部三个结果图像
+    // And结果（左下）
+    translate((-5, -6))
+    group({
+      // 阴影效果
+      rect((-1.95, -1.45), (2.05, 1.55), fill: rgb("#a855f7").lighten(60%), stroke: none)
+      // 图像区域
+      rect((-2, -1.5), (2, 1.5), fill: white, stroke: (paint: rgb("#a855f7"), thickness: 2pt))
+      // And结果内容
+      content((0, 0), image("../../../img/layer_mask_and.png", width: 4cm), anchor: "center")
+      // 标签
+      content((0, -1.8), text(10pt)[And 结果], anchor: "center")
+    })
+    
+    // 重置变换
+    translate((5, 0))
+    
+    // Or结果（中下）
+    group({
+      // 阴影效果
+      rect((-1.95, -1.45), (2.05, 1.55), fill: rgb("#a855f7").lighten(60%), stroke: none)
+      // 图像区域
+      rect((-2, -1.5), (2, 1.5), fill: white, stroke: (paint: rgb("#a855f7"), thickness: 2pt))
+      // Or结果内容
+      content((0, 0), image("../../../img/layer_mask_or.png", width: 4cm), anchor: "center")
+      // 标签
+      content((0, -1.8), text(10pt)[Or 结果], anchor: "center")
+    })
+    
+    // 移到右下
+    translate((5, 0))
+    
+    // Xor结果（右下）
+    group({
+      // 阴影效果
+      rect((-1.95, -1.45), (2.05, 1.55), fill: rgb("#a855f7").lighten(60%), stroke: none)
+      // 图像区域
+      rect((-2, -1.5), (2, 1.5), fill: white, stroke: (paint: rgb("#a855f7"), thickness: 2pt))
+      // Xor结果内容
+      content((0, 0), image("../../../img/layer_mask_xor.png", width: 4cm), anchor: "center")
+      // 标签
+      content((0, -1.8), text(10pt)[Xor 结果], anchor: "center")
+    })
+  })
+}
+
+// 独热编码可视化表格
+#let onehot_encoding_visualization() = {
+  canvas(length: 0.8cm, {
+    import draw: *
+    
+    // 设置网格大小
+    let cols = 4
+    let rows = 10
+    let cell_size = 0.6
+    
+    // 绘制背景
+    rect((0, 0), (cols * cell_size, rows * cell_size), 
+         fill: gray.lighten(85%), stroke: none)
+    
+    // 定义独热编码数据 (对应标签序列: 3,0,2,0,2,3,0,2,0,1)
+    let onehot_data = (
+      (0, 0, 0, 1), // 标签3
+      (1, 0, 0, 0), // 标签0
+      (0, 0, 1, 0), // 标签2
+      (1, 0, 0, 0), // 标签0
+      (0, 0, 1, 0), // 标签2
+      (0, 0, 0, 1), // 标签3
+      (1, 0, 0, 0), // 标签0
+      (0, 0, 1, 0), // 标签2
+      (1, 0, 0, 0), // 标签0
+      (0, 1, 0, 0), // 标签1
+    )
+    
+    // 绘制红色单元格（值为1的位置）
+    for (row, data) in onehot_data.enumerate() {
+      for (col, value) in data.enumerate() {
+        if value == 1 {
+          rect((col * cell_size, (rows - 1 - row) * cell_size), 
+               ((col + 1) * cell_size, (rows - row) * cell_size),
+               fill: red.transparentize(50%), stroke: none)
+        }
+      }
+    }
+    
+    // 绘制网格线
+    for x in range(cols + 1) {
+      line((x * cell_size, 0), (x * cell_size, rows * cell_size), 
+           stroke: (paint: gray.lighten(30%), thickness: 0.5pt))
+    }
+    for y in range(rows + 1) {
+      line((0, y * cell_size), (cols * cell_size, y * cell_size), 
+           stroke: (paint: gray.lighten(30%), thickness: 0.5pt))
+    }
+    
+    // 添加列标题（类别编号）
+    content((2 * cell_size, rows * cell_size + 0.6), text(10pt)[类别编号], anchor: "center")
+    for col in range(cols) {
+      content(((col + 0.5) * cell_size, rows * cell_size + 0.2), 
+              text(9pt)[#str(col)], anchor: "center")
+    }
+    
+    // 添加底部省略号
+    content((2 * cell_size, -0.3), text(10pt)[......], anchor: "center")
+  })
+}
+
+
+#onehot_encoding_visualization()
+

@@ -102,20 +102,6 @@ $
 #link("https://www.zhihu.com/question/625846838/answer/3251736042", "有道是")
 “学而不思则欠拟合，思而不学则过拟合”。参数太少就会像那直线拟合曲线一样，必然导致拟合的精度不足。参数太多则会受到太多的噪声干扰，像是拿高次函数拟合低次函数一样因为一点噪声导致函数行为夸张，在预定义的数据集外两眼一抹黑。只有在一定程度上了解问题的本质，才能选出合适的拟合模型。
 
-\begin{tcolorbox}[myrecommendbox, title=推荐阅读, breakable=false]
-    \begin{itemize}
-        \item 如果你想看更多关于多项式拟合的实战，可以阅读：\\
-              \textit{多项式拟合的介绍与例子 - 姓甚名谁的文章 - 知乎}\\
-              \url{https://zhuanlan.zhihu.com/p/366870301}
-        \item 如果你曾经想过拿问卷调查来做拟合，可以看看：\\
-              \textit{理科生觉得哪些知识不知道是文科生的遗憾？ - 一只小猫咪的回答 - 知乎}\\
-              \url{https://www.zhihu.com/question/270455074/answer/2374983755}
-        \item 这个比喻很好，同一问题下的其它回答也很有趣：\\
-              \textit{人的大脑会不会出现“过拟合”病? - 莲梅莉usamimeri的回答 - 知乎}\\
-              \url{https://www.zhihu.com/question/625846838/answer/3250463511}
-    \end{itemize}
-\end{tcolorbox}
-
 #recommend("推荐阅读",
 [
   如果你想看更多关于多项式拟合的实战，可以阅读：\

@@ -6,3 +6,5 @@
 #pagebreak()
 #include("./subsections/section2_2.typ")
 #pagebreak()
+#include("./subsections/section2_3.typ")
+#pagebreak()
